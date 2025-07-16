@@ -1,0 +1,790 @@
+<%- include('../partials/admin/header') %>
+<main class="dashboard-content">
+  <style>
+    .product-form-container {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-radius: 12px;
+      padding: 35px;
+      box-shadow: 0 8px 25px rgba(74, 106, 77, 0.1);
+      border: 1px solid rgba(74, 106, 77, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-form-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #4a6a4d, #5a7a5d, #4a6a4d);
+    }
+
+    .content-title {
+      color: #2c3e2f;
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 25px;
+      text-align: center;
+      position: relative;
+    }
+
+    .content-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #4a6a4d, #5a7a5d);
+      border-radius: 2px;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #2c3e2f;
+      margin-bottom: 8px;
+      display: block;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+
+    .form-control, .form-select {
+      border: 2px solid #e8ecef;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #ffffff;
+      color: #2c3e2f;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #4a6a4d;
+      box-shadow: 0 0 0 3px rgba(74, 106, 77, 0.1);
+      outline: none;
+      background: #fafbfa;
+    }
+
+    .form-control:hover, .form-select:hover {
+      border-color: #6a8a6d;
+    }
+
+    .stock-input {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stock-input .form-control {
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .stock-input .col-md-3 {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stock-input .form-label {
+      font-size: 12px;
+      color: #4a6a4d;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4a6a4d 0%, #5a7a5d 100%);
+      border: none;
+      padding: 15px 25px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      border-radius: 8px;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(74, 106, 77, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #3a5a3d 0%, #4a6a4d 100%);
+      box-shadow: 0 6px 20px rgba(74, 106, 77, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 10px rgba(74, 106, 77, 0.3);
+    }
+
+    .image-preview {
+      margin-top: 15px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .image-preview img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #e8ecef;
+      transition: all 0.3s ease;
+    }
+
+    .image-preview img:hover {
+      border-color: #4a6a4d;
+      transform: scale(1.05);
+    }
+
+    .crop-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .crop-container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 600px;
+      max-height: 80vh;
+      width: 90%;
+      overflow: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .cropper-container {
+      max-width: 600px;
+      max-height: 600px;
+    }
+
+    .crop-buttons {
+      margin-top: 20px;
+      text-align: right;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .crop-buttons .btn {
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+      border: none;
+      color: white;
+      box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+      box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .alert-danger {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      border: 1px solid #f1aeb5;
+      color: #721c24;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(241, 174, 181, 0.3);
+    }
+
+    .alert-danger .btn-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #721c24;
+      transition: all 0.3s ease;
+    }
+
+    .alert-danger .btn-close:hover {
+      color: #491015;
+      transform: scale(1.1);
+    }
+
+    .text-danger {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+      font-weight: 500;
+      padding: 8px 12px;
+      background: rgba(220, 53, 69, 0.1);
+      border-radius: 4px;
+      border-left: 3px solid #dc3545;
+    }
+
+    .form-text {
+      color: #6c757d;
+      font-size: 12px;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .mb-3 {
+      margin-bottom: 25px;
+    }
+
+    .row {
+      margin-left: -10px;
+      margin-right: -10px;
+    }
+
+    .col-md-3, .col-md-4, .col-md-6 {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    /* Enhanced responsive design */
+    @media (max-width: 768px) {
+      .product-form-container {
+        padding: 25px 20px;
+        margin: 10px;
+      }
+
+      .content-title {
+        font-size: 24px;
+      }
+
+      .row {
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      .col-md-6, .col-md-4, .col-md-3 {
+        width: 100%;
+        margin-bottom: 20px;
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .stock-input {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .stock-input .form-control {
+        width: 100%;
+        text-align: left;
+      }
+
+      .btn-primary {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+
+      .image-preview img {
+        width: 80px;
+        height: 80px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .product-form-container {
+        padding: 20px 15px;
+      }
+
+      .content-title {
+        font-size: 20px;
+      }
+
+      .form-control, .form-select {
+        font-size: 13px;
+        padding: 10px 12px;
+      }
+
+      .btn-primary {
+        font-size: 13px;
+        padding: 12px 20px;
+      }
+
+      .crop-container {
+        padding: 20px;
+      }
+    }
+
+    /* Animation for form sections */
+    .mb-3 {
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Enhanced focus states */
+    .form-control:focus + .form-label,
+    .form-select:focus + .form-label {
+      color: #4a6a4d;
+    }
+
+    /* Better spacing for variant inputs */
+    .stock-input .col-md-3:not(:last-child) {
+      border-right: 1px solid #e8ecef;
+      padding-right: 20px;
+    }
+
+    /* Loading state for submit button */
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  </style>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="product-form-container">
+          <h2 class="content-title">Add New Perfume</h2>
+          
+          <form id="productForm" action="/admin/product-add" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="productName" class="form-label">Perfume Name</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="productName" 
+                       name="productName"
+                       placeholder="Enter perfume name">
+                <div id="productName-error" class="error-message"></div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="fragranceType" class="form-label">Fragrance Type</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="fragranceType" 
+                       name="fragranceType"
+                       placeholder="Enter fragrance type (e.g., Floral, Woody)">
+                <div id="fragranceType-error" class="error-message"></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="brand" class="form-label">Brand</label>
+                <select class="form-select" id="brand" name="brand">
+                  <option value="">Select Brand</option>
+                  <% brands.forEach(brand => { %>
+                    <option value="<%= brand._id %>"><%= brand.name %></option>
+                  <% }) %>
+                </select>
+                <div id="brand-error" class="error-message"></div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select class="form-select" id="category" name="category">
+                  <option value="">Select Category</option>
+                  <% categories.forEach(category => { %>
+                    <option value="<%= category._id %>"><%= category.name %></option>
+                  <% }) %>
+                </select>
+                <div id="category-error" class="error-message"></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Variants (Price and Stock by Bottle Size)</label>
+                <div class="row stock-input">
+                  <div class="col-md-3">
+                    <label class="form-label">50ml Price (₹)</label>
+                    <input type="number" 
+                           class="form-control" 
+                           name="variants[0][originalPrice]" 
+                           id="price_50ml"
+                           min="0"
+                           step="0.01"
+                           placeholder="Price">
+                    <input type="hidden" name="variants[0][size]" value="50ml">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">50ml Stock</label>
+                    <input type="number" 
+                           class="form-control stock-input-ml" 
+                           name="variants[0][stock]" 
+                           id="stock_50ml"
+                           min="0"
+                           data-size="50ml"
+                           value="0">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">100ml Price (₹)</label>
+                    <input type="number" 
+                           class="form-control" 
+                           name="variants[1][originalPrice]" 
+                           id="price_100ml"
+                           min="0"
+                           step="0.01"
+                           placeholder="Price">
+                    <input type="hidden" name="variants[1][size]" value="100ml">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">100ml Stock</label>
+                    <input type="number" 
+                           class="form-control stock-input-ml" 
+                           name="variants[1][stock]" 
+                           id="stock_100ml"
+                           min="0"
+                           data-size="100ml"
+                           value="0">
+                  </div>
+                </div>
+                <div class="row stock-input">
+                  <div class="col-md-3">
+                    <label class="form-label">150ml Price (₹)</label>
+                    <input type="number" 
+                           class="form-control" 
+                           name="variants[2][originalPrice]" 
+                           id="price_150ml"
+                           min="0"
+                           step="0.01"
+                           placeholder="Price">
+                    <input type="hidden" name="variants[2][size]" value="150ml">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">150ml Stock</label>
+                    <input type="number" 
+                           class="form-control stock-input-ml" 
+                           name="variants[2][stock]" 
+                           id="stock_150ml"
+                           min="0"
+                           data-size="150ml"
+                           value="0">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">200ml Price (₹)</label>
+                    <input type="number" 
+                           class="form-control" 
+                           name="variants[3][originalPrice]" 
+                           id="price_200ml"
+                           min="0"
+                           step="0.01"
+                           placeholder="Price">
+                    <input type="hidden" name="variants[3][size]" value="200ml">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">200ml Stock</label>
+                    <input type="number" 
+                           class="form-control stock-input-ml" 
+                           name="variants[3][stock]" 
+                           id="stock_200ml"
+                           min="0"
+                           data-size="200ml"
+                           value="0">
+                  </div>
+                </div>
+                <input type="hidden" id="totalQuantity" name="totalQuantity" value="0">
+                <small class="form-text text-muted">Total Stock: <span id="totalQuantityDisplay">0</span></small>
+                <div id="variants-error" class="error-message"></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" 
+                          id="description" 
+                          name="description" 
+                          rows="4"
+                          placeholder="Enter perfume description"></textarea>
+                <div id="description-error" class="error-message"></div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Product Images (1:1 Ratio, 600x600px)</label>
+              <div class="row">
+                <div class="col-md-4">
+                  <label for="image1" class="form-label">Select Image 1</label>
+                  <input type="file" 
+                         class="form-control image-input" 
+                         id="image1" 
+                         name="image1" 
+                         accept="image/jpeg,image/png,image/webp">
+                  <div id="imagePreview1" class="image-preview"></div>
+                </div>
+                <div class="col-md-4">
+                  <label for="image2" class="form-label">Select Image 2</label>
+                  <input type="file" 
+                         class="form-control image-input" 
+                         id="image2" 
+                         name="image2" 
+                         accept="image/jpeg,image/png,image/webp">
+                  <div id="imagePreview2" class="image-preview"></div>
+                </div>
+                <div class="col-md-4">
+                  <label for="image3" class="form-label">Select Image 3</label>
+                  <input type="file" 
+                         class="form-control image-input" 
+                         id="image3" 
+                         name="image3" 
+                         accept="image/jpeg,image/png,image/webp">
+                  <div id="imagePreview3" class="image-preview"></div>
+                </div>
+              </div>
+              <div id="images-error" class="error-message"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Perfume</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cropModal" class="crop-modal">
+    <div class="crop-container">
+      <img id="cropImage" src="">
+      <div class="crop-buttons">
+        <button id="cropCancel" class="btn btn-secondary">Cancel</button>
+        <button id="cropSave" class="btn btn-primary">Crop & Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"/>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const stockInputs = document.querySelectorAll('.stock-input-ml');
+      const totalQuantityInput = document.getElementById('totalQuantity');
+      const totalQuantityDisplay = document.getElementById('totalQuantityDisplay');
+      const productForm = document.getElementById('productForm');
+      const imageInputs = document.querySelectorAll('input[type="file"][name^="image"]');
+  
+      stockInputs.forEach(input => {
+        input.addEventListener('input', calculateTotalQuantity);
+      });
+  
+      function calculateTotalQuantity() {
+        let total = 0;
+        stockInputs.forEach(input => {
+          total += parseInt(input.value) || 0;
+        });
+        totalQuantityInput.value = total;
+        totalQuantityDisplay.textContent = total;
+      }
+      calculateTotalQuantity();
+  
+      const cropModal = document.getElementById('cropModal');
+      const cropImage = document.getElementById('cropImage');
+      const cropCancel = document.getElementById('cropCancel');
+      const cropSave = document.getElementById('cropSave');
+      let currentInput;
+      let cropper;
+  
+      imageInputs.forEach(input => {
+        input.addEventListener('change', function(event) {
+          const file = event.target.files[0];
+          if (file && file.type.match('image.*')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              cropImage.src = e.target.result;
+              cropModal.style.display = 'flex';
+              currentInput = input;
+              if (cropper) cropper.destroy();
+              cropper = new Cropper(cropImage, {
+                aspectRatio: 1 / 1,
+                viewMode: 1,
+                autoCropArea: 1,
+                background: false,
+                zoomable: true,
+                scalable: true,
+                movable: true,
+              });
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      });
+  
+      cropCancel.addEventListener('click', function() {
+        cropModal.style.display = 'none';
+        if (cropper) cropper.destroy();
+        currentInput.value = '';
+        delete currentInput.dataset.cropped;
+        const preview = document.getElementById(`imagePreview${currentInput.name.slice(-1)}`);
+        preview.innerHTML = '';
+      });
+  
+      cropSave.addEventListener('click', function() {
+        if (cropper) {
+          const canvas = cropper.getCroppedCanvas({
+            width: 600,
+            height: 600
+          });
+          const dataURL = canvas.toDataURL('image/jpeg');
+          currentInput.dataset.cropped = dataURL;
+          const preview = document.getElementById(`imagePreview${currentInput.name.slice(-1)}`);
+          preview.innerHTML = `<img src="${dataURL}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">`;
+          cropModal.style.display = 'none';
+          cropper.destroy();
+        }
+      });
+  
+      productForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        if (!validateForm()) {
+          return;
+        }
+        
+        // Disable submit button to prevent double submission
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding Perfume...';
+        
+        imageInputs.forEach(input => {
+          if (input.dataset.cropped) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = `cropped_${input.name}`;
+            hiddenInput.value = input.dataset.cropped;
+            this.appendChild(hiddenInput);
+            input.removeAttribute('name');
+          }
+        });
+        this.submit();
+      });
+  
+      function validateForm() {
+        clearErrorMessages();
+        let isValid = true;
+  
+        const productName = document.getElementById('productName').value.trim();
+        if (!productName) {
+          displayErrorMessage('productName-error', 'Perfume name is required');
+          isValid = false;
+        }
+  
+        const brand = document.getElementById('brand').value.trim();
+        if (!brand) {
+          displayErrorMessage('brand-error', 'Please select a brand');
+          isValid = false;
+        }
+  
+        const category = document.getElementById('category').value.trim();
+        if (!category) {
+          displayErrorMessage('category-error', 'Please select a category');
+          isValid = false;
+        }
+  
+        const description = document.getElementById('description').value.trim();
+        if (!description) {
+          displayErrorMessage('description-error', 'Description is required');
+          isValid = false;
+        }
+  
+        const variants = [
+          { size: '50ml', originalPrice: document.getElementById('price_50ml').value, stock: document.getElementById('stock_50ml').value },
+          { size: '100ml', originalPrice: document.getElementById('price_100ml').value, stock: document.getElementById('stock_100ml').value },
+          { size: '150ml', originalPrice: document.getElementById('price_150ml').value, stock: document.getElementById('stock_150ml').value },
+          { size: '200ml', originalPrice: document.getElementById('price_200ml').value, stock: document.getElementById('stock_200ml').value }
+        ];
+        let hasValidVariant = false;
+        variants.forEach(variant => {
+          const price = parseFloat(variant.originalPrice) || 0;
+          const stock = parseInt(variant.stock) || 0;
+          if (stock > 0 && price <= 0) {
+            displayErrorMessage('variants-error', `Price for ${variant.size} must be greater than 0 when stock is provided`);
+            isValid = false;
+          }
+          if (price > 0 && stock <= 0) {
+            displayErrorMessage('variants-error', `Stock for ${variant.size} must be greater than 0 when price is provided`);
+            isValid = false;
+          }
+          if (stock > 0 && price > 0) {
+            hasValidVariant = true;
+          }
+        });
+        if (!hasValidVariant) {
+          displayErrorMessage('variants-error', 'At least one variant must have stock and price greater than 0');
+          isValid = false;
+        }
+  
+        const imageInputs = document.querySelectorAll('.image-input');
+        let hasAllImages = true;
+        imageInputs.forEach(input => {
+          if (!input.value && !input.dataset.cropped) {
+            hasAllImages = false;
+          }
+        });
+        if (!hasAllImages) {
+          displayErrorMessage('images-error', 'Please upload all three product images');
+          isValid = false;
+        }
+  
+        return isValid;
+      }
+  
+      function displayErrorMessage(id, message) {
+        const errorElement = document.getElementById(id);
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+      }
+  
+      function clearErrorMessages() {
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(element => {
+          element.textContent = '';
+          element.style.display = 'none';
+        });
+      }
+    });
+  </script>
+</main>

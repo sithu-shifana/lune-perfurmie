@@ -1,0 +1,350 @@
+<%- include('../partials/user/header') %>
+<div class="content-placeholder">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Form Side -->
+            <div class="col-md-6">
+                <div class="form-container">
+                    <h1 class="mb-4">Sign Up</h1>
+                    <form id="userForm">
+                        <p id="topError" class="error-top"></p>
+                
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name:</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter name" />
+                            <p id="nameError" class="field-error"></p>
+                        </div>
+                
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" />
+                            <p id="emailError" class="field-error"></p>
+                        </div>
+
+                        <div class="mb-3 position-relative">
+                            <label for="password" class="form-label">Password:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" />
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash" id="togglePassword"></i>
+                                </span>
+                            </div>
+                            <p id="passwordError" class="field-error"></p>
+                        </div>
+
+                        <div class="mb-3 position-relative">
+                            <label for="Cpassword" class="form-label">Confirm Password:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="Cpassword" name="Cpassword" placeholder="Enter confirm password" />
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash" id="CtogglePassword"></i>
+                                </span>
+                            </div>
+                            <p id="CpasswordError" class="field-error"></p>
+                        </div>
+
+                        <!-- Referral Code Field -->
+                        <div class="mb-3" style="display:none ;">
+                            <label for="referralCode" class="form-label">Referral Code (optional):</label>
+                            <input type="text" class="form-control" id="referralCode" name="referralCode" placeholder="Enter referral code" value="<%= referralCode %>" />
+                            <p id="referralCodeError" class="field-error"></p>
+                        </div>
+
+                       <% if (isValidReferral) { %>
+                      <div class="alert alert-success mt-1">
+                       Using referral code <strong><%= referralCode %></strong>, you get ₹50 Bonus!
+                      </div>
+                    <% } else if (referralCode) { %>
+                     <div class="alert alert-danger mt-2">
+                      Invalid referral code: <strong><%= referralCode %></strong>
+                     </div>
+                    <% } %>
+
+
+
+                        
+                        <button type="submit" class="my-signup-btn mt-3">Submit</button>
+                
+                        <div class="mt-4 d-flex align-items-center">
+                            <p class="mb-0 me-2">Already have an account?</p>
+                            <a href="/login" onclick="window.location='/login'; return false;">Login</a>
+                        </div>
+                        <div class="mt-3">
+                            <a href="/auth/google" class="btn w-100 d-flex align-items-center justify-content-center" 
+                               style="padding: 10px 20px; background: white; border: 1px solid #ddd; text-decoration: none; color: #444; border-radius: 5px;">
+                                <img src="https://developers.google.com/identity/images/g-logo.png" width="20" style="margin-right: 10px;" />
+                                Continue with Google
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Image Side -->
+            <div class="col-md-6 image-side d-none d-md-block">
+                <!-- Image will be displayed via CSS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        background-color: var(--white);
+        color: var(--dark-grey);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    :root {
+        /* Color palette from the perfume bottles image */
+        --dark-brown: #473d47;
+        --pink: #53412e;
+        --lavender: #5b4e43;
+        --champagne: #DCCCB2;
+        --amber: #D4A76A;
+        --dark-grey: #2A2A2A;
+        --medium-grey: #666666;
+        --light-grey: #fdf9f5;
+        --white: #fcfcfb;
+    }
+
+    .content-placeholder {
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 80px;
+        box-sizing: border-box;
+    }
+
+    .container-fluid, .row {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .row {
+        display: flex;
+    }
+
+    .form-container {
+        background-color: var(--white);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 20%;
+        padding-top: 30px;
+    }
+
+    h1 {
+        color: var(--dark-brown);
+        font-weight: 600;
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        color: var(--dark-brown);
+        font-weight: 500;
+    }
+
+    .form-control {
+        border: 1px solid var(--champagne);
+        padding: 10px 12px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--pink);
+        box-shadow: 0 0 0 0.2rem rgba(229, 167, 183, 0.25);
+    }
+
+    .input-group-text {
+        background-color: var(--champagne);
+        border: 1px solid var(--champagne);
+        cursor: pointer;
+    }
+
+    .my-signup-btn {
+        background-color: var(--lavender);
+        border: none;
+        padding: 10px 20px;
+        font-weight: 600;
+        width: 100%;
+        border-radius: 5px;
+        color: white;
+    }
+
+    .my-signup-btn:hover {
+        background-color: var(--dark-brown);
+    }
+
+    a {
+        color: var(--pink);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    a:hover {
+        color: var(--dark-brown);
+        text-decoration: underline;
+    }
+
+    .error-top {
+        color: #dc3545;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .field-error {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    @media (min-width: 768px) {
+        body {
+            overflow-x: hidden;
+        }
+
+        .col-md-6 {
+            height: 100%;
+            padding: 0;
+        }
+        
+        .form-container {
+            padding: 20%;
+            padding-top: 30px;
+            width: 100%;
+            max-width: none;
+        }
+        
+        .image-side {
+            background-image: url('/images/pg2.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100%;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .form-container {
+            padding: 20px;
+        }
+    }
+</style>
+
+<script>
+    const password = document.getElementById('password');
+    const toggle = document.getElementById("togglePassword");
+
+    toggle.addEventListener('click', () => {
+        const type = password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+        toggle.classList.toggle("fa-eye");
+        toggle.classList.toggle("fa-eye-slash");
+    });
+
+    const Cpassword = document.getElementById('Cpassword');
+    const Ctoggle = document.getElementById("CtogglePassword");
+
+    Ctoggle.addEventListener('click', () => {
+        const type = Cpassword.getAttribute("type") === "password" ? "text" : "password";
+        Cpassword.setAttribute("type", type);
+        Ctoggle.classList.toggle("fa-eye");
+        Ctoggle.classList.toggle("fa-eye-slash");
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("userForm");
+        const nameField = document.getElementById("name");
+        const emailField = document.getElementById("email");
+        const passwordField = document.getElementById("password");
+        const CpasswordField = document.getElementById("Cpassword");
+        const referralCodeField = document.getElementById("referralCode");
+
+        const topError = document.getElementById("topError");
+        const nameError = document.getElementById("nameError");
+        const emailError = document.getElementById("emailError");
+        const passwordError = document.getElementById("passwordError");
+        const CpasswordError = document.getElementById("CpasswordError");
+        const referralCodeError = document.getElementById("referralCodeError");
+
+        // Clear errors on typing
+        form.addEventListener("input", () => {
+            topError.textContent = "";
+            nameError.textContent = "";
+            emailError.textContent = "";
+            passwordError.textContent = "";
+            CpasswordError.textContent = "";
+            referralCodeError.textContent = "";
+        });
+
+        // Submit form
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            topError.textContent = "";
+            nameError.textContent = "";
+            emailError.textContent = "";
+            passwordError.textContent = "";
+            CpasswordError.textContent = "";
+            referralCodeError.textContent = "";
+
+            const name = nameField.value.trim();
+            const email = emailField.value.trim();
+            const password = passwordField.value.trim();
+            const Cpassword = CpasswordField.value.trim();
+            const referralCode = referralCodeField.value.trim();
+
+            try {
+                const res = await fetch("/api/signin", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password, Cpassword, referralCode })
+                });
+
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Invalid server response");
+                }
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('otpCreatedAt', data.otpCreatedAt);
+                    window.location.href = data.redirect;
+                } else {
+                    if (data.errorType === "top") {
+                        topError.textContent = data.error || "Unknown error";
+                    } else if (data.errorType === "name") {
+                        nameError.textContent = data.error || "Invalid name";
+                    } else if (data.errorType === "email") {
+                        emailError.textContent = data.error || "Invalid email";
+                    } else if (data.errorType === "password") {
+                        passwordError.textContent = data.error || "Invalid password";
+                    } else if (data.errorType === "Cpassword") {
+                        CpasswordError.textContent = data.error || "Invalid Confirm Password";
+                    } else if (data.errorType === "referralCode") {
+                        referralCodeError.textContent = data.error || "Invalid referral code";
+                    } else {
+                        topError.textContent = data.error || "Unexpected error";
+                    }
+                }
+            } catch (err) {
+                topError.textContent = "Submission failed: " + err.message;
+                console.error(err);
+            }
+        });
+    });
+</script>
+<%- include('../partials/user/footer') %>

@@ -1,0 +1,632 @@
+<%- include('../partials/user/header') %>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+  .wishlist-container {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .wishlist-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1rem;
+    position: relative;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .wishlist-item:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .wishlist-item img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .remove-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .remove-icon:hover {
+    background: #495057;
+    transform: scale(1.1);
+  }
+
+  .wishlist-item h3 {
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+    color: #2c2c2c;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .wishlist-item h3 a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .wishlist-item h3 a:hover {
+    color: #495057;
+  }
+
+  .price-section {
+    margin: 0.5rem 0;
+  }
+
+  .original-price {
+    text-decoration: line-through;
+    margin-right: 0.5rem;
+    color: #adb5bd;
+  }
+
+  .offer-price, .regular-price {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c2c2c;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .discount-badge {
+    color: #28a745;
+    font-weight: 500;
+    background: #d4edda;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  .variant-select {
+    width: 100%;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: #fff;
+    color: #495057;
+  }
+
+  .variant-select:focus {
+    border-color: #6c757d;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.1);
+  }
+
+  .variant-select option:disabled {
+    color: #6c757d;
+    background-color: #f8f9fa;
+  }
+
+  .cart-icon {
+    background: #495057;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-icon:hover {
+    background: #343a40;
+    transform: scale(1.05);
+  }
+
+  .cart-icon:disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.5;
+  }
+
+  .stock-status {
+    font-size: 0.85rem;
+    color: #dc3545;
+    margin-top: 0.5rem;
+    padding: 4px 8px;
+    background: #f8d7da;
+    border-radius: 4px;
+    display: inline-block;
+    border: 1px solid #f5c6cb;
+  }
+
+  .empty-wishlist {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+  }
+
+  .empty-wishlist i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #adb5bd;
+  }
+
+  .empty-wishlist .btn {
+    background: #495057;
+    border: none;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+  }
+
+  .empty-wishlist .btn:hover {
+    background: #343a40;
+  }
+
+  .content-placeholder h2 {
+    font-size: 1.8rem;
+    text-align: center;
+    margin: 2rem 0;
+    color: #2c2c2c;
+    font-weight: 600;
+  }
+
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f8f9fa;
+    border-top: 4px solid #6c757d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .success-message, .error-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    z-index: 10000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .success-message {
+    background: #495057;
+  }
+
+  .error-message {
+    background: #6c757d;
+  }
+
+  .success-message.show, .error-message.show {
+    transform: translateX(0);
+  }
+
+  /* Small devices (phones) - 2 columns */
+  @media (max-width: 675px) {
+    .wishlist-container {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      padding: 0.75rem;
+    }
+    .wishlist-item img { height: 140px; }
+    .wishlist-item h3 { font-size: 0.9rem; }
+    .offer-price, .regular-price { font-size: 1rem; }
+    .cart-icon { width: 36px; height: 36px; }
+    .remove-icon { width: 28px; height: 28px; }
+  }
+
+  /* Medium devices (tablets) - 3 columns */
+  @media (min-width: 676px) and (max-width: 991px) {
+    .wishlist-container {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .wishlist-item img { height: 160px; }
+  }
+
+  /* Large devices (desktops) - 5 columns */
+  @media (min-width: 992px) {
+    .wishlist-container {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
+      padding: 1.25rem;
+    }
+    .wishlist-item img { height: 180px; }
+  }
+</style>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+</div>
+
+<div class="content-placeholder container-fluid my-4">
+  <h2>Your Wishlist (<span id="wishlistCount"><%= wishlist.items.length %></span> items)</h2>
+  <% if (wishlist.items.length === 0) { %>
+    <div class="empty-wishlist" id="emptyWishlist">
+      <i class="bi bi-heart"></i>
+      <p>No items in your wishlist yet.</p>
+      <a href="/products" class="btn">Browse Products</a>
+    </div>
+  <% } else { %>
+    <div class="wishlist-container" id="wishlistContainer">
+      <% wishlist.items.forEach(item => { %>
+        <div class="wishlist-item" data-product-id="<%= item.product._id %>">
+          <!-- Remove Icon -->
+          <button class="remove-icon" data-product-id="<%= item.product._id %>" aria-label="Remove from wishlist">
+            <i class="bi bi-x-lg"></i>
+          </button>
+
+          <!-- Product Image -->
+          <a href="/product/<%= item.product._id %>">
+            <img src="<%= item.product.images[0]?.url || '/default-image.jpg' %>" alt="<%= item.product.productName %>" loading="lazy">
+          </a>
+
+          <!-- Product Name -->
+          <h3>
+            <a href="/product/<%= item.product._id %>"><%= item.product.productName %></a>
+          </h3>
+
+          <% if (item.product.variants && item.product.variants.length > 0) { %>
+            <% const variant = item.product.variants[0]; %>
+            <% if (variant.hasOffer) { %>
+              <div class="price-section">
+                <span class="original-price">₹<%= variant.originalPrice.toFixed(2) %></span>
+                <span class="offer-price">₹<%= variant.offerPrice.toFixed(2) %></span>
+                <span class="discount-badge">
+                  <% if (variant.discountType === 'percentage') { %>
+                    <%= Math.round(variant.discountValue) %>% OFF
+                  <% } else { %>
+                    ₹<%= variant.discountValue.toFixed(2) %> OFF
+                  <% } %>
+                </span>
+              </div>
+            <% } else { %>
+              <div class="price-section">
+                <span class="regular-price">₹<%= variant.originalPrice.toFixed(2) %></span>
+              </div>
+            <% } %>
+
+            <!-- Variant Selection -->
+            <% if (item.product.variants.length > 1) { %>
+              <select name="variant" class="variant-select" data-product-id="<%= item.product._id %>">
+                <% item.product.variants.forEach((variant, index) => { %>
+                  <option value="<%= index %>" 
+                          data-original-price="<%= variant.originalPrice %>"
+                          data-offer-price="<%= variant.offerPrice || variant.originalPrice %>"
+                          data-stock="<%= variant.stock %>"
+                          data-discount-type="<%= variant.discountType || '' %>"
+                          data-discount-value="<%= variant.discountValue || 0 %>"
+                          <%= index === 0 ? 'selected' : '' %>
+                          <%= variant.stock === 0 ? 'disabled' : '' %>>
+                    <%= variant.size %> - ₹<%= (variant.offerPrice || variant.originalPrice).toFixed(2) %>
+                  </option>
+                <% }) %>
+              </select>
+            <% } %>
+            
+            <!-- Hidden data for JavaScript -->
+            <script type="application/json" class="variants-data">
+              <%- JSON.stringify(item.product.variants) %>
+            </script>
+          <% } %>
+
+          <!-- Cart Button -->
+          <% 
+            const selectedVariant = item.product.variants[0] || {};
+            const allOutOfStock = item.product.variants.every(v => v.stock === 0);
+          %>
+          <button type="button" class="cart-icon add-to-cart-btn" 
+                  data-product-id="<%= item.product._id %>" 
+                  data-variant-size="<%= selectedVariant.size || '' %>"
+                  aria-label="Add to cart"
+                  <%= allOutOfStock || selectedVariant.stock === 0 ? 'disabled' : '' %>>
+            <i class="bi bi-cart-plus"></i>
+          </button>
+
+          <!-- Stock Status -->
+          <% if (allOutOfStock) { %>
+            <div class="stock-status">Out of Stock</div>
+          <% } else if (selectedVariant.stock === 0) { %>
+            <div class="stock-status">Selected variant out of stock</div>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  // Utility functions
+function showLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+function showMessage(message, isSuccess = true) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = isSuccess ? 'success-message' : 'error-message';
+  messageDiv.textContent = message;
+  document.body.appendChild(messageDiv);
+  
+  setTimeout(() => messageDiv.classList.add('show'), 100);
+  
+  setTimeout(() => {
+    messageDiv.classList.remove('show');
+    setTimeout(() => document.body.removeChild(messageDiv), 300);
+  }, 2000);
+}
+
+function updateWishlistCount() {
+  const wishlistContainer = document.getElementById('wishlistContainer');
+  if (!wishlistContainer) return;
+
+  const count = wishlistContainer.querySelectorAll('.wishlist-item').length;
+  const countElement = document.getElementById('wishlistCount');
+  if (countElement) countElement.textContent = count;
+  
+  if (count === 0) {
+    wishlistContainer.innerHTML = `
+      <div class="empty-wishlist">
+        <i class="bi bi-heart"></i>
+        <p>No items in your wishlist yet.</p>
+        <a href="/products" class="btn">Browse Products</a>
+      </div>`;
+  }
+}
+
+function updatePriceDisplay(wishlistItem, variantIndex, variantsData) {
+  const variant = variantsData[variantIndex];
+  const priceSection = wishlistItem.querySelector('.price-section');
+  
+  if (variant.hasOffer) {
+    priceSection.innerHTML = `
+      <span class="original-price">₹${variant.originalPrice.toFixed(2)}</span>
+      <span class="offer-price">₹${variant.offerPrice.toFixed(2)}</span>
+      <span class="discount-badge">
+        ${variant.discountType === 'percentage' ? 
+          `${Math.round(variant.discountValue)}% OFF` : 
+          `₹${variant.discountValue.toFixed(2)} OFF`}
+      </span>
+    `;
+  } else {
+    priceSection.innerHTML = `
+      <span class="regular-price">₹${variant.originalPrice.toFixed(2)}</span>
+    `;
+  }
+}
+
+function updateCartButton(wishlistItem, variant) {
+  const cartButton = wishlistItem.querySelector('.add-to-cart-btn');
+  let stockStatus = wishlistItem.querySelector('.stock-status');
+  
+  // Reset button to normal state first
+  cartButton.innerHTML = '<i class="bi bi-cart-plus"></i>';
+  cartButton.style.background = '#495057';
+  cartButton.dataset.variantSize = variant.size;
+  
+  if (variant.stock === 0) {
+    cartButton.disabled = true;
+    cartButton.style.opacity = '0.5';
+    cartButton.style.cursor = 'not-allowed';
+    
+    if (!stockStatus) {
+      stockStatus = document.createElement('div');
+      stockStatus.className = 'stock-status';
+      wishlistItem.appendChild(stockStatus);
+    }
+    stockStatus.textContent = 'Selected variant out of stock';
+    stockStatus.style.display = 'inline-block';
+  } else {
+    cartButton.disabled = false;
+    cartButton.style.opacity = '1';
+    cartButton.style.cursor = 'pointer';
+    
+    if (stockStatus && stockStatus.textContent.includes('Selected variant')) {
+      stockStatus.style.display = 'none';
+    }
+  }
+}
+
+// Remove from wishlist
+document.addEventListener('click', async function(e) {
+  if (e.target.closest('.remove-icon')) {
+    e.preventDefault();
+    const button = e.target.closest('.remove-icon');
+    const productId = button.dataset.productId;
+    const wishlistItem = button.closest('.wishlist-item');
+
+    if (!productId || !wishlistItem) return;
+
+    try {
+      showLoading();
+      
+      const response = await fetch(`/wishlist-remove/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success && !result.isInWishlist) {
+        wishlistItem.style.transform = 'scale(0.8)';
+        wishlistItem.style.opacity = '0';
+        
+        setTimeout(() => {
+          wishlistItem.remove();
+          updateWishlistCount();
+          showMessage('Item removed from wishlist');
+        }, 300);
+      } else {
+        showMessage(result.message || 'Failed to remove item from wishlist', false);
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+      showMessage('An error occurred while removing the item', false);
+    } finally {
+      hideLoading();
+    }
+  }
+});
+
+// Add to cart - Updated version with dynamic wishlist removal
+document.addEventListener('click', async function(e) {
+  if (e.target.closest('.add-to-cart-btn')) {
+    e.preventDefault();
+    const button = e.target.closest('.add-to-cart-btn');
+    const productId = button.dataset.productId;
+    const variantSize = button.dataset.variantSize;
+    const wishlistItem = button.closest('.wishlist-item');
+    
+    if (!productId || !wishlistItem || !variantSize) return;
+
+    if (button.disabled) {
+      showMessage('This variant is out of stock', false);
+      return;
+    }
+
+    try {
+      showLoading();
+      const originalDisabled = button.disabled;
+      button.disabled = true;
+      
+      const response = await fetch(`/cart/add/${productId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          variant: variantSize,
+          quantity: 1
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        button.innerHTML = '<i class="bi bi-check"></i>';
+        button.style.background = '#28a745';
+        showMessage('Item added to cart successfully');
+
+        // Check if item was removed from wishlist
+        if (result.removedFromWishlist) {
+          // Add a slight delay to show the success state
+          setTimeout(() => {
+            // Animate the removal
+            wishlistItem.style.transform = 'scale(0.8)';
+            wishlistItem.style.opacity = '0';
+            wishlistItem.style.transition = 'all 0.3s ease';
+            
+            // Remove from DOM after animation
+            setTimeout(() => {
+              wishlistItem.remove();
+              updateWishlistCount();
+            }, 300);
+          }, 1000); // Show success state for 1 second before removing
+        } else {
+          // Reset button after delay if item wasn't removed from wishlist
+          setTimeout(() => {
+            if (button.innerHTML.includes('bi-check')) {
+              button.innerHTML = '<i class="bi bi-cart-plus"></i>';
+              button.style.background = '#495057';
+              button.disabled = originalDisabled;
+              if (!originalDisabled) {
+                button.style.opacity = '1';
+              }
+            }
+          }, 2000);
+        }
+      } else {
+        showMessage(result.message || 'Failed to add item to cart', false);
+        button.disabled = originalDisabled;
+        if (!originalDisabled) {
+          button.style.opacity = '1';
+        }
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showMessage('An error occurred while adding to cart', false);
+      button.disabled = false;
+      button.style.opacity = '1';
+    } finally {
+      hideLoading();
+    }
+  }
+});
+
+// Update price and availability when variant changes
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('variant-select')) {
+    const select = e.target;
+    const wishlistItem = select.closest('.wishlist-item');
+    const selectedIndex = parseInt(select.value);
+    
+    const variantsDataScript = wishlistItem.querySelector('.variants-data');
+    if (variantsDataScript) {
+      try {
+        const variantsData = JSON.parse(variantsDataScript.textContent);
+        const selectedVariant = variantsData[selectedIndex];
+        
+        updatePriceDisplay(wishlistItem, selectedIndex, variantsData);
+        updateCartButton(wishlistItem, selectedVariant);
+        
+      } catch (error) {
+        console.error('Error parsing variants data:', error);
+        showMessage('Error updating variant details', false);
+      }
+    }
+  }
+});
+</script>

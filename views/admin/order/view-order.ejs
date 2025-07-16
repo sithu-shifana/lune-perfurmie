@@ -1,0 +1,336 @@
+<%- include('../partials/admin/header') %>
+<head>
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+  <style>
+  
+
+    .content-header {
+      background: #ffffff;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      margin-bottom: 16px;
+    }
+
+    .content-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0;
+    }
+
+    .category-form-container {
+      background: #ffffff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      margin: 16px auto;
+      border-radius: 6px;
+      max-width: 900px;
+    }
+
+    .page-title {
+      margin-bottom: 20px;
+      color: #1a1a1a;
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+
+    .form-label {
+      font-size: 0.9rem;
+      color: #333333;
+      font-weight: 500;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .error-top {
+      color: #d32f2f;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: none;
+      text-align: center;
+    }
+
+    .btn-primary {
+      padding: 10px 16px;
+      background: #4a6a4d;
+      border: none;
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      border-radius: 4px;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn-primary:hover {
+      background: #3b543e;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-secondary {
+      padding: 10px 16px;
+      background: #6c757d;
+      border: none;
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      border-radius: 4px;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      color: #ffffff;
+    }
+
+    .actions-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      gap: 12px;
+    }
+
+    .actions-container .btn {
+      width: 48%;
+      min-width: 120px;
+    }
+
+    .mb-4 {
+      margin-bottom: 16px;
+    }
+
+    img.product-image {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 12px;
+      vertical-align: middle;
+      border: 1px solid #e8ecef;
+    }
+
+    .order-details p,
+    .order-details li,
+    .order-details h6 {
+      color: #333333;
+      font-size: 0.9rem;
+    }
+
+    .order-details h6 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 12px 0 8px;
+    }
+
+    .order-details ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .order-details li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #e8ecef;
+    }
+
+    .order-details li:last-child {
+      border-bottom: none;
+    }
+
+    .item-status {
+      color: #d32f2f;
+      font-size: 0.85rem;
+      margin-left: 8px;
+    }
+
+    .item-status.active {
+      color: #2f855a;
+    }
+
+    .item-status.returned, .item-status.cancelled {
+      color: #e53e3e;
+    }
+
+    .item-status.return-requested {
+      color: #d97706;
+    }
+
+    .refund-info {
+      color: #2f855a;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .pricing-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 0.9rem;
+    }
+
+    .pricing-table th,
+    .pricing-table td {
+      border: 1px solid #e8ecef;
+      padding: 10px;
+      text-align: left;
+      color: #333333;
+    }
+
+    .pricing-table th {
+      background: #f8fafc;
+      font-weight: 600;
+    }
+
+    .pricing-table .total {
+      font-weight: 700;
+      background: #f1f5f9;
+    }
+
+
+  </style>
+</head>
+<main class="dashboard-content">
+  <section class="content-main">
+    <div class="content-header">
+      <h2 class="content-title">Order #<%= order._id.toString().slice(-8).toUpperCase() %></h2>
+    </div>
+    <div class="category-form-container">
+      <h4 class="page-title">Order Details</h4>
+      <p id="topError" class="error-top"></p>
+      <div class="mb-4 order-details">
+        <h6>Customer Details</h6>
+        <p><strong>Name:</strong> <%= order.userId?.name || 'N/A' %></p>
+        <p><strong>Email:</strong> <%= order.userId?.email || 'N/A' %></p>
+        <p><strong>Phone:</strong> <%= order.addressId?.phone || 'N/A' %></p>
+        <h6>Shipping Address</h6>
+        <p>
+          <%= order.addressId ? `${order.addressId.name}, ${order.addressId.street}, ${order.addressId.city}, ${order.addressId.state} - ${order.addressId.pinCode}, ${order.addressId.country}` : 'N/A' %>
+        </p>
+        <h6>Order Information</h6>
+        <p><strong>Order ID:</strong> <%= order._id.toString().slice(-8).toUpperCase() %></p>
+        <p><strong>Order Date:</strong> <%= order.orderDate ? order.orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A' %></p>
+        <p><strong>Delivery Date:</strong> <%= order.deliveryDate ? order.deliveryDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A' %></p>
+         <% 
+  let paymentClass = '';
+  if (order.paymentStatus === 'Completed') paymentClass = 'badge bg-success'; // green
+  else if (order.paymentStatus === 'Cancelled') paymentClass = 'badge bg-danger'; // red
+  else if (order.paymentStatus === 'Pending') paymentClass = 'badge bg-warning text-dark'; // yellow with dark text
+  else paymentClass = 'badge bg-secondary'; // grey for others
+%>
+
+<p>
+  <strong>Payment Method:</strong> 
+  <%= order.paymentMethod === 'ONLINE' ? 'GPay/Online' : order.paymentMethod === 'WALLET' ? 'Wallet' : 'Cash on Delivery' %> 
+  - <span class="<%= paymentClass %>"><%= order.paymentStatus %></span>
+</p>
+
+
+        <p><strong>Order Status:</strong> <%= order.status %></p>
+        <p><strong>Delivery Status:</strong> <%= order.deliveryStatus %></p>
+        <% if (order.failureReason) { %>
+          <p><strong>Failure Reason:</strong> <%= order.failureReason %></p>
+        <% } %>
+        <% if (order.trackingInfo && order.trackingInfo.trackingNumber) { %>
+          <h6>Tracking Information</h6>
+          <p><strong>Tracking Number:</strong> <%= order.trackingInfo.trackingNumber || 'N/A' %></p>
+          <p><strong>Carrier:</strong> <%= order.trackingInfo.carrier || 'N/A' %></p>
+          <p><strong>Status:</strong> <%= order.trackingInfo.status || 'N/A' %></p>
+          <% if (order.trackingInfo.reachedPlaces && order.trackingInfo.reachedPlaces.length > 0) { %>
+            <h6>Tracking History</h6>
+            <ul>
+              <% order.trackingInfo.reachedPlaces.forEach(place => { %>
+                <li><%= place.place %> - <%= place.date ? new Date(place.date).toLocaleDateString('en-GB') : 'N/A' %></li>
+              <% }) %>
+            </ul>
+          <% } %>
+        <% } %>
+        <h6>Items</h6>
+        <ul>
+          <% order.items.forEach(item => { %>
+            <li>
+              <img src="<%= item.productId?.images?.length > 0 ? item.productId.images[0].url : '/images/placeholder.png' %>" alt="<%= item.productName || 'Product' %>" class="product-image">
+              <span>
+                <%= item.productName || 'Unknown Product' %> (<%= item.variantSize || 'N/A' %>) <br>
+                Qty: <%= item.quantity || 1 %> <br>
+                Original Price: ₹<%= (item.originalPrice || 0).toLocaleString('en-IN') %> <br>
+                Offer Price: ₹<%= (item.offerPrice || 0).toLocaleString('en-IN') %> <br>
+                Total: ₹<%= (order.subtotal || 0).toLocaleString('en-IN') %><br>
+                <% if (item.offerType) { %>
+                  <br>Offer: <%= item.offerType === 'flat' || item.offerType === 'fixed' ? '₹' + item.offerValue : item.offerValue + '%' %>
+                <% } %>
+               
+                <br><span class="item-status <%= item.status.toLowerCase().replace(' ', '-') %>">
+                  Status: <%= item.status %>
+                  <% if (item.status === 'Cancelled' && item.cancellationReason) { %>
+                    (Reason: <%= item.cancellationReason %>)
+                  <% } else if (item.status === 'ReturnRequested' || item.status === 'Returned') { %>
+                    (Reason: <%= item.returnReason || 'N/A' %>)
+                    <% if (item.returnApproved !== null) { %>
+                      - <%= item.returnApproved ? 'Approved' : 'Rejected' %>
+                      <% if (!item.returnApproved && item.returnRejectionReason) { %>
+                        (<%= item.returnRejectionReason %>)
+                      <% } %>
+                    <% } %>
+                  <% } %>
+                </span>
+                <% if (item.isRefunded && (item.status === 'Cancelled' || item.status === 'Returned')) { %>
+                  <br><span class="refund-info">Refunded: ₹<%= (item.offerPrice * item.quantity).toLocaleString('en-IN') %> to <%= order.refundDetails?.method || 'wallet' %></span>
+                <% } %>
+                <% if (item.couponRefunded) { %>
+                  <br><span class="refund-info">Coupon Refunded: ₹<%= item.couponDiscount.toLocaleString('en-IN') %> to <%= order.refundDetails?.method || 'wallet' %></span>
+                <% } %>
+              </span>
+            </li>
+          <% }) %>
+        </ul>
+        <h6>Pricing Summary</h6>
+        <table class="pricing-table">
+          <tr>
+            <th>Subtotal</th>
+            <td>₹<%= (order.subtotal || 0).toLocaleString('en-IN') %></td>
+          </tr>
+        
+          <% if (order.totalCouponDiscount > 0) { %>
+            <tr>
+              <th>Coupon Discount (<%= order.couponCode || 'N/A' %>)</th>
+              <td>-₹<%= order.totalCouponDiscount.toLocaleString('en-IN') %></td>
+            </tr>
+          <% } %>
+          <tr>
+            <th>Total Savings</th>
+            <td>-₹<%= (order.totalSavings || 0).toLocaleString('en-IN') %></td>
+          </tr>
+          <tr class="total">
+            <th>Final Total</th>
+            <td>₹<%= (order.finalTotal || 0).toLocaleString('en-IN') %></td>
+          </tr>
+          <% if (order.refundDetails && order.refundDetails.amount > 0) { %>
+            <tr>
+              <th>Refunded Amount</th>
+              <td class="refund-info">₹<%= order.refundDetails.amount.toLocaleString('en-IN') %> (Processed on <%= order.refundDetails.processedAt ? new Date(order.refundDetails.processedAt).toLocaleDateString('en-GB') : 'N/A' %>)</td>
+            </tr>
+          <% } %>
+        </table>
+      </div>
+      <div class="actions-container">
+        <a href="/admin/orderManagement" class="btn btn-secondary">Back</a>
+        <a href="/user/order/<%= order._id %>/pdf" class="btn btn-primary" target="_blank">Download Invoice</a>
+
+      </div>
+    </div>
+  </section>
+</main>

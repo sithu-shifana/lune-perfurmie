@@ -1,0 +1,155 @@
+<%- include('../partials/admin/header') %>
+<main class="dashboard-content">
+  <div class="container">
+    <section class="content-main">
+      <!-- Header -->
+      <div class="content-header">
+        <h1 class="content-body">Category Management</h1>
+      </div>
+
+      <!-- Stats Card -->
+      <div class="customer-stats-card">
+        <div class="stats-icon"><i class="fas fa-tags"></i></div>
+        <div class="stats-content">
+          <h3><%= totalCategory %></h3>
+          <p>Total Categories</p>
+        </div>
+      </div>
+
+      <!-- Add Category Button -->
+      <div class="add-category-btn-container">
+        <a href="/admin/category-add" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Add New Category
+        </a>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="card-header">
+        <form action="/admin/categoryManagement" method="get">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search categories..." name="search" id="searchInput"
+                   value="<%= searchQuery %>"/>
+            <button class="btn" type="submit">Search</button>
+            <button class="btn btn-reset" type="button" id="resetButton">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Main Content Table -->
+      <div class="right">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th class="text-center">#</th>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Status</th>
+                <th>List/Unlist</th>
+                <th>Edit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (categories && categories.length > 0) { %>
+                <% categories.forEach((category, index) => { %>
+                  <tr>
+                    <td class="text-center"><%= index + 1 %></td>
+                    <td><%= category.name %></td>
+                    <td>
+                      <% if (category.imageUrl) { %>
+                        <img src="<%= category.imageUrl %>" alt="<%= category.name %>">
+                      <% } else { %>
+                        <span style="color: #999; font-style: italic;">No image</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <span class="badge <%= category.status === 'listed' ? 'alert-success' : 'alert-danger' %>">
+                        <%= category.status === 'listed' ? 'Listed' : 'Unlisted' %>
+                      </span>
+                    </td>
+                    <td>
+                      <% if (category.status === 'listed') { %>
+                        <button class="btn btn-success" onclick="toggleCategory('<%= category._id %>')">
+                          Unlist
+                        </button>
+                      <% } else { %>
+                        <button class="btn btn-danger" onclick="toggleCategory('<%= category._id %>')">
+                          List
+                        </button>
+                      <% } %>
+                    </td>
+                    <td>
+                      <a href="/admin/category-edit/<%= category._id %>" class="btn btn-info">Edit</a>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="6" class="text-center" style="padding: 40px; color: #666; font-style: italic;">
+                    No categories found.
+                  </td>
+                </tr>
+              <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+      <% if (totalPages > 1) { %>
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>">
+                        <%= i %>
+                    </a>
+                </li>
+          <% } %>
+      </ul>
+  </nav>
+  <% } %>
+  </section>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    document.getElementById('resetButton').addEventListener('click', function() {
+      window.location.href = '/admin/categoryManagement';
+    });
+
+    async function toggleCategory(categoryId) {
+      try {
+        const response = await fetch(`/admin/category/${categoryId}/toggle`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          Swal.fire({
+            title: 'Success!',
+            text: data.message,
+            icon: 'success',
+            confirmButtonColor: '#4a6a4d'
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire({
+            title: 'Error!',
+            text: data.error || 'Failed to toggle category',
+            icon: 'error',
+            confirmButtonColor: '#4a6a4d'
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          title: 'Error!',
+          text: 'An error occurred while toggling the category',
+          icon: 'error',
+          confirmButtonColor: '#4a6a4d'
+        });
+      }
+    }
+  </script>
+</main>

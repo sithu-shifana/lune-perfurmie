@@ -1,0 +1,147 @@
+2 types schema middleware
+
+1-pre middleware
+  run before the operatoion
+
+schema.pre(hookName, [options], callback)
+
+productSchema.pre('findOne', function (next) {
+  console.log('Product Schema - Query:', this.getQuery());
+  next();
+});
+
+hooknames -
+
+1. 🧿 pre('save') -  Runs before document.save()
+
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next(); // skip if password unchanged
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+const user = new User({ email: 'x@test.com', password: '123' });
+await user.save(); // ✅ pre('save') runs here!
+
+
+2. 🧿 pre('validate')
+Runs before document is validated (before .save() or .validate()).
+
+userSchema.pre('validate', function(next) {
+  if (!this.name) this.name = 'Guest';
+  next();
+});
+
+
+3. 🧿 pre('remove')
+Runs before removing a document using .remove()
+
+userSchema.pre('remove', async function (next) {
+  console.log('Deleting user and their posts');
+  await Post.deleteMany({ userId: this._id });
+  next();
+});
+
+const user = await User.findOne({ email: 'x@test.com' });
+await user.remove(); // ✅ pre('remove') runs
+
+
+
+4. 🧿 pre('find')
+Runs before .find() query
+
+
+userSchema.pre('find', function (next) {
+  this.where({ isBlocked: false }); // only return active users
+  next();
+});
+
+await User.find(); // will automatically apply filter
+
+
+5. 🧿 pre('findOne')
+userSchema.pre('findOne', function(next) {
+  this.where({ isBlocked: false });
+  next();
+});
+
+await User.findOne({ email: 'x@test.com' });
+// Auto filter added: { isBlocked: false }
+
+
+
+6. 🧿 pre('findOneAndUpdate')
+Runs before .findOneAndUpdate()
+
+
+userSchema.pre('findOneAndUpdate', function(next) {
+  this.set({ updatedAt: new Date() });
+  next();
+});
+
+await User.findOneAndUpdate(
+  { email: 'x@test.com' },
+  { name: 'New Name' }
+);
+
+
+
+7. 🧿 pre('updateOne')
+userSchema.pre('updateOne', function(next) {
+  this.set({ updatedAt: new Date() });
+  next();
+});
+
+await User.updateOne({ email: 'x@test.com' }, { name: 'Updated' });
+
+
+8. 🧿 pre('insertMany')
+
+userSchema.pre('insertMany', function(next, docs) {
+  docs.forEach(doc => {
+    doc.isVerified = true;
+  });
+  next();
+});
+
+await User.insertMany([
+  { email: 'a@test.com', name: 'A' },
+  { email: 'b@test.com', name: 'B' }
+]);
+
+
+9. 🧿 pre('deleteOne')
+userSchema.pre('deleteOne', { document: false, query: true }, function(next) {
+  console.log('About to delete:', this.getQuery());
+  next();
+});
+
+await User.deleteOne({ email: 'test@test.com' });
+
+
+
+post() -middleware triggerrs after certain action
+
+
+schema.post('hookName', function(doc, next) {
+  // `doc` is the document or result
+  next();
+});
+
+
+schema.post('hookName', async function(doc) {
+  await somethingAsync();
+});
+
+
+
+| Feature          | `pre`                                       | `post`                               |
+| ---------------- | ------------------------------------------- | ------------------------------------ |
+| Runs when?       | **Before** operation                        | **After** operation                  |
+| Can modify data? | ✅ Yes                                       | ❌ No (Read-only in queries)          |
+| Stops operation? | ✅ Yes (by throwing error or `next(err)`)    | ❌ No, operation already done         |
+| Useful for?      | Validation, password hashing, query shaping | Logging, side-effects, notifications |
+
+
+

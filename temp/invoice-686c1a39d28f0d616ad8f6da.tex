@@ -1,0 +1,68 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{amsmath}
+
+\geometry{a4paper, margin=1in}
+\sisetup{output-decimal-marker={.}, group-separator={,}, group-minimum-digits=4}
+
+\begin{document}
+
+\begin{center}
+  \textbf{\Large Invoice} \\
+  \vspace{0.2cm}
+  Lune Perfumie \\
+  \small 123 Fragrance Street, Mumbai, MH 400001, India \\
+  \small Email: contact@luneperfumie.com | Phone: +91-22-12345678
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{tabular}{p{0.45\textwidth} p{0.45\textwidth}}
+  \toprule
+  \textbf{Billed To} & \textbf{Order Details} \\
+  \midrule
+  Jennie \\
+  kim@gmail.com \\
+  4564564567 \\
+  jimin, athani, calicut, kerala -- 123457, India \\
+  \midrule
+  & \textbf{Order ID:} 6AD8F6DA \\
+  & \textbf{Order Date:} 08/07/2025 \\
+  & \textbf{Payment Method:} GPay/Online \\
+  & \textbf{Order Status:} Paid \\
+  \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+
+\textbf{Order Items}
+\begin{tabular}{p{5cm} p{2cm} p{3cm} p{3cm}}
+  \toprule
+  \textbf{Product} & \textbf{Qty} & \textbf{Price} & \textbf{Total} \\
+  \midrule
+  Hypnotic Poison & 1 & \SI{7920}{\INR} & \SI{7920}{\INR} \\
+Miss Dior & 1 & \SI{5500}{\INR} & \SI{5500}{\INR} \\
+
+  \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+
+\textbf{Order Summary}
+\begin{tabular}{lr}
+  \toprule
+  \textbf{Description} & \textbf{Amount} \\
+  \midrule
+  Subtotal & \SI{5500}{\INR} \\
+  Shipping Cost & Free \\
+  Coupon Discount & None \\
+  \midrule
+  \textbf{Final Total} & \SI{5500}{\INR} \\
+  \bottomrule
+\end{tabular}
+
+\end{document}

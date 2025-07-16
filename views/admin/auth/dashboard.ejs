@@ -1,0 +1,151 @@
+<%- include('../partials/admin/header') %>
+
+<main class="dashboard-content">
+  <style>
+    /* Product grid styling */
+.Product-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 40px;
+  justify-content: start;
+}
+
+.product-card {
+  background-color: #fff;
+  color:rgb(80, 114, 103);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 15px;
+  width: 200px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-card img {
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 40px;
+  background-color: #fff;
+  color: black;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table thead {
+  background-color: #f4f4f4;
+}
+
+table th,
+table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+table img {
+  border-radius: 8px;
+}
+
+/* Ledger Button */
+.ledger-button-container {
+  text-align: right;
+  margin-top: 30px;
+}
+
+.ledger-button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ledger-button:hover {
+  background-color: #0056b3;
+}
+
+  </style>
+  <!-- Top Selling Products -->
+     <h2>Best selling Products</h2>
+<br>
+  <div class="Product-grid">
+    <% topSoldProducts.forEach(product => { %>
+      <div class="product-card">
+        <img src="<%= product.product.images && product.product.images.length > 0 ? product.product.images[0].url : '/images/default-product.png' %>" alt="Product Image" width="100" />
+        <h3><%= product.product.productName %></h3>
+        <p>Sold: <%= product.totalSold %></p>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Category Sales Table -->
+  <h2>Category Sales</h2>
+  <br>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Image</th>
+        <th>Total Sold</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% categorySales.forEach(function(item) { %>
+        <tr>
+          <td><%= item.category.name %></td>
+          <td>
+<img src="<%= item.category.imageUrl %>" alt="<%= item.category.name %>" width="60" height="60">
+          </td>
+          <td><%= item.totalSold %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <!-- Brand Sales Table -->
+  <h2>Best Selling Brands</h2>
+  <br>
+  <table>
+    <thead>
+      <tr>
+        <th>Brand</th>
+        <th>Image</th>
+        <th>Total Sold</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% brandSales.forEach(function(item) { %>
+        <tr>
+          <td><%= item.brand.name %></td>
+          <td>
+            <img src="<%= item.brand.imageUrl %>" alt="<%= item.brand.name %>" width="60" height="60">
+          </td>
+          <td><%= item.totalSold %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <!-- Ledger Book Button -->
+  <div class="ledger-button-container">
+    <form action="/admin/generate-ledger" method="POST">
+      <button class="ledger-button" type="submit">Generate Ledger Book</button>
+    </form>
+  </div>
+</main>
+

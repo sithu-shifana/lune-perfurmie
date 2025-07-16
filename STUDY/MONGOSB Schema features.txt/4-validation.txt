@@ -1,0 +1,28 @@
+    const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    match: /.+\@.+\..+/
+  },
+  age: {
+    type: Number,
+    min: 18,
+    max: 100
+  }
+});
+
+
+//customer validation props is the given object
+const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        return v.length >= 5;
+      },
+      message: props => `${props.value} is too short!`
+    }
+  }
+});

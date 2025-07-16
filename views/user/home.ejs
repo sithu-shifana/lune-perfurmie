@@ -1,0 +1,1597 @@
+<%-include('../partials/user/header')%>
+
+<div class="content-placeholder">
+
+ <div id="login-alert" style="
+  display: none; position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+  background: #fff; color: #333; padding: 16px 24px; border: 1px solid #ccc;
+  border-radius: 8px; font: 16px 'Segoe UI', sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 9999; min-width: 280px; text-align: center;
+">
+  ⚠️ Please <a href="/login" style="color:#007bff; text-decoration: underline;">log in</a> to add to wishlist.
+  <span onclick="hideLoginAlert()" style="position:absolute; top:8px; right:12px; cursor:pointer; color:#888;">×</span>
+</div>
+
+
+  <section class="banner-container">
+    <picture>
+      <!-- Mobile image -->
+      <source media="(max-width: 767px)" srcset="/images/smallBanner.jpg">
+      <!-- Tablet image -->
+      <source media="(max-width: 1024px)" srcset="/images/smallBanner.jpg">
+      <!-- Desktop/laptop image -->
+      <img src="/images/largeBanner.jpg" alt="Perfume Banner" class="banner-image" />
+    </picture>
+
+    <div class="banner-text">
+      <h1 class="animated-text">Timeless Scents, Unforgettable Moments</h1>
+      <p class="animated-sub">Let your fragrance speak before you do</p>
+      <a href="/products" class="shop-button">Shop Now</a>
+    </div>
+  </section>
+
+<h2  style="padding-top: 30px;" class="category-title">Shop by Category</h2>
+<div class="category-section">
+    <div class="category-grid" id="categoryContainer">
+        <% categories.forEach(category => { %>
+            <div class="category-card">
+                <a href="/products?category=<%= category._id %>">
+                    <img src="<%= category.imageUrl %>" alt="<%= category.name %>">
+                </a>
+                <p class="category-name"><%= category.name %></p>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<!-- Newly Arrived Products Section -->
+<section class="newly-arrived-section">
+  <div class="newly-arrived-container">
+    <div class="section-header">
+      <h4 class="section-title">Newly Arrived</h4>
+      <a href="/products?sort=newArrivals" class="view-all-btn">View All</a>
+    </div>
+    
+    <% if (newlyArrivedProducts && newlyArrivedProducts.length > 0) { %>
+      <div class="newly-arrived-grid">
+        <% newlyArrivedProducts.forEach((product, index) => { %>
+          <div class="product-card" data-index="<%= index %>">
+            <a href="/product-show/<%= product._id %>" style="text-decoration: none; color: inherit;">
+              <!-- New Badge -->
+              <div class="new-badge">New</div>
+              
+              <!-- Product Image -->
+              <img src="<%= product.images.length ? product.images[0].url : '/images/placeholder.png' %>" alt="<%= product.productName %>">
+              
+              <!-- Product Name -->
+              <h3><%= product.productName %></h3>
+              
+              <!-- Brand Name -->
+              <p class="brand-name">Brand: <%= product.brand.name %></p>
+
+  <% if (product.variant) { %>
+                  <div class="price-container">
+                    <% if (product.variant.hasOffer && product.variant.offerPrice < product.variant.originalPrice) { %>
+                      <span class="offer-price">₹<%= product.variant.offerPrice %></span>
+                      <span class="original-price">₹<%= product.variant.originalPrice.toFixed(0) %></span>
+                      <span class="discount">
+                        <% if (product.variant.discountType === 'percentage') { %>
+                          <%= product.variant.discountValue %>% OFF
+                        <% } else if (product.variant.discountType === 'flat') { %>
+                          ₹<%= product.variant.discountValue %> OFF
+                        <% } %>
+                      </span>
+                    <% } else { %>
+                      <span class="offer-price">₹<%= product.variant.originalPrice %></span>
+                    <% } %>
+                  </div>
+                <% } else { %>
+                  <div class="price-container">
+                    <span class="offer-price">Price not available</span>
+                  </div>
+                <% } %>
+              </a>
+            
+            <!-- Wishlist Icon -->
+            <i id="wishlist-icon-<%= product._id %>" 
+         class="fas fa-heart wishlist-icon <%= product.isInWishlist ? 'active' : '' %>" 
+         data-product-id="<%= product._id %>" 
+         onclick="toggleWishlist('<%= product._id %>')">
+      </i>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div style="text-align: center; padding: 40px; color: #666;">
+        <p>No newly arrived products available at the moment.</p>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<!--vedio-->
+   <section class="video-carousel">
+        <div class="video-container">
+            <video src="/video/8228f729451468a730f2df2cc8d630f8.mp4" muted loop></video>
+            <video src="/video/30011e305d10afd3e1e8e068df9953a3.mp4" muted loop></video>
+            <video src="/video/71e90e12b2a1fe99143fc99f69d4313d.mp4" muted loop></video>
+            <video src="/video/acb5a15570fa3afe4ad12e2ee5cf76bf.mp4" muted loop></video>
+             <video src="/video/8be12922fde8f2760b8e420c90c56cc3.mp4" muted loop></video>
+
+            <button class="controls prev-btn" onclick="carousel.prevSlide()">‹</button>
+            <button class="controls next-btn" onclick="carousel.nextSlide()">›</button>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="indicators">
+                <div class="indicator active" data-index="0"></div>
+                <div class="indicator" data-index="1"></div>
+                <div class="indicator" data-index="2"></div>
+                <div class="indicator" data-index="3"></div>
+                <div class="indicator" data-index="4"></div>
+            </div>
+        </div>
+        
+        <div class="text-container">
+            <div class="text-item active">
+                <h3>Signature Collection</h3>
+                <p>At Lune Perfume, we don't just sell fragrance — we bottle up confidence, grace, and power into every luxurious drop.</p>
+                <p>Our signature scents are more than perfumes; they're personal statements that speak before you do, leaving an unforgettable impression that lingers long after you've gone.</p>
+            </div>
+            
+            <div class="text-item">
+                <h3>Artisan Craftsmanship</h3>
+                <p>Each scent is meticulously crafted with the rarest ingredients sourced from the most prestigious perfume houses around the world.</p>
+                <p>From Bulgarian rose petals to Madagascar vanilla, every note is carefully selected and blended by master perfumers to create compositions that are both timeless and contemporary.</p>
+                <p>Our commitment to quality ensures that each bottle delivers an experience that's truly extraordinary.</p>
+            </div>
+            
+            <div class="text-item">
+                <h3>Make Your Statement</h3>
+                <p>Our perfumes are not just for wearing — they are for making statements, starting conversations, and creating memories that last a lifetime.</p>
+                <p>Whether you're commanding a boardroom, enchanting at a dinner party, or simply expressing your authentic self, Lune Perfume provides the perfect olfactory companion.</p>
+                <p>Each fragrance tells a unique story, allowing you to choose the narrative that best represents your mood and moment.</p>
+            </div>
+            
+            <div class="text-item">
+                <h3>Curated Excellence</h3>
+                <p>Indulge in our carefully curated collection, where every bottle is a masterpiece and every note is a carefully orchestrated emotion.</p>
+                <p>From fresh and invigorating morning scents to deep and mysterious evening fragrances, our collection spans the entire spectrum of human experience.</p>
+                <p>Discover limited editions, seasonal collections, and timeless classics that have been beloved by discerning customers for generations.</p>
+            </div>
+            
+            <div class="text-item">
+                <h3>Your Signature Scent</h3>
+                <p>Lune Perfume — Elevate your essence, define your presence, and let the world remember your aura.</p>
+                <p>More than fragrance, we offer you the opportunity to craft your personal legacy, one sophisticated scent at a time.</p>
+                <p>Join thousands of satisfied customers who have discovered their signature scent with Lune Perfume, and experience the transformative power of truly exceptional fragrance.</p>
+            </div>
+        </div>
+    </section>
+  <!--vidio end-->
+<div class="container">
+        <div class="brand-section">
+            <div class="section-header">
+                <h2>Signature Collections</h2>
+                <p>Discover the world's most prestigious fragrance houses, each crafting timeless scents that define elegance and sophistication.</p>
+            </div>
+
+            <!-- Chanel -->
+            <div class="brand-item">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="brand-card">
+                            <div class="brand-images single">
+                                <img src="/images/b0da20288d6a357361aec44779b915ee.jpg" alt="Chanel Perfume Collection">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="brand-text">
+                            <h3>Chanel</h3>
+                            <p>The epitome of Parisian elegance, Chanel has redefined luxury fragrance since 1921. Each scent embodies timeless sophistication with modern innovation, creating compositions that transcend generations. From the revolutionary N°5 to contemporary masterpieces, Chanel perfumes represent the perfect harmony between tradition and avant-garde artistry.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dior -->
+            <div class="brand-item">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 order-lg-2">
+                        <div class="brand-card">
+                            <div class="brand-images double">
+                                <img src="/images/8e71462f1af977f29115615280f14a34.jpg" alt="Dior Perfume Collection">
+                                <img src="/images/64e6e3d3897dceaba9d44aab0f814db7.jpg" alt="Dior Fragrance">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 order-lg-1">
+                        <div class="brand-text">
+                            <h3>Dior</h3>
+                            <p>Where French couture meets olfactory artistry, Dior creates fragrances that embody refined luxury and contemporary elegance. Each bottle tells a story of meticulous craftsmanship, blending heritage techniques with innovative approaches to create scents that are both powerfully distinctive and gracefully sophisticated.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yves Saint Laurent -->
+            <div class="brand-item">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="brand-card">
+                            <div class="brand-images single">
+                                <img src="/images/38f69fe1f22c7b8d0063865f5fe07a35.jpg" alt="YSL Perfume Collection">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="brand-text">
+                            <h3>Yves Saint Laurent</h3>
+                            <p>Bold, provocative, and undeniably chic, Yves Saint Laurent fragrances capture the essence of modern confidence and sophisticated rebellion. Each composition pushes boundaries while maintaining an air of Parisian refinement, creating scents that make powerful statements for those who dare to stand out.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tom Ford -->
+            <div class="brand-item">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="brand-card">
+                            <div class="brand-images single">
+                                <img src="/images/36fd677d99f4b474acbabcfaea44db9d.jpg" alt="Tom Ford Perfume Collection">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="brand-text">
+                            <h3>Tom Ford</h3>
+                            <p>Uncompromising luxury meets contemporary sensuality in every Tom Ford fragrance. These meticulously crafted scents represent the pinnacle of modern perfumery, combining rich, complex compositions with sleek sophistication to create unforgettable olfactory experiences for the discerning individual.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gucci -->
+            <div class="brand-item">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 order-lg-2">
+                        <div class="brand-card">
+                            <div class="brand-images double">
+                                 <img src="/images/3ec89e1f91cd195b4539edeb4fbace6f.jpg" alt="Gucci Fragrance">
+                                <img src="/images/c9828869e17a2db647509eae6679761b.jpg" alt="Gucci Perfume Collection">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 order-lg-1">
+                        <div class="brand-text">
+                            <h3>Gucci</h3>
+                            <p>Italian craftsmanship meets contemporary innovation in Gucci's exceptional fragrance collection. Each scent reflects the brand's commitment to artistic excellence and modern relevance, seamlessly blending traditional perfumery techniques with cutting-edge creativity to create truly memorable compositions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('animate');
+                    }, 100);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all brand items
+        document.querySelectorAll('.brand-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+
+        // Enhanced image interactions
+        document.querySelectorAll('.brand-images img').forEach(img => {
+            img.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.filter = 'brightness(1.05) contrast(1.1) saturate(1.1)';
+            });
+            
+            img.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.filter = 'brightness(0.95) contrast(1.05)';
+            });
+        });
+
+        // Subtle parallax effect
+        let ticking = false;
+        
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const brandItems = document.querySelectorAll('.brand-item');
+            
+            brandItems.forEach((item, index) => {
+                const speed = 0.02 * (index % 2 === 0 ? 1 : -1);
+                const yPos = scrolled * speed;
+                item.style.transform = `translateY(${yPos}px)`;
+            });
+            
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        });
+
+class VideoCarousel {
+            constructor() {
+                this.videos = document.querySelectorAll('.video-container video');
+                this.texts = document.querySelectorAll('.text-container .text-item');
+                this.indicators = document.querySelectorAll('.indicator');
+                this.progressFill = document.querySelector('.progress-fill');
+                this.currentIndex = 0;
+                this.isTransitioning = false;
+                this.autoSlideInterval = null;
+                this.slideDuration = 6000; // 6 seconds per slide
+                this.progressInterval = null;
+                
+                this.init();
+            }
+            
+            init() {
+                // Set up video event listeners
+                this.videos.forEach((video, index) => {
+                    video.addEventListener('loadeddata', () => {
+                        if (index === 0) {
+                            this.showSlide(0);
+                            this.startAutoSlide();
+                        }
+                    });
+                });
+                
+                // Set up indicator click listeners
+                this.indicators.forEach((indicator, index) => {
+                    indicator.addEventListener('click', () => {
+                        if (index !== this.currentIndex && !this.isTransitioning) {
+                            this.showSlide(index);
+                            this.resetAutoSlide();
+                        }
+                    });
+                });
+                
+                // Pause auto-slide on hover
+                const container = document.querySelector('.video-carousel');
+                container.addEventListener('mouseenter', () => {
+                    this.pauseAutoSlide();
+                });
+                
+                container.addEventListener('mouseleave', () => {
+                    this.startAutoSlide();
+                });
+                
+                // Start with first video
+                this.showSlide(0);
+                this.startAutoSlide();
+            }
+            
+            showSlide(index) {
+                if (this.isTransitioning) return;
+                
+                this.isTransitioning = true;
+                
+                // Update videos
+                this.videos.forEach((video, i) => {
+                    video.classList.remove('active');
+                    video.pause();
+                    
+                    if (i === index) {
+                        video.classList.add('active');
+                        video.currentTime = 0;
+                        setTimeout(() => {
+                            video.play().catch(e => console.log('Video play error:', e));
+                        }, 400);
+                    }
+                });
+                
+                // Update texts
+                this.texts.forEach((text, i) => {
+                    text.classList.remove('active');
+                    if (i === index) {
+                        text.classList.add('active');
+                    }
+                });
+                
+                // Update indicators
+                this.indicators.forEach((indicator, i) => {
+                    indicator.classList.toggle('active', i === index);
+                });
+                
+                this.currentIndex = index;
+                this.startProgressBar();
+                
+                // Allow transitions after animation completes
+                setTimeout(() => {
+                    this.isTransitioning = false;
+                }, 800);
+            }
+            
+            startProgressBar() {
+                this.progressFill.style.width = '0%';
+                
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                }
+                
+                let progress = 0;
+                const increment = 100 / (this.slideDuration / 50);
+                
+                this.progressInterval = setInterval(() => {
+                    progress += increment;
+                    this.progressFill.style.width = Math.min(progress, 100) + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(this.progressInterval);
+                    }
+                }, 50);
+            }
+            
+            startAutoSlide() {
+                this.pauseAutoSlide();
+                this.autoSlideInterval = setInterval(() => {
+                    this.nextSlide();
+                }, this.slideDuration);
+            }
+            
+            pauseAutoSlide() {
+                if (this.autoSlideInterval) {
+                    clearInterval(this.autoSlideInterval);
+                    this.autoSlideInterval = null;
+                }
+            }
+            
+            resetAutoSlide() {
+                this.startAutoSlide();
+            }
+            
+            nextSlide() {
+                const nextIndex = (this.currentIndex + 1) % this.videos.length;
+                this.showSlide(nextIndex);
+            }
+            
+            prevSlide() {
+                const prevIndex = (this.currentIndex - 1 + this.videos.length) % this.videos.length;
+                this.showSlide(prevIndex);
+                this.resetAutoSlide();
+            }
+        }
+
+function showLoginAlert() {
+  document.getElementById('login-alert').style.display = 'block';
+}
+
+function hideLoginAlert() {
+  document.getElementById('login-alert').style.display = 'none';
+}
+
+
+       function toggleWishlist(productId) {
+  if (!productId) return alert('Invalid product ID');
+
+  const btn = document.getElementById(`wishlist-icon-${productId}`);
+  if (!btn) return console.error('Wishlist icon not found');
+
+  btn.style.pointerEvents = 'none'; // Prevent double-clicks
+
+  const headers = {};
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+  if (csrf) headers['CSRF-Token'] = csrf;
+
+  fetch(`/wishlist-toggle/${productId}`, {
+    method: 'POST',
+    headers,
+    credentials: 'include'
+  })
+    .then(res => {
+      if (res.status === 401) {
+        showLoginAlert(); // Custom alert
+        return;
+      }
+      return res.json();
+    })
+    .then(data => {
+      if (!data?.success) return alert('Failed to update wishlist');
+      btn.classList.toggle('active', data.isInWishlist);
+    })
+    .catch(err => {
+      console.error('Wishlist toggle error:', err);
+        showLoginAlert(); 
+    })
+    .finally(() => {
+      btn.style.pointerEvents = 'auto';
+    });
+}
+
+        
+        // Initialize carousel when page loads
+        let carousel;
+        window.addEventListener('DOMContentLoaded', () => {
+            carousel = new VideoCarousel();
+        });
+
+    </script>
+
+
+<%-include('../partials/user/footer')%>
+
+<style>
+    body, html {
+  margin: 0;
+  padding: 0;
+}
+
+  .content-placeholder {
+  margin-top: 80px;
+}
+
+
+  .banner-container {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .banner-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .banner-text {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #504e4e;
+    text-align: center;
+    padding: 20px;
+    z-index: 10;
+    width: 90%;
+      font-weight: 400;
+      font-style: normal;
+    text-shadow: 2px 2px 8px rgba(210, 203, 203, 0.6);
+
+  }
+
+  .animated-text {
+    font-size: 3rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    animation: fadeInUp 1.2s ease-out;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .animated-sub {
+     font-size: 2.2rem;
+    font-weight: 300;
+    margin: 15px 0;
+    animation: fadeInUp 2s ease-out;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .shop-button {
+    display: inline-block;
+    padding: 10px 28px;
+    background-color: #62584f;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    font-size: 1rem;
+    animation: fadeInUp 2.5s ease-out;
+    transition: background 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .shop-button:hover {
+    background-color: #3d2613;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+@media (max-width: 1024px) {
+  .banner-text {
+    top: auto;
+    bottom: 30px;
+    transform: translateX(-50%);
+    padding: 15px;
+  }
+
+  .animated-text {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .banner-text {
+    top: auto;
+    bottom: 20px;
+    transform: translateX(-50%);
+    padding: 10px;
+  }
+
+  .animated-text {
+    font-size: 1.8rem;
+  }
+
+  .animated-sub {
+    font-size: 1rem;
+  }
+
+  .shop-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+.category-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1 rem;
+    font-weight: 600;
+    font-family: 'Playfair Display', serif;
+}
+
+.category-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.category-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 1rem;
+    scroll-behavior: smooth;
+}
+
+.category-grid::-webkit-scrollbar {
+    display: none; /* Hide scrollbar */
+}
+
+.category-card {
+    flex: 0 0 auto;
+    width: 250px;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.category-card:hover {
+    transform: scale(1.1);
+}
+
+.category-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+        transition: transform 0.5s ease;
+
+}
+
+.category-name {
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+
+
+@media (max-width: 868px) {
+    .category-card {
+        width: 22%;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-card {
+        width: 40%;
+    }
+}
+
+
+/*brand*/
+  .brand-section {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+  }
+  .brand-item {
+    display: flex;
+    align-items: center;
+    margin: 40px 0;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  /* Text box styling */
+  .brand-text {
+    flex: 1 1 300px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #222;
+  }
+  /* Image container styling */
+  .brand-images {
+    display: flex;
+    gap: 10px;
+    flex: 1 1 300px;
+    justify-content: center;
+  }
+  .brand-images img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    object-fit: cover;
+  }
+  /* Single image styling */
+  .brand-images.single img {
+    max-width: 400px;
+  }
+  /* Double image styling */
+  .brand-images.double img {
+    max-width: 190px;
+  }
+
+  /* Alternating layouts */
+  /* Odd items: image left, text right */
+  .brand-item.odd {
+    flex-direction: row;
+  }
+  /* Even items: text left, image right */
+  .brand-item.even {
+    flex-direction: row-reverse;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 900px) {
+    .brand-item {
+      flex-direction: column !important;
+    }
+    .brand-images.double img {
+      max-width: 100%;
+    }
+  }
+
+  :root {
+            --primary-bg: #ffffff;
+            --secondary-bg: #f8f9fb;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --accent-color: #8b7355;
+            --border-light: #e2e8f0;
+            --shadow-light: rgba(0, 0, 0, 0.04);
+            --shadow-medium: rgba(0, 0, 0, 0.08);
+            --gradient-overlay: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,251,0.95) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .brand-section {
+            padding: 100px 0;
+            background: var(--primary-bg);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        .brand-item {
+            margin-bottom: 120px;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .brand-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .brand-card {
+            background: var(--primary-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px var(--shadow-light);
+            border: 1px solid var(--border-light);
+            transition: all 0.6s ease;
+            position: relative;
+        }
+
+        .brand-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px var(--shadow-medium);
+        }
+
+        .brand-images {
+            position: relative;
+            overflow: hidden;
+            background: var(--secondary-bg);
+        }
+
+        .brand-images.single {
+            height: 450px;
+        }
+
+        .brand-images.double {
+            height: 500px;
+        }
+
+        .brand-images img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.8s ease;
+            filter: brightness(0.95) contrast(1.05);
+        }
+
+        .brand-images img:hover {
+            transform: scale(1.05);
+            filter: brightness(1) contrast(1.1);
+        }
+
+        /* Double image layout */
+        .brand-images.double {
+            position: relative;
+        }
+
+        .brand-images.double img:first-child {
+            width: 70%;
+            height: 80%;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            z-index: 1;
+        }
+
+        .brand-images.double img:last-child {
+            width: 50%;
+            height: 60%;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            position: absolute;
+            top: 25%;
+            right: 8%;
+            z-index: 2;
+            border: 3px solid white;
+        }
+
+        .brand-text {
+            padding: 50px 40px;
+            position: relative;
+        }
+
+        .brand-text h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+            position: relative;
+        }
+
+        .brand-text h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--accent-color);
+            border-radius: 1px;
+        }
+
+        .brand-text p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin-top: 30px;
+        }
+
+        /* Brand specific subtle accents */
+        .brand-item:nth-child(1) .brand-text h3::after { background: #2c2c2c; }
+        .brand-item:nth-child(2) .brand-text h3::after { background: #1a1a2e; }
+        .brand-item:nth-child(3) .brand-text h3::after { background: #8b4513; }
+        .brand-item:nth-child(4) .brand-text h3::after { background: #654321; }
+        .brand-item:nth-child(5) .brand-text h3::after { background: #2d5a3d; }
+
+        /* Subtle brand card variations */
+        .brand-item:nth-child(even) .brand-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+        }
+
+        .brand-item:nth-child(odd) .brand-card {
+            background: var(--primary-bg);
+        }
+
+        /* Image overlay effects */
+        .brand-images::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            z-index: 3;
+        }
+
+        .brand-card:hover .brand-images::before {
+            opacity: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .section-header h2 {
+                font-size: 2.5rem;
+            }
+            
+            .brand-item {
+                margin-bottom: 60px;
+            }
+            
+            .brand-text {
+                padding: 30px 25px;
+            }
+            
+            .brand-text h3 {
+                font-size: 2.2rem;
+            }
+            
+            .brand-text p {
+                font-size: 1rem;
+            }
+            
+            .brand-images.single,
+            .brand-images.double {
+                height: 300px;
+            }
+
+            .brand-images.double img:first-child {
+                width: 75%;
+                height: 75%;
+            }
+
+            .brand-images.double img:last-child {
+                width: 55%;
+                height: 55%;
+            }
+        }
+
+        /* Smooth entrance animations */
+        .brand-item:nth-child(1) { animation-delay: 0.1s; }
+        .brand-item:nth-child(2) { animation-delay: 0.2s; }
+        .brand-item:nth-child(3) { animation-delay: 0.3s; }
+        .brand-item:nth-child(4) { animation-delay: 0.4s; }
+        .brand-item:nth-child(5) { animation-delay: 0.5s; }
+
+        /* Subtle floating animation */
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .brand-card:hover {
+            animation: gentleFloat 3s ease-in-out infinite;
+        }
+
+
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600&display=swap');
+
+/* Newly Arrived Products Section */
+/* Newly Arrived Products Section */
+.newly-arrived-section {
+  padding: 60px 20px;
+  background-color: #f8f9fa;
+}
+
+.newly-arrived-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.newly-arrived-container .wishlist-icon.active{
+    color: red;
+
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.section-title {
+  text-align: left;
+  font-family: 'Paytone One', sans-serif;
+  font-size: 36px;
+  font-weight: 100;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.view-all-btn {
+  display: inline-block;
+  padding: 6px 18px;
+  background-color: #ffffff;
+  color: #333;
+  text-decoration: none;
+  border: 1px solid #333;
+  border-radius: 4px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 200;
+  font-size: 14px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.view-all-btn:hover {
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+/* Responsive Grid for Newly Arrived Products */
+.newly-arrived-grid {
+  display: grid;
+  gap: 20px;
+  grid-auto-rows: minmax(300px, auto); /* Ensure consistent row height */
+  width: 100%; /* Ensure the grid takes the full container width */
+  box-sizing: border-box;
+}
+
+/* Large devices: 2 rows of 5 columns (total 10 items) */
+@media (min-width: 1200px) {
+  .newly-arrived-grid {
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, minmax(300px, auto));
+  }
+  .newly-arrived-grid .product-card:nth-child(n+11) {
+    display: none; /* Ensure only 10 products are shown */
+  }
+}
+
+/* Medium devices: 3 rows of 3 columns (total 9 items) */
+@media (min-width: 668px) and (max-width: 1199px) {
+  .newly-arrived-grid {
+    grid-template-columns: repeat(3, minmax(200px, 1fr)); /* Constrain column width */
+    grid-template-rows: repeat(3, minmax(300px, auto));
+    justify-items: center; /* Center the cards in their grid cells */
+  }
+  .newly-arrived-grid .product-card {
+    width: 100%;
+    max-width: 250px; /* Limit card width to prevent stretching */
+  }
+  .newly-arrived-grid .product-card:nth-child(n+10) {
+    display: none; /* Ensure only 9 products are shown */
+  }
+}
+
+/* Small devices: 3 rows of 2 columns (total 6 items) */
+@media (max-width: 667px) {
+  .newly-arrived-grid {
+    grid-template-columns: repeat(2, minmax(150px, 1fr)); /* Constrain column width */
+    grid-template-rows: repeat(3, minmax(300px, auto));
+    justify-items: center; /* Center the cards in their grid cells */
+  }
+  .newly-arrived-grid .product-card {
+    width: 100%;
+    max-width: 180px; /* Limit card width to prevent stretching */
+  }
+  .newly-arrived-grid .product-card:nth-child(n+7) {
+    display: none; /* Ensure only 6 products are shown */
+  }
+}
+
+/* Product Card Styling */
+.newly-arrived-grid .product-card {
+  position: relative;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 12px;
+  background: #fff; /* Ensure card has a background for consistency */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content within the card */
+}
+
+.newly-arrived-grid .product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.newly-arrived-grid .product-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.newly-arrived-grid .product-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Outfit', sans-serif;
+  text-align: center;
+}
+
+.newly-arrived-grid .product-card .brand-name {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-family: 'Outfit', sans-serif;
+  text-align: center;
+}
+
+.newly-arrived-grid .product-card .price-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.newly-arrived-grid .product-card .offer-price {
+  font-weight: 700;
+  color: #333;
+  font-size: 16px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.newly-arrived-grid .product-card .original-price {
+  color: #888;
+  text-decoration: line-through;
+  font-size: 13px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.newly-arrived-grid .product-card .discount {
+  color: #d32f2f;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Responsive price adjustments */
+@media (max-width: 576px) {
+  .newly-arrived-grid .product-card .offer-price {
+    font-size: 14px;
+  }
+  
+  .newly-arrived-grid .product-card .original-price {
+    font-size: 12px;
+  }
+  
+  .newly-arrived-grid .product-card .discount {
+    font-size: 11px;
+  }
+}
+
+.newly-arrived-grid .product-card .new-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #9dcbda;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-family: 'Outfit', sans-serif;
+}
+
+.newly-arrived-grid .product-card .wishlist-icon {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    font-size: 18px;
+    color: #e9dfdf;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.newly-arrived-grid .product-card .wishlist-icon:hover {
+    color: #d32f2f;
+}
+
+.newly-arrived-container .wishlist-icon.active {
+    color: #d32f2f;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .newly-arrived-section {
+    padding: 40px 15px;
+  }
+  
+  .section-title {
+    font-size: 28px;
+  }
+  
+  .newly-arrived-grid {
+    gap: 15px;
+  }
+  
+  .newly-arrived-grid .product-card img {
+    height: 150px;
+  }
+  
+  .newly-arrived-grid .product-card h3 {
+    font-size: 14px;
+  }
+  
+  .newly-arrived-grid .product-card .offer-price {
+    font-size: 14px;
+  }
+}
+
+
+/*video*/
+
+
+       .video-carousel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4rem;
+            padding: 60px 40px;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .video-container {
+            position: relative;
+            width: 380px;
+            height: 560px;
+            overflow: hidden;
+            border-radius: 6px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .video-container video.active {
+            opacity: 1;
+        }
+
+        .text-container {
+            flex: 1;
+            max-width: 550px;
+            position: relative;
+            min-height: 300px;
+        }
+
+        .text-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            font-weight: 400;
+            color: #444;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: all 0.8s ease;
+        }
+
+        .text-item.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .text-item h3 {
+            font-size: 1.6rem;
+            color: #222;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .text-item p {
+            margin-bottom: 12px;
+        }
+
+        .progress-container {
+            position: absolute;
+            bottom: 25px;
+            left: 0;
+            right: 0;
+            padding: 0 25px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 2px;
+            background: rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-radius: 1px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #333;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .indicators {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.25);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .indicator.active {
+            background: #333;
+            transform: scale(1.2);
+        }
+
+        .indicator:hover {
+            background: #666;
+        }
+
+        .controls {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #333;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .video-container:hover .controls {
+            opacity: 1;
+        }
+
+        .controls:hover {
+            background: rgba(255,255,255,1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .prev-btn {
+            left: 15px;
+        }
+
+        .next-btn {
+            right: 15px;
+        }
+
+        /* Tablet Styles */
+        @media (max-width: 1024px) {
+            .video-carousel {
+                gap: 3rem;
+                padding: 50px 30px;
+            }
+            
+            .video-container {
+                width: 320px;
+                height: 480px;
+            }
+            
+            .text-container {
+                max-width: 450px;
+            }
+            
+            .text-item {
+                font-size: 1.2rem;
+            }
+            
+            .text-item h3 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Mobile Landscape */
+        @media (max-width: 768px) {
+            .video-carousel {
+                flex-direction: column;
+                gap: 2.5rem;
+                padding: 40px 25px;
+            }
+            
+            .video-container {
+                width: 300px;
+                height: 450px;
+            }
+            
+            .text-container {
+                max-width: 400px;
+                text-align: center;
+                min-height: 250px;
+            }
+            
+            .text-item {
+                font-size: 1.1rem;
+                position: relative;
+            }
+            
+            .text-item h3 {
+                font-size: 1.4rem;
+                margin-bottom: 12px;
+            }
+        }
+
+        /* Mobile Portrait */
+        @media (max-width: 480px) {
+            .video-carousel {
+                gap: 2rem;
+                padding: 30px 20px;
+            }
+            
+            .video-container {
+                width: 280px;
+                height: 420px;
+            }
+            
+            .text-container {
+                max-width: 320px;
+                min-height: 220px;
+            }
+            
+            .text-item {
+                font-size: 1rem;
+                line-height: 1.7;
+            }
+            
+            .text-item h3 {
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+            }
+            
+            .text-item p {
+                margin-bottom: 10px;
+            }
+            
+            .controls {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 360px) {
+            .video-carousel {
+                padding: 25px 15px;
+            }
+            
+            .video-container {
+                width: 260px;
+                height: 390px;
+            }
+            
+            .text-container {
+                max-width: 280px;
+            }
+            
+            .text-item {
+                font-size: 0.95rem;
+            }
+            
+            .text-item h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+</style>

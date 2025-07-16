@@ -1,0 +1,131 @@
+<%- include('../partials/admin/header') %>
+<main class="dashboard-content">
+  <style>
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .content-main {
+      padding: 20px;
+    }
+    .content-header {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+    .content-title {
+      color: #2c3e50;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    .card {
+      color: #212529;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      background: #4a6a4d;
+      color: white;
+      padding: 10px;
+      border-radius: 8px 8px 0 0;
+    }
+    .card-body {
+      padding: 15px;
+    }
+    .item-details {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+    .item-details img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: inline-block;
+      min-width: 80px;
+      text-align: center;
+    }
+    .status-return-requested { background-color: #fd7e14; color: white; }
+    .status-returned { background-color: #6c757d; color: white; }
+    .status-active { background-color: #28a745; color: white; }
+  </style>
+
+  <section class="content-main">
+    <div class="content-header">
+      <h2 class="content-title">View Returns for Order #<%= order._id.toString().slice(-8).toUpperCase() %></h2>
+      <a href="/admin/orderManagement" class="btn btn-secondary">Back to Orders</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>Order Details</h5>
+      </div>
+      <div class="card-body">
+        <p><strong>Order Date:</strong> <%= order.orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %></p>
+        <p><strong>Customer:</strong> <%= order.userId?.name || 'Unknown' %> (<%= order.userId?.email || 'N/A' %>)</p>
+        <p><strong>Total:</strong> ₹<%= order.finalTotal.toLocaleString('en-IN') %></p>
+        <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
+        <p><strong>Delivery Status:</strong> 
+          <span class="status-badge status-<%= order.deliveryStatus.toLowerCase().replace(' ', '-') %>">
+            <%= order.deliveryStatus %>
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>Items</h5>
+      </div>
+      <div class="card-body">
+        <% order.items.forEach(item => { %>
+          <div class="item-details">
+            <img src="<%= item.productId.images && item.productId.images.length > 0 ? item.productId.images[0].url : '/images/placeholder.png' %>" alt="<%= item.productId.productName || 'Product' %>">
+            <div>
+              <h6><%= item.productId.productName || 'Unknown Product' %> (<%= item.variantSize || 'N/A' %>)</h6>
+              <p class="mb-0">Quantity: <%= item.quantity || 1 %> | Total: ₹<%= item.itemTotal.toLocaleString('en-IN') %></p>
+              <p class="mb-0">
+                <span class="status-badge status-<%= item.status.toLowerCase().replace(' ', '-') %>">
+                  <%= item.status %>
+                </span>
+                <% if (item.status === 'ReturnRequested' || item.status === 'Returned') { %>
+                  (Reason: <%= item.returnReason || 'N/A' %>)
+                  <% if (item.returnApproved !== null) { %>
+                    - <%= item.returnApproved ? 'Approved' : 'Rejected' %>
+                    <% if (!item.returnApproved && item.returnRejectionReason) { %>
+                      (Reason: <%= item.returnRejectionReason %>)
+                    <% } %>
+                  <% } %>
+                <% } %>
+              </p>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+</main>

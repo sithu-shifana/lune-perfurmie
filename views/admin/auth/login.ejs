@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login -  LUNE PERFUMERIE </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #222c25
+        }
+        
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 350px;
+        }
+        
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            width: 80px;
+            height: auto;
+            filter: brightness(0) invert(0);
+        }
+        .logo p {
+            font-size: 20px;
+            font-weight: bold;
+            color: black;
+            margin-top: 5px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #222c25;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #344139;
+        }
+        
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <a class="logo">
+            <p> LUNE PERFUMERIE</p>
+        </a>
+
+        <h2>Admin Login</h2>
+        
+        <!-- Error message -->
+        <p id="error-message" class="error"></p>
+
+        <form id="loginForm">
+            <input type="email" id="email" name="email" placeholder="Email" value="admin@gmail.com">
+            <input type="password" id="password" name="password" placeholder="Password" value="admin123@A" >
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <script>
+    
+         const form = document.getElementById("loginForm");
+
+        form.addEventListener("input", () => {
+        document.getElementById('error-message').textContent = '';
+        });
+
+        document.getElementById('loginForm').addEventListener('submit',function(e){
+            e.preventDefault(); 
+                
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            document.getElementById('error-message').textContent = '';
+
+            if (!email || !password) {
+                document.getElementById('error-message').textContent = 'Please fill in both fields.';
+                return;
+            }
+            fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    document.getElementById('error-message').textContent = data.error;
+                }
+            }) .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('error-message').textContent = 'Something went wrong. Please try again.';
+            });
+
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+export const getTotalRevenue = async (req, res) => {
+  try {
+    const revenue = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$totalAmount" }
+        }
+      }
+    ]);
+
+    res.status(200).json({ total: revenue[0]?.totalRevenue || 0 });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+export const getMonthlySales = async (req, res) => {
+  try {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          totalSales: { $sum: "$totalAmount" },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+export const getTopProducts = async (req, res) => {
+  try {
+    const result = await Order.aggregate([
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.productId",
+          totalSold: { $sum: "$items.quantity" }
+        }
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "product"
+        }
+      },
+      { $unwind: "$product" },
+      { $sort: { totalSold: -1 } },
+      { $limit: 5 }
+    ]);
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const getTopCustomers = async (req, res) => {
+  try {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: "$userId",
+          totalSpent: { $sum: "$totalAmount" },
+          orders: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      { $unwind: "$user" },
+      { $sort: { totalSpent: -1 } },
+      { $limit: 5 }
+    ]);
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+export const getOrderStatusStats = async (req, res) => {
+  try {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+

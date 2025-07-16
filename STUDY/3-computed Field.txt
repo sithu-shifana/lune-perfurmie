@@ -1,0 +1,10 @@
+These are values calculated from other fields, not directly entered by the user.
+
+| Term                    | Meaning                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Computed Field**      | A field whose value is derived from other fields (e.g., full name = first name + last name).         |
+| **Derived Field**       | Another word for computed field.                                                                     |
+| **Virtual Field**       | A special computed field that isn’t stored in the database (e.g., `userSchema.virtual('fullName')`). |
+| **Calculated Property** | General programming term for fields created using logic from other data.                             |
+
+

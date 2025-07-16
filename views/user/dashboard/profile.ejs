@@ -1,0 +1,1584 @@
+<%- include('../partials/user/header') %>
+<style>
+  /* Enhanced Profile Page Styles */
+  .profile-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    border-radius: 12px;
+    color: white;
+  }
+
+  .profile-picture-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .profile-picture {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+    overflow: hidden;
+  }
+
+  .profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .camera-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #b8bdb9;
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    border: 3px solid white;
+  }
+
+  .camera-overlay:hover {
+    background: #b0b2b1;
+    transform: scale(1.1);
+  }
+
+  .profile-details h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+  }
+
+  .profile-details p {
+    margin: 0.3rem 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+  }
+
+  .profile-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    margin-top: 1rem;
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .profile-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .profile-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s;
+  }
+
+  .profile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-card h3 {
+    color: #495057;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-icon {
+    font-size: 1.2rem;
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-weight: 500;
+    color: #6c757d;
+  }
+
+  .info-value {
+    color: #212529;
+    font-weight: 500;
+  }
+
+  .no-address {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 2rem;
+  }
+
+  /* Enhanced Button Styles */
+  .btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .btn-primary {
+    background: linear-gradient(45deg, #9a7f52, #908c93);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(45deg, #191a1d, #373439);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 94, 97, 0.4);
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+        background: linear-gradient(45deg, #191a1d, #373439);
+    transform: translateY(-2px);
+  }
+
+  .btn-success {
+    background: linear-gradient(45deg, #351d0a, #504f40);
+    color: white;
+  }
+
+  .btn-success:hover {
+    background: linear-gradient(45deg, #191a1d, #373439);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(53, 82, 170, 0.4);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  /* Enhanced Modal Styles */
+  .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+  }
+
+  .modal-content {
+    background: #fff;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    animation: modalSlideIn 0.3s ease-out;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-header h2 {
+    color: #333;
+    margin: 0;
+    font-size: 1.6rem;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #adb5bd;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+  }
+
+  .close-btn:hover {
+    background: #f8f9fa;
+    color: #6c757d;
+  }
+
+  /* Enhanced Form Styles */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #495057;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background: #fff;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .file-upload-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .file-upload-btn {
+    display: block;
+    width: 100%;
+    padding: 0.8rem;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #6c757d;
+  }
+
+  .file-upload-btn:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+    color: #667eea;
+  }
+
+  .file-upload-btn.has-file {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+  }
+
+  #profilePicInput {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .preview-container {
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .preview-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e9ecef;
+  }
+
+  /* Message Styles */
+  .message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .error-message {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .success-message {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  /* Enhanced Referral Modal Styles */
+  .referral-modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .referral-modal-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    animation: modalSlideIn 0.3s ease-out;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e9ecef 100%);
+  }
+
+  .referral-link-container {
+    background: #ffffff;
+    padding: 1.2rem;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    margin: 1.5rem 0;
+    word-break: break-all;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .referral-link-container input {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    outline: none;
+    color: #333;
+  }
+
+  .copy-btn {
+    background: linear-gradient(45deg, #141514, #4b4f4d);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+
+  .copy-btn:hover {
+    background: linear-gradient(45deg, #d2d5d2, #f5f9f8);
+    color:#141514;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 77, 75, 0.4);
+  }
+
+  .note {
+    font-size: 0.95rem;
+    color: #6c757d;
+    margin-top: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .profile-container {
+      padding: 1.5rem;
+    }
+
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .profile-content {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .btn-group {
+      flex-direction: column;
+    }
+
+    .modal-content {
+      margin: 10% auto;
+      padding: 1.5rem;
+    }
+
+    .info-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .referral-modal-content {
+      margin: 10% auto;
+      padding: 1.5rem;
+    }
+  }
+  .icon-small {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.btn-action {
+  background-color: transparent;
+  color: rgb(18, 17, 17);
+  border: 1px solid lightgray;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-action:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgb(16, 16, 16);
+  color: rgba(91, 72, 54, 0.755);
+  cursor: pointer;
+}
+
+/* Modal base */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Modal box */
+.modal-content {
+  background-color: #fff;
+  margin: auto;
+  margin-top: 10%;
+  padding: 30px 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* OTP Input Group */
+.otp-container {
+  margin-top: 20px;
+}
+
+.otp-inputs {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.otp-input {
+  width: 40px;
+  height: 45px;
+  text-align: center;
+  font-size: 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.otp-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Utility classes */
+.mt-2 {
+  margin-top: 12px;
+}
+
+.mt-3 {
+  margin-top: 16px;
+}
+
+.mb-2 {
+  margin-bottom: 12px;
+}
+
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.text-success {
+  color: green;
+}
+
+.btn-link {
+  background: none;
+  color: #007bff;
+  padding: 0;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+
+</style>
+
+<div class="content-placeholder">
+  <%- include('../partials/user/sidebar') %>
+
+  <div class="main-content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="profile-container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+              <div class="profile-picture-container">
+                <div class="profile-picture">
+                  <% if (user.profilePicture) { %>
+                    <img src="<%= user.profilePicture %>" alt="Profile Picture" id="currentProfilePic">
+                  <% } else { %>
+                    <span id="profileInitial"><%= user.name.charAt(0).toUpperCase() %></span>
+                  <% } %>
+                </div>
+                <div class="camera-overlay" onclick="openPictureModal()">
+                  <img src="/icons/photo-camera.png" class="icon-small white-icon">
+                </div>
+              </div>
+              <div class="profile-details">
+                <h1><%= user.name %></h1>
+                <p><img src="/icons/email.png" class="icon-small white-icon"> <%= user.email %></p>
+                <p><img src="/icons/viber.png" class="icon-small white-icon"> <%= user.phone || 'Phone not set' %></p>
+                <p><img src="/icons/wallet.png" class="icon-small white-icon"> Wallet Balance: ₹<%= wallet.balance.toFixed(2) %></p>
+                <div class="profile-status">
+                  <span class="status-dot"></span>
+                  <span>Active Member</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <button id="editProfileBtn" class="btn btn-action">
+                <img src="/icons/edit.png" class="icon-small white-icon"> Edit Profile
+              </button>
+              <button id="getReferralBtn" class="btn btn-action referel-code">
+                <img src="/icons/gift.png" class="icon-small white-icon"> Get Referral Code
+              </button>
+              <button id="changeEmailBtn" class="btn btn-action" onclick="openCurrentEmailModal()">
+              <img src="/icons/email.png" class="icon-small white-icon"> Change Email
+            </button>
+              <button id="changePasswordBtn" class="btn btn-action" onclick="openPasswordModal()">
+                <img src="/icons/password-protection.png" class="icon-small white-icon"> Change Password
+              </button>
+            </div>
+          </div>
+
+          <!-- Profile Content -->
+          <div class="profile-content">
+            <!-- Personal Information -->
+            <div class="profile-card">
+              <h3><span class="card-icon"><img src="/icons/information-button.png" class="icon-small white-icon"> </span> Personal Information</h3>
+              <div class="info-item">
+                <span class="info-label">Full Name</span>
+                <span class="info-value"><%= user.name %></span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email Address</span>
+                <span class="info-value"><%= user.email %></span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Phone Number</span>
+                <span class="info-value"><%= user.phone || 'Not set' %></span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Member Since</span>
+                <span class="info-value"><%= new Date(user.createdAt).toLocaleDateString() %></span>
+              </div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="profile-card">
+              <h3><span class="card-icon"> <img src="/icons/location.png" class="icon-small white-icon"></span> Default Address</h3>
+              <% if (defaultAddress) { %>
+                <div class="info-item">
+                  <span class="info-label">Name</span>
+                  <span class="info-value"><%= defaultAddress.name %></span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Phone</span>
+                  <span class="info-value"><%= defaultAddress.phone %></span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Address</span>
+                  <span class="info-value">
+                    <%= defaultAddress.street %>, <%= defaultAddress.city %><br>
+                    <%= defaultAddress.state %> - <%= defaultAddress.pinCode %>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Country</span>
+                  <span class="info-value"><%= defaultAddress.country %></span>
+                </div>
+              <% } else { %>
+                <div class="no-address">
+                  <p>         <img src="/icons/location.png" class="icon-small white-icon">        </div>
+                   No default address set</p>
+                  <p>Add an address to get started</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Edit Profile Modal -->
+          <div id="editModal" class="modal" style="display:none;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="close-btn" onclick="closeEditModal()">×</button>
+              </div>
+              
+              <div id="errorMessage" class="message error-message" style="display:none;"></div>
+              <div id="successMessage" class="message success-message" style="display:none;"></div>
+              
+              <form id="editProfileForm">
+                <div class="form-group">
+                  <label for="name">Full Name</label>
+                  <input type="text" id="name" name="name" value="<%= user.name %>" autocomplete="name" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="phone">Phone Number</label>
+                  <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>" 
+                         autocomplete="tel" placeholder="Enter 10-digit phone number" />
+                </div>
+
+                <div class="btn-group">
+                  <button type="submit" class="btn btn-primary">
+                     Save Changes
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                     Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Profile Picture Modal -->
+          <div id="pictureModal" class="modal" style="display:none;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2>Change Profile Picture</h2>
+                <button class="close-btn" onclick="closePictureModal()">×</button>
+              </div>
+              
+              <div id="pictureErrorMessage" class="message error-message" style="display:none;"></div>
+              <div id="pictureSuccessMessage" class="message success-message" style="display:none;"></div>
+              
+              <form id="pictureForm" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label for="profilePicInput">Choose Profile Picture</label>
+                  <div class="file-upload-container">
+                    <label for="profilePicInput" class="file-upload-btn" id="fileUploadBtn">
+                      Choose Image File
+                    </label>
+                    <input type="file" id="profilePicInput" name="profilePicture" accept="image/*" />
+                  </div>
+                </div>
+
+                <div class="preview-container" id="previewContainer" style="display:none;">
+                  <img id="previewImage" class="preview-image" alt="Preview" />
+                </div>
+
+                <div class="btn-group">
+                  <button type="submit" class="btn btn-primary">
+                    Upload Picture
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="closePictureModal()">
+                     Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+<!-- Verify Current Email Modal -->
+<div id="verifyCurrentEmailModal" class="modal">
+  <div class="modal-content">
+     <div class="modal-header">
+
+    <h3>Verify Current Email</h3>
+    <button class="close-btn" onclick="closeAllModals()">×</button>
+    </div>
+    <p class="current-email">Email: <span id="currentEmailText"><%=user.email%></span></p>
+
+    <button id="sendOtpCurrentBtn" class="btn btn-sm btn-primary">Send OTP to your email</button>
+    <p id="otpSentMsg" class="text-message" style="display: none;"></p>
+
+    <div class="otp-container" id="otpSection" style="display: none;">
+            <p id="otpErrorMsgCurrent" class="text-error" style="color: red; display: none;"></p>
+
+      <label>Enter 6-digit OTP:</label>
+      <div class="otp-inputs">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+      </div>
+      <button id="verifyCurrentOtpBtn" class="btn btn-sm btn-success mt-2">Verify</button>
+      <div class="resend-container mt-2">
+        <span>Resend in <span id="countdown1">60s</span></span>
+        <button id="resendCurrentOtpBtn" class="btn btn-link" disabled>Resend OTP</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- enter new email -->
+<div id="verifyNewEmailModal" class="modal">
+  <div class="modal-content">
+     <div class="modal-header">
+
+    <h3>Enter New Email</h3>
+      <button class="close-btn" onclick="closeAllModals()">×</button>
+
+    </div>
+
+    <input type="email" id="newEmailInput" placeholder="Enter new email" class="form-control mb-2">
+    <p id="otpSentMsgNew" class="text-success" style="display: none;">OTP sent to new email!</p>
+
+
+
+
+    <div class="otp-container mt-3" style="display: none;" id="otpSectionNew">
+      <p id="otpErrorMsgNew" class="text-error" style="color: red; display: none;"></p>
+
+      <label>Enter 6-digit OTP:</label>
+      <div class="otp-inputs">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+        <input type="text" class="otp-input" maxlength="1">
+      </div>
+      <button id="verifyNewOtpBtn" class="btn btn-sm btn-success mt-3">Confirm Change</button>
+      <div class="resend-container mt-2">
+        <span class="countdown-text">Resend in <span id="countdown2">60s</span></span>
+        <button id="resendNewOtpBtn" class="btn btn-link" disabled>Resend OTP</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+          <!-- Change Password Modal -->
+          <div id="passwordModal" class="modal" style="display:none;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2>Change Password</h2>
+                <button class="close-btn" onclick="closePasswordModal()">×</button>
+              </div>
+              
+              <div id="passwordErrorMessage" class="message error-message" style="display:none;"></div>
+              <div id="passwordSuccessMessage" class="message success-message" style="display:none;"></div>
+              
+              <form id="changePasswordForm">
+                <div class="form-group">
+                  <label for="currentPassword">Current Password</label>
+                  <input type="password" id="currentPassword"  >
+                  <div class="mt-2">
+                    <button type="button" class="btn btn-link p-0" onclick="forgotPassword()">Forgot Password?</button>
+                  </div>
+                </div>
+        
+                <div class="btn-group">
+                  <button type="button" class="btn btn-primary" id="validatePasswordBtn">Validate Password</button>
+                  <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- New Password Modal -->
+          <div id="newPasswordModal" class="modal" style="display:none;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2>Set New Password</h2>
+                <button class="close-btn" onclick="closeNewPasswordModal()">×</button>
+              </div>
+              
+              <div id="newPasswordErrorMessage" class="message error-message" style="display:none;"></div>
+              <div id="newPasswordSuccessMessage" class="message success-message" style="display:none;"></div>
+              
+              <form id="newPasswordForm">
+                <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <input type="password" id="newPassword" name="newPassword" >
+                </div>
+
+                <div class="form-group">
+                  <label for="confirmPassword">Confirm New Password</label>
+                  <input type="password" id="confirmPassword" name="confirmPassword" >
+                </div>
+
+                <div class="btn-group">
+                  <button type="submit" class="btn btn-primary">Update Password</button>
+                  <button type="button" class="btn btn-secondary" onclick="closeNewPasswordModal()">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Modal Management
+  const editModal = document.getElementById('editModal');
+  const pictureModal = document.getElementById('pictureModal');
+  const passwordModal = document.getElementById('passwordModal');
+  const newPasswordModal = document.getElementById('newPasswordModal');
+  const editForm = document.getElementById('editProfileForm');
+  const pictureForm = document.getElementById('pictureForm');
+  const changePasswordForm = document.getElementById('changePasswordForm');
+  const newPasswordForm = document.getElementById('newPasswordForm');
+  const errorMessage = document.getElementById('errorMessage');
+  const successMessage = document.getElementById('successMessage');
+  const pictureErrorMessage = document.getElementById('pictureErrorMessage');
+  const pictureSuccessMessage = document.getElementById('pictureSuccessMessage');
+  const passwordErrorMessage = document.getElementById('passwordErrorMessage');
+  const passwordSuccessMessage = document.getElementById('passwordSuccessMessage');
+  const newPasswordErrorMessage = document.getElementById('newPasswordErrorMessage');
+  const newPasswordSuccessMessage = document.getElementById('newPasswordSuccessMessage');
+  const newPasswordFields = document.getElementById('newPasswordFields');
+
+  // Edit Profile Functions
+  document.getElementById('editProfileBtn').onclick = () => {
+    editModal.style.display = 'block';
+    clearMessages();
+  };
+
+  function closeEditModal() {
+    editModal.style.display = 'none';
+    clearMessages();
+  }
+
+  function openPictureModal() {
+    pictureModal.style.display = 'block';
+    clearPictureMessages();
+  }
+
+  function closePictureModal() {
+    pictureModal.style.display = 'none';
+    clearPictureMessages();
+    resetFileInput();
+  }
+
+  function closeCurrentEmailModal() {
+    pictureModal.style.display = 'none';
+    clearPictureMessages();
+    resetFileInput();
+  }
+
+  function openPasswordModal() {
+    passwordModal.style.display = 'block';
+    clearPasswordMessages();
+    document.getElementById('currentPassword').value = '';
+  }
+
+  function closePasswordModal() {
+    passwordModal.style.display = 'none';
+    clearPasswordMessages();
+  }
+
+  function openNewPasswordModal() {
+    newPasswordModal.style.display = 'block';
+    clearNewPasswordMessages();
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+  }
+
+  function closeNewPasswordModal() {
+    newPasswordModal.style.display = 'none';
+    clearNewPasswordMessages();
+  }
+
+  function clearMessages() {
+    errorMessage.style.display = 'none';
+    successMessage.style.display = 'none';
+  }
+
+  function clearPictureMessages() {
+    pictureErrorMessage.style.display = 'none';
+    pictureSuccessMessage.style.display = 'none';
+  }
+
+  function clearPasswordMessages() {
+    passwordErrorMessage.style.display = 'none';
+    passwordSuccessMessage.style.display = 'none';
+  }
+
+  function clearNewPasswordMessages() {
+    newPasswordErrorMessage.style.display = 'none';
+    newPasswordSuccessMessage.style.display = 'none';
+  }
+
+  function resetFileInput() {
+    document.getElementById('profilePicInput').value = '';
+    document.getElementById('fileUploadBtn').textContent = '📷 Choose Image File';
+    document.getElementById('fileUploadBtn').classList.remove('has-file');
+    document.getElementById('previewContainer').style.display = 'none';
+  }
+
+  // Close modals on outside click
+  window.onclick = (event) => {
+    if (event.target === editModal) closeEditModal();
+    if (event.target === pictureModal) closePictureModal();
+    if (event.target === passwordModal) closePasswordModal();
+    if (event.target === newPasswordModal) closeNewPasswordModal();
+    if (event.target.classList.contains('referral-modal')) closeReferralModal();
+  };
+
+  // File Upload Preview
+  document.getElementById('profilePicInput').onchange = function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        pictureErrorMessage.textContent = 'File size exceeds 5MB limit';
+        pictureErrorMessage.style.display = 'block';
+        resetFileInput();
+        return;
+      }
+      if (!file.type.match('image/*')) {
+        pictureErrorMessage.textContent = 'Only image files are allowed';
+        pictureErrorMessage.style.display = 'block';
+        resetFileInput();
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('previewImage').src = e.target.result;
+        document.getElementById('previewContainer').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+      document.getElementById('fileUploadBtn').textContent = `📷 ${file.name}`;
+      document.getElementById('fileUploadBtn').classList.add('has-file');
+    }
+  };
+
+  // Edit Profile Form Submission
+  editForm.onsubmit = async (e) => {
+    e.preventDefault();
+    clearMessages();
+
+    const name = editForm.name.value.trim();
+    const phone = editForm.phone.value.trim();
+
+    if (!name) {
+      errorMessage.textContent = 'Full name is required';
+      errorMessage.style.display = 'block';
+      return;
+    }
+    if (phone && !/^\d{10}$/.test(phone)) {
+      errorMessage.textContent = 'Phone number must be 10 digits';
+      errorMessage.style.display = 'block';
+      return;
+    }
+
+    try {
+      const response = await fetch('/profile-Update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        successMessage.textContent = data.message;
+        successMessage.style.display = 'block';
+        setTimeout(() => location.reload(), 2000);
+      } else {
+        errorMessage.textContent = data.error || 'Error updating profile';
+        errorMessage.style.display = 'block';
+      }
+    } catch (error) {
+      errorMessage.textContent = 'Error updating profile. Please try again.';
+      errorMessage.style.display = 'block';
+    }
+  };
+
+  // Picture Upload Form Submission
+pictureForm.onsubmit = async (e) => {
+  e.preventDefault();
+  clearPictureMessages();
+
+  const formData = new FormData();
+  const fileInput = document.getElementById('profilePicInput');
+
+  if (!fileInput.files[0]) {
+    pictureErrorMessage.textContent = 'Please select an image file';
+    pictureErrorMessage.style.display = 'block';
+    return;
+  }
+
+  formData.append('profilePicture', fileInput.files[0]);
+
+  try {
+    const response = await fetch('/upload-profile-picture', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      pictureSuccessMessage.textContent = data.message;
+      pictureSuccessMessage.style.display = 'block';
+
+      // Update the profile picture dynamically
+      const img = document.getElementById('currentProfilePic');
+      const profileInitial = document.getElementById('profileInitial');
+      if (img && data.imageUrl) {
+        img.src = `${data.imageUrl}?t=${new Date().getTime()}`; // Cache-busting
+        img.style.display = 'block'; // Ensure image is visible
+        if (profileInitial) profileInitial.style.display = 'none'; // Hide initial
+      }
+
+      // Close modal after a short delay
+      setTimeout(() => {
+        closePictureModal();
+      }, 2000);
+    } else {
+      pictureErrorMessage.textContent = data.error || 'Error uploading picture';
+      pictureErrorMessage.style.display = 'block';
+    }
+  } catch (error) {
+    pictureErrorMessage.textContent = 'Error uploading picture. Please try again.';
+    pictureErrorMessage.style.display = 'block';
+    console.error('Upload error:', error);
+  }
+};
+
+  // Validate Password and Open New Password Modal
+  document.getElementById('validatePasswordBtn').onclick = async () => {
+    clearPasswordMessages();
+    const currentPassword = document.getElementById('currentPassword').value.trim();
+    console.log(currentPassword)
+
+    if (!currentPassword) {
+      passwordErrorMessage.textContent = 'Current password is required';
+      passwordErrorMessage.style.display = 'block';
+      return;
+    }
+
+    try {
+      const response = await fetch('/change-password/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        passwordModal.style.display = 'none';
+        openNewPasswordModal();
+      } else {
+        passwordErrorMessage.textContent = data.error || 'Error validating password';
+        passwordErrorMessage.style.display = 'block';
+      }
+    } catch (error) {
+      passwordErrorMessage.textContent = 'Error validating password. Please try again.';
+      passwordErrorMessage.style.display = 'block';
+      console.error('Validation error:', error);
+    }
+  };
+
+  // New Password Form Submission
+  newPasswordForm.onsubmit = async (e) => {
+    e.preventDefault();
+    clearNewPasswordMessages();
+
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    console.log('New Password:', newPassword);
+    console.log('Confirm Password:', confirmPassword);
+
+    if (!newPassword || !confirmPassword) {
+      newPasswordErrorMessage.textContent = 'All fields are required';
+      newPasswordErrorMessage.style.display = 'block';
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      newPasswordErrorMessage.textContent = 'New passwords do not match';
+      newPasswordErrorMessage.style.display = 'block';
+      return;
+    }
+    if (newPassword.length < 6) {
+      newPasswordErrorMessage.textContent = 'New password must be at least 6 characters long';
+      newPasswordErrorMessage.style.display = 'block';
+      return;
+    }
+
+    try {
+      const response = await fetch('/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword, confirmPassword }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        newPasswordSuccessMessage.textContent = 'Password updated successfully';
+        newPasswordSuccessMessage.style.display = 'block';
+        setTimeout(() => {
+          closeNewPasswordModal();
+          location.reload();
+        }, 2000);
+      } else {
+        newPasswordErrorMessage.textContent = data.error || 'Error updating password';
+        newPasswordErrorMessage.style.display = 'block';
+      }
+    } catch (error) {
+      newPasswordErrorMessage.textContent = 'Error updating password. Please try again.';
+      newPasswordErrorMessage.style.display = 'block';
+      console.error('Password change error:', error);
+    }
+  };
+
+  function forgotPassword() {
+    alert("Redirecting to Forgot Password Page...");
+    window.location.href = "/forgot-password";
+  }
+
+  // Referral Code Functionality
+  const getReferralBtn = document.getElementById('getReferralBtn');
+
+  getReferralBtn.onclick = async () => {
+    console.log('Get Referral Code button clicked');
+    try {
+      const response = await fetch('/get-referral-code', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+
+      console.log('Fetch response:', response.status);
+      const data = await response.json();
+      console.log('Response data:', data);
+
+      if (response.ok) {
+        const existingModal = document.getElementById('referralModal');
+        if (existingModal) {
+          console.log('Removing existing referral modal');
+          existingModal.remove();
+        }
+        showReferralModal(data.referralCode, data.referralLink);
+      } else {
+        alert('Error getting referral code: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error fetching referral code:', error);
+      alert('Something went wrong while fetching referral code.');
+    }
+  };
+
+  function showReferralModal(code, link) {
+    console.log('showReferralModal called with code:', code, 'link:', link);
+    const modalHtml = `
+      <div id="referralModal" class="referral-modal">
+        <div class="referral-modal-content">
+          <h2>Your Referral Code</h2>
+          <p><strong>Code:</strong> ${code}</p>
+          <p><strong>Share this link:</strong></p>
+          <div class="referral-link-container">
+            <input id="referralLinkInput" type="text" value="${link}" readonly />
+            <button class="copy-btn" onclick="copyReferralLink()">Copy Link</button>
+          </div>
+          <p class="note">
+            Share this link with friends. They get ₹50 on signup, and you get ₹100!
+          </p>
+          <button class="btn-secondary" onclick="closeReferralModal()">Close</button>
+        </div>
+      </div>
+    `;
+    console.log('Inserting modal HTML');
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    console.log('Modal inserted');
+  }
+
+  function copyReferralLink() {
+    console.log('copyReferralLink called');
+    const input = document.getElementById('referralLinkInput');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value)
+      .then(() => {
+        console.log('Referral link copied');
+        alert('Referral link copied to clipboard!');
+      })
+      .catch(err => {
+        console.error('Copy failed:', err);
+        alert('Failed to copy. Please copy manually.');
+      });
+  }
+
+  function closeReferralModal() {
+    console.log('closeReferralModal called');
+    const modal = document.getElementById('referralModal');
+    if (modal) {
+      modal.remove();
+      console.log('Referral modal removed');
+    }
+  }
+
+  // Close referral modal on outside click
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('referral-modal')) {
+      closeReferralModal();
+    }
+  });
+
+
+// Helper to collect OTP from 6 inputs
+function getOTPFromInputs(inputs) {
+  return Array.from(inputs).map(input => input.value.trim()).join('');
+}
+
+// Countdown timer function
+function startCountdown(duration, countdownEl, resendBtn) {
+  let timeLeft = duration;
+  countdownEl.textContent = `${timeLeft}s`;
+  resendBtn.disabled = true;
+
+  const interval = setInterval(() => {
+    timeLeft--;
+    countdownEl.textContent = `${timeLeft}s`;
+
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      resendBtn.disabled = false;
+      countdownEl.textContent = '';
+    }
+  }, 1000);
+}
+
+// ===========================
+// 1. Modal 1 - Current Email
+// ===========================
+document.getElementById('sendOtpCurrentBtn').addEventListener('click', async () => {
+  const button = document.getElementById('sendOtpCurrentBtn');
+  const msg = document.getElementById('otpSentMsg');
+  const otpSection = document.getElementById('otpSection');
+  const countdown = document.getElementById('countdown1');
+  const resendBtn = document.getElementById('resendCurrentOtpBtn');
+
+  button.disabled = true;
+  msg.style.display = 'block';
+  msg.textContent = 'Sending OTP to your current email...';
+  
+
+  try {
+    const res = await fetch('/send-otp/current', { method: 'POST' });
+    const data = await res.json();
+
+    if (res.ok) {
+      msg.textContent = 'OTP sent to your email.';
+      otpSection.style.display = 'block';
+      startCountdown(60, countdown, resendBtn);
+    } else {
+      msg.textContent = data.message || 'Failed to send OTP.';
+    }
+  } catch (err) {
+    msg.textContent = 'Something went wrong while sending OTP.';
+  } finally {
+    setTimeout(() => {
+      button.disabled = false;
+    }, 3000);
+  }
+});
+
+
+
+document.getElementById('verifyCurrentOtpBtn').addEventListener('click', async () => {
+  const otpInputs = document.querySelectorAll('#otpSection .otp-input');
+  const otp = getOTPFromInputs(otpInputs);
+  const errorMsgCurrent = document.getElementById('otpErrorMsgCurrent');
+
+  // Clear previous error
+  errorMsgCurrent.textContent = '';
+
+  const res = await fetch('/verify-otp/current', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ otp })
+  });
+
+      const data = await res.json();
+
+  if (res.ok) {
+    document.getElementById('verifyCurrentEmailModal').style.display = 'none';
+    document.getElementById('verifyNewEmailModal').style.display = 'block';
+  } else {
+    errorMsgCurrent.textContent = data.message || 'Invalid OTP';
+    errorMsgCurrent.style.display = 'block';
+  } 
+});
+
+// ===========================
+// 2. Modal 2 - New Email
+// ===========================
+document.getElementById('sendOtpNewBtn').addEventListener('click', async () => {
+  const newEmail = document.getElementById('newEmailInput').value;
+  const msg = document.getElementById('otpSentMsgNew');
+  const otpSection = document.getElementById('otpSectionNew');
+  const countdown = document.getElementById('countdown2');
+  const resendBtn = document.getElementById('resendNewOtpBtn');
+
+  if (!newEmail) return alert('Please enter new email');
+
+  msg.style.display = 'block';
+  msg.textContent = 'Sending OTP to your current email...';
+  try {
+    const res = await fetch('/send-otp/new', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: newEmail })
+    });
+
+
+
+    if (res.ok) {
+      msg.style.display = 'block';
+      msg.textContent = 'OTP sent to new email!';
+      otpSection.style.display = 'block';
+      startCountdown(60, countdown, resendBtn);
+    } else {
+      const data = await res.json();
+
+    }
+  } catch (err) {
+    alert('Something went wrong while sending OTP');
+  }
+});
+
+// Verify OTP
+document.getElementById('verifyNewOtpBtn').addEventListener('click', async () => {
+  const otpInputs = document.querySelectorAll('#otpSectionNew .otp-input');
+  const otp = getOTPFromInputs(otpInputs);
+  const otpError = document.getElementById('otpErrorMsgNew');
+
+  // Clear old error message
+  otpError.style.display = 'none';
+
+  if (otp.length < 6 || otp.includes('')) {
+    otpError.textContent = 'Please enter the complete 6-digit OTP.';
+    otpError.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch('/verify-otp/new', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ otp })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('Email updated successfully!');
+      location.reload();
+    } else {
+      otpError.textContent = data.message || 'Invalid OTP';
+      otpError.style.display = 'block';
+    }
+  } catch (err) {
+    otpError.textContent = 'Something went wrong during verification.';
+    otpError.style.display = 'block';
+  }
+});
+
+
+// ===========================
+// Resend Button for New OTP
+// ===========================
+document.getElementById('resendNewOtpBtn').addEventListener('click', () => {
+  document.getElementById('sendOtpNewBtn').click(); // Trigger send OTP again
+});
+
+document.getElementById('resendCurrentOtpBtn').addEventListener('click', () => {
+  document.getElementById('sendOtpCurrentBtn').click(); // Trigger send OTP again
+});
+
+// ===========================
+// Optional: Modal Controls
+// ===========================
+function openCurrentEmailModal() {
+  document.getElementById('verifyCurrentEmailModal').style.display = 'block';
+}
+
+function closeAllModals() {
+  document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+}
+
+// ===========================
+// OTP Input Smart Behavior
+// ===========================
+function setupOtpInputs(sectionSelector) {
+  const inputs = document.querySelectorAll(`${sectionSelector} .otp-input`);
+
+  inputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+      const value = e.target.value;
+      if (value.length > 1) {
+        const chars = value.split('');
+        chars.forEach((char, i) => {
+          if (inputs[index + i]) {
+            inputs[index + i].value = char;
+          }
+        });
+        const nextInput = inputs[index + chars.length];
+        if (nextInput) nextInput.focus();
+      } else if (value && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !input.value && index > 0) {
+        inputs[index - 1].focus();
+      }
+    });
+
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, inputs.length);
+      pasteData.split('').forEach((char, i) => {
+        inputs[i].value = char;
+      });
+      if (inputs[pasteData.length - 1]) {
+        inputs[pasteData.length - 1].focus();
+      }
+    });
+  });
+}
+
+// Activate for both sections
+setupOtpInputs('#otpSection');
+setupOtpInputs('#otpSectionNew');
+
+
+
+
+</script>
+<%- include('../partials/user/sidebarFooter') %>

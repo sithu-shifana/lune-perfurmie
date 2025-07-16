@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .error-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 0;
+            max-width: 900px;
+        }
+        
+        .error-image {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+        }
+        
+        .error-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 160px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.2);
+            z-index: 1;
+            letter-spacing: -5px;
+        }
+        
+        .lost-astronaut {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            bottom: 30px;
+            right: 50px;
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        h1 {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .btn-home {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+        }
+        
+        .btn-home:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.6);
+        }
+        
+        .search-box {
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .search-input {
+            border-radius: 50px;
+            padding: 12px 20px;
+            padding-right: 50px;
+            border: 1px solid #ddd;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            box-shadow: 0 0 15px rgba(37, 117, 252, 0.2);
+            border-color: #2575fc;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: rotate(90deg);
+        }
+        
+        .footer {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="error-container mx-auto">
+                    <div class="error-image">
+                        <div class="stars" id="stars"></div>
+                        <div class="error-number">404</div>
+                        <div class="lost-astronaut">
+                            <img src="/images/404.webp" alt="Lost astronaut" class="img-fluid" />
+                        </div>
+                    </div>
+                    <div class="content text-center text-md-start">
+                        <h1 class="mb-4">Dear, we have a problem!</h1>
+                        <p>The page you're looking for seems to have drifted off into space. Our astronaut is trying to find it, but until then...</p>
+  
+                        
+                        <div class="footer text-center mt-5">
+                            <div class="row">
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <i class="fas fa-map me-2"></i> Site Map
+                                </div>
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <i class="fas fa-question-circle me-2"></i> Help Center
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-envelope me-2"></i> Contact Us
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS for stars -->
+    <script>
+        // Create random stars
+        document.addEventListener('DOMContentLoaded', function() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 50;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Random position
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                
+                // Random size
+                const size = Math.random() * 3 + 1;
+                
+                // Random animation delay
+                const delay = Math.random() * 2;
+                
+                star.style.left = `${left}%`;
+                star.style.top = `${top}%`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        });
+    </script>
+</body>
+</html>

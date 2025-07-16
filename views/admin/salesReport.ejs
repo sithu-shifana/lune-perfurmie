@@ -1,0 +1,719 @@
+<%- include('../partials/admin/header') %>
+
+<style>
+/* Modern CSS Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 80px auto 2rem;
+  margin-left: 240px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced Header */
+.report-header {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Advanced Filter Section */
+.filter-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-section select,
+.filter-section input[type="date"] {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #334155;
+  background: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section select:focus,
+.filter-section input[type="date"]:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.filter-section input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.generate-btn {
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.generate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.generate-btn:active {
+  transform: translateY(0);
+}
+
+/* Enhanced Summary Cards */
+.summary-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.summary-value.positive {
+  color: #059669;
+}
+
+.summary-value.negative {
+  color: #dc2626;
+}
+
+.summary-change {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Download Section */
+.download-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.download-header {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.download-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.download-btn.pdf {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.download-btn.excel {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+}
+
+.download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.download-info {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Modern Table Design */
+.table-container {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 120px 100px 180px 2fr 120px 120px 120px 120px 120px;
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  color: white;
+  padding: 1rem;
+  font-weight: 600;
+  text-align: center;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.report-table tr {
+  display: grid;
+  grid-template-columns: 120px 100px 180px 2fr 120px 120px 120px 120px 120px;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.report-table tr:hover {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  transform: scale(1.001);
+}
+
+.report-table td {
+  padding: 1rem 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-right: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.report-table td:last-child {
+  border-right: none;
+}
+
+.report-table td.currency {
+  color: #059669;
+  font-weight: 600;
+}
+
+.report-table td.discount {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.order-items {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  max-height: 60px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.order-item {
+  margin-bottom: 0.25rem;
+  padding: 0.25rem;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 4px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-subtext {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+/* Loading State */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .dashboard-content {
+    margin-left: 0;
+    margin-top: 2rem;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 1rem;
+    margin: 1rem;
+  }
+
+  .report-header {
+    font-size: 2rem;
+  }
+
+  .filter-section {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-container {
+    grid-template-columns: 1fr;
+  }
+
+  .download-buttons {
+    flex-direction: column;
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .report-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .report-table td {
+    display: block;
+    text-align: left;
+    padding: 0.5rem 0;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .report-table td:last-child {
+    border-bottom: none;
+  }
+
+  .report-table td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #475569;
+    display: inline-block;
+    width: 120px;
+    margin-right: 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .order-items {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  }
+  
+  .dashboard-content {
+    background: rgba(26, 32, 44, 0.95);
+    color: #e2e8f0;
+  }
+  
+  .summary-card {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .table-container {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .report-table tr:hover {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  }
+}
+</style>
+
+<div class="dashboard-content">
+    <h1 class="report-header">📊 Sales Analytics Dashboard</h1>
+
+    <!-- Enhanced Filter Section -->
+    <div class="filter-section">
+        <div class="filter-group">
+            <label class="filter-label">Time Period</label>
+            <select name="timePeriod" onchange="updateDates()">
+                <option value="daily" <%= timePeriod === 'daily' ? 'selected' : '' %>>📅 Daily</option>
+                <option value="weekly" <%= timePeriod === 'weekly' ? 'selected' : '' %>>📊 Weekly</option>
+                <option value="monthly" <%= timePeriod === 'monthly' ? 'selected' : '' %>>📈 Monthly</option>
+                <option value="yearly" <%= timePeriod === 'yearly' ? 'selected' : '' %>>🗓️ Yearly</option>
+                <option value="custom" <%= timePeriod === 'custom' ? 'selected' : '' %>>🎯 Custom Range</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label class="filter-label">Start Date</label>
+            <input type="date" name="startDate" value="<%= startDate %>" <%= timePeriod !== 'custom' ? 'disabled' : '' %>>
+        </div>
+        
+        <div class="filter-group">
+            <label class="filter-label">End Date</label>
+            <input type="date" name="endDate" value="<%= endDate %>" <%= timePeriod !== 'custom' ? 'disabled' : '' %>>
+        </div>
+        
+        <div class="filter-group">
+            <label class="filter-label">&nbsp;</label>
+            <button class="generate-btn" onclick="generateReport()">
+                🔍 Generate Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Enhanced Summary Cards -->
+    <div class="summary-container">
+        <div class="summary-card">
+            <div class="summary-label">Total Orders</div>
+            <div class="summary-value"><%= totalOrders %></div>
+            <div class="summary-change">Orders processed</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="summary-label">Gross Revenue</div>
+            <div class="summary-value positive">₹<%= totalOrderAmount.toFixed(2) %></div>
+            <div class="summary-change">Before discounts</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="summary-label">Total Discounts</div>
+            <div class="summary-value negative">₹<%= totalDiscount.toFixed(2) %></div>
+            <div class="summary-change">Savings provided</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="summary-label">Net Sales</div>
+            <div class="summary-value positive">₹<%= netSales.toFixed(2) %></div>
+            <div class="summary-change">Final revenue</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="summary-label">Avg Order Value</div>
+            <div class="summary-value">₹<%= totalOrders > 0 ? (netSales / totalOrders).toFixed(2) : '0.00' %></div>
+            <div class="summary-change">Per order</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="summary-label">Discount Rate</div>
+            <div class="summary-value">
+                <%= totalOrderAmount > 0 ? ((totalDiscount / totalOrderAmount) * 100).toFixed(1) : '0.0' %>%
+            </div>
+            <div class="summary-change">Of total sales</div>
+        </div>
+    </div>
+
+    <!-- Download Section -->
+    <div class="download-section">
+        <div class="download-header">📥 Export Reports</div>
+        <div class="download-buttons">
+            <a href="/admin/sales-report/download-pdf?startDate=<%= startDate %>&endDate=<%= endDate %>&timePeriod=<%= timePeriod %>" 
+               class="download-btn pdf">
+                📄 Download PDF
+            </a>
+            <a href="/admin/sales-report/download-excel?startDate=<%= startDate %>&endDate=<%= endDate %>&timePeriod=<%= timePeriod %>" 
+               class="download-btn excel">
+                📊 Download Excel
+            </a>
+        </div>
+        <div class="download-info">
+            Report Period: <%= startDate ? startDate : timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1) %> 
+            to <%= endDate ? endDate : new Date().toISOString().split('T')[0] %>
+        </div>
+    </div>
+
+    <!-- Enhanced Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <div>Order ID</div>
+            <div>Date</div>
+            <div>Customer</div>
+            <div>Items</div>
+            <div>Subtotal</div>
+            <div>Shipping</div>
+            <div>Savings</div>
+            <div>Coupon</div>
+            <div>Final Total</div>
+        </div>
+
+        <% if (orders && orders.length > 0) { %>
+            <table class="report-table">
+                <% orders.forEach(order => { %>
+                    <tr>
+                        <td data-label="Order ID">
+                            #<%= order._id.toString().slice(-6).toUpperCase() %>
+                        </td>
+                        <td data-label="Date">
+                            <%= new Date(order.orderDate).toLocaleDateString('en-IN', { 
+                                day: '2-digit', 
+                                month: '2-digit', 
+                                year: 'numeric',
+                                timeZone: 'Asia/Kolkata' 
+                            }) %>
+                        </td>
+                        <td data-label="Customer">
+                            <%= order.userId?.name || 'N/A' %>
+                        </td>
+                        <td data-label="Items">
+                            <div class="order-items">
+                                <% if (order.items && order.items.length > 0) { %>
+                                    <% order.items.forEach(item => { %>
+                                        <div class="order-item">
+                                            <%= item.productId?.productName || 'Product' %>
+                                            <br><small>Size: <%= item.variantSize || 'N/A' %> | Qty: <%= item.quantity || 0 %></small>
+                                        </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <div class="order-item">No items</div>
+                                <% } %>
+                            </div>
+                        </td>
+                        <td data-label="Subtotal" class="currency">
+                            ₹<%= (order.subtotal || 0).toFixed(2) %>
+                        </td>
+                        <td data-label="Shipping" class="currency">
+                            ₹<%= (order.shippingCost || 0).toFixed(2) %>
+                        </td>
+                        <td data-label="Savings" class="discount">
+                            ₹<%= (order.totalSavings || 0).toFixed(2) %>
+                        </td>
+                        <td data-label="Coupon" class="discount">
+                            ₹<%= (order.couponDiscount || 0).toFixed(2) %>
+                        </td>
+                        <td data-label="Final Total" class="currency">
+                            ₹<%= (order.finalTotal || 0).toFixed(2) %>
+                        </td>
+                    </tr>
+                <% }) %>
+            </table>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-state-icon">📊</div>
+                <div class="empty-state-text">No orders found</div>
+                <div class="empty-state-subtext">Try adjusting your date range or filters</div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay" style="display: none;">
+    <div class="loading-spinner"></div>
+</div>
+
+<script>
+    function updateDates() {
+        const timePeriod = document.querySelector('select[name="timePeriod"]').value;
+        const startDate = document.querySelector('input[name="startDate"]');
+        const endDate = document.querySelector('input[name="endDate"]');
+        
+        const isCustom = timePeriod === 'custom';
+        startDate.disabled = !isCustom;
+        endDate.disabled = !isCustom;
+        
+        if (isCustom) {
+            startDate.focus();
+        }
+    }
+
+    function generateReport() {
+        const timePeriod = document.querySelector('select[name="timePeriod"]').value;
+        const startDate = document.querySelector('input[name="startDate"]').value;
+        const endDate = document.querySelector('input[name="endDate"]').value;
+        
+        // Show loading overlay
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        let url = '/admin/sales-report/generate';
+        const params = new URLSearchParams();
+        
+        if (timePeriod === 'custom') {
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates for custom range');
+                document.getElementById('loadingOverlay').style.display = 'none';
+                return;
+            }
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('Start date cannot be after end date');
+                document.getElementById('loadingOverlay').style.display = 'none';
+                return;
+            }
+            params.append('startDate', startDate);
+            params.append('endDate', endDate);
+        }
+        
+        params.append('timePeriod', timePeriod);
+        
+        if (params.toString()) {
+            url += '?' + params.toString();
+        }
+        
+        window.location.href = url;
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDates();
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                generateReport();
+            }
+        });
+    });
+
+    // Add smooth scrolling for better UX
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+

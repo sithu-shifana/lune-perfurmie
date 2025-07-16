@@ -1,0 +1,43 @@
+ What is .virtual() in Mongoose?
+Virtuals are properties not stored in MongoDB.
+
+They are computed values based on actual fields in the document.
+
+Used for things like fullName, url, or formatting dates.
+
+
+const userSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String
+});
+
+userSchema.virtual('fullName').get(function () {
+  return this.firstName + ' ' + this.lastName;
+});
+
+
+User.findOne().then(user => {
+  console.log(user.fullName); // This will work
+});
+
+
+But to include it in EJS, or any JSON output, you must enable virtuals in .toObject() or .toJSON() like this:
+
+userSchema.set('toObject', { virtuals: true });
+userSchema.set('toJSON', { virtuals: true });
+
+User.findOne({ email: req.session.email }).then(user => {
+  res.render('profile', { user: user });  // include virtuals
+});
+
+
+use toObject when not setting toOvject virtual in schema
+app.get('/profile', (req, res) => {
+  User.findOne({ email: req.session.email }).then(user => {
+    // Explicitly include virtuals
+    res.render('profile', { user: user.toObject({ virtuals: true }) });
+  }).catch(err => {
+    console.error(err);
+    res.status(500).send('Error fetching user');
+  });
+});

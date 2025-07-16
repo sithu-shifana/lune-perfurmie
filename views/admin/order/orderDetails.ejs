@@ -1,0 +1,78 @@
+<%- include('../partials/admin/header') %>
+<main class="dashboard-content">
+  <style>
+    .order-details {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .order-details h2 {
+      margin-bottom: 20px;
+      color: #343a40;
+    }
+    .order-details p {
+      margin-bottom: 10px;
+    }
+    .order-details table {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .order-details table th, .order-details table td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .order-details table img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+  </style>
+
+  <section class="content-main">
+    <div class="order-details">
+      <h2>Order Details</h2>
+      <p><strong>Order ID:</strong> <%= order._id %></p>
+      <p><strong>Customer Name:</strong> <%= order.userId.name %></p>
+      <p><strong>Order Date:</strong> <%= order.orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %></p>
+      <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+      <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
+      <p><strong>Delivery Status:</strong> <%= order.deliveryStatus %></p>
+      <p><strong>Shipping Address:</strong> <%= order.addressId ? `${order.addressId.line1}, ${order.addressId.city}, ${order.addressId.state} - ${order.addressId.postalCode}` : 'Address not available' %></p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.items.forEach(item => { %>
+            <tr>
+              <td>
+                <img src="<%= item.productId.images && item.productId.images.length > 0 ? item.productId.images[0].url : '/images/placeholder.png' %>" alt="<%= item.productId.productName %>">
+                <%= item.productId.productName %> (<%= item.variantSize %>)
+              </td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.offerPrice %></td>
+              <td>₹<%= item.itemTotal %></td>
+              <td><%= item.status %><%= item.status === 'Cancelled' && item.cancellationReason ? ' (Reason: ' + item.cancellationReason + ')' : '' %><%= item.status === 'ReturnRequested' || item.status === 'Returned' ? ' (Reason: ' + item.returnReason + (item.returnApproved !== null ? ' - ' + (item.returnApproved ? 'Approved' : 'Rejected') : '') + ')' : '' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <p><strong>Subtotal:</strong> ₹<%= order.subtotal %></p>
+      <p><strong>Shipping Cost:</strong> ₹<%= order.shippingCost %></p>
+      <% if (order.couponDiscount > 0) { %>
+        <p><strong>Coupon Discount:</strong> -₹<%= order.couponDiscount %> (<%= order.couponCode %>)</p>
+      <% } %>
+      <p><strong>Final Total:</strong> ₹<%= order.finalTotal %></p>
+      <a href="/admin/orderManagement" class="btn btn-secondary">Back to Orders</a>
+    </div>
+  </section>
+</main>

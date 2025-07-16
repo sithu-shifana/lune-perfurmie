@@ -1,0 +1,210 @@
+<%- include('../partials/admin/header') %>
+<main class="dashboard-content">
+  <style>
+    .btn-primary {
+      padding: 12px 20px;
+      background-color: #4a6a4d;
+      border: none;
+      color: white;
+      font-size: 14px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #3a5a3d;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.25);
+    }
+    .add-coupon-btn-container {
+      margin-top: 20px;
+      margin-bottom: 50px;
+      text-align: right;
+    }
+    .table{
+      border-radius: 30px;
+    }
+    .table th, .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .table th {
+      background-color: #4a6a4d;
+      color: white;
+      font-weight: 500;
+    }
+    .badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+    .btn-success, .btn-danger, .btn-info {
+      padding: 5px 10px;
+      font-size: 12px;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+    .btn-success {
+      background-color: #28a745;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+    }
+    .btn-info {
+      background-color: #17a2b8;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .text-start {
+      text-align: left;
+    }
+    .error-message {
+      color: #dc3545;
+      font-size: 14px;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+  </style>
+
+  <section class="content-main">
+     <div class="content-header">
+        <h1 class="content-body">Coupon Management</h1>
+      </div>
+
+    <% if (error) { %>
+      <div id="topError" class="error-message show"><%= error %></div>
+    <% } %>
+
+     <div class="customer-stats-card">
+    <div class="stats-icon"><i class="fas fa-users"></i></div>
+    <div class="stats-content">
+      <h3><%= totalCoupons %></h3>
+      <p>Total Coupons</p>
+    </div>
+  </div>
+
+    <header class="card-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+              <div class="col-md-4 add-coupon-btn-container">
+            <a href="/admin/coupon-add" class="btn btn-primary">
+              <i class="material-icons md-plus"></i> Add New Coupon
+            </a>
+          </div>
+          <form action="/admin/couponManagement" method="get">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search coupons" name="search" id="searchInput"
+                     value="<%= searchQuery %>"/>
+              <button class="btn" type="submit">Search</button>
+              <button class="btn btn-reset" type="button" id="resetButton">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <div class="right">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+                <tr>
+                  <th class="text-center">#</th>
+                  <th>Code</th>
+                  <th>Discount Type</th>
+                  <th>Discount Value</th>
+                  <th>Min Purchase</th>
+                  <th>Expiry Date</th>
+                  <th>Status</th>
+                  <th>List/Unlist</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (coupons && coupons.length > 0) { %>
+                  <% coupons.forEach((coupon, index) => { %>
+                    <tr id="row-<%= coupon._id %>">
+                      <td class="text-center"><%= index + 1 %></td>
+                      <td><%= coupon.code %></td>
+                      <td><%= coupon.discountType %></td>
+                      <td><%= coupon.discountValue %><%= coupon.discountType === 'percentage' ? '%' : '₹' %></td>
+                      <td>₹<%= coupon.minPurchase %></td>
+                      <td><%= new Date(coupon.expiryDate).toLocaleDateString() %></td>
+                      <td>
+                        <span class="badge rounded-pill <%= coupon.isActive ? 'alert-success' : 'alert-danger' %>">
+                          <%= coupon.isActive ? 'Active' : 'Inactive' %>
+                        </span>
+                      </td>
+                      <td>
+                        <button class="btn <%= coupon.isActive ? 'btn-success' : 'btn-danger' %> toggle-btn"
+                                onclick="toggleCoupon('<%= coupon._id %>', 'row-<%= coupon._id %>')">
+                          <%= coupon.isActive ? 'Deactivate' : 'Activate' %>
+                        </button>
+                      </td>
+                      <td>
+                        <a href="/admin/coupon-edit/<%= coupon._id %>" class="btn btn-info">Edit</a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="10" class="text-center">No coupons found.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    document.getElementById('resetButton').addEventListener('click', function() {
+      window.location.href = '/admin/couponManagement';
+    });
+
+    async function toggleCoupon(couponId, rowId) {
+      try {
+        const response = await fetch(`/admin/coupon/${couponId}/toggle`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          // Update the status badge
+          const statusBadge = document.querySelector(`#${rowId} .badge`);
+          if (statusBadge) {
+            statusBadge.textContent = data.isActive ? 'Active' : 'Inactive';
+            statusBadge.classList.remove('alert-success', 'alert-danger');
+            statusBadge.classList.add(data.isActive ? 'alert-success' : 'alert-danger');
+          }
+
+          // Update the toggle button
+          const toggleButton = document.querySelector(`#${rowId} .toggle-btn`);
+          if (toggleButton) {
+            toggleButton.textContent = data.isActive ? 'Deactivate' : 'Activate';
+            toggleButton.classList.remove('btn-success', 'btn-danger');
+            toggleButton.classList.add(data.isActive ? 'btn-success' : 'btn-danger');
+          }
+
+          Swal.fire('Success', data.message, 'success');
+        } else {
+          Swal.fire('Error', data.error || 'Failed to toggle coupon', 'error');
+        }
+      } catch (error) {
+        console.error('Error toggling coupon:', error);
+        Swal.fire('Error', 'An error occurred while toggling the coupon', 'error');
+      }
+    }
+  </script>
+</main>

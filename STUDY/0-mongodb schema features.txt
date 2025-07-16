@@ -1,0 +1,50 @@
+1. Schema Definition
+
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  email: String
+});
+
+2. Schema Types
+
+Specifies the data type of each field.
+
+Supported types:
+
+String
+
+Number
+
+Boolean
+
+Date
+
+Buffer
+
+ObjectId
+
+Mixed (any type)
+
+Array
+
+
+Schema Options
+
+Modify schema behavior.
+
+timestamps: auto adds createdAt and updatedAt
+
+versionKey: disables __v
+
+collection: custom collection name
+const orderSchema = new mongoose.Schema({
+  product: String
+}, {
+  timestamps: true,
+  versionKey: false,
+  collection: 'orders'
+});
+

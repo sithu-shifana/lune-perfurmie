@@ -1,0 +1,210 @@
+<%- include('../partials/admin/header') %>
+<main class="dashboard-content">
+  <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
+     </head>
+  <body>
+    <section class="content-main">
+      <div class="content-header">
+        <h2 class="content-body">Offer Management</h2>
+      </div>
+      <% if (error) { %>
+        <div class="error-message"><%= error %></div>
+      <% } %>
+      <header class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <div class="customer-stats-card">
+              <div class="stats-icon"><i class="fas fa-tags"></i></div>
+              <div class="stats-content">
+                <h3><%= totalOffers %></h3>
+                <p>Total Offers</p>
+              </div>
+            </div>
+            <div class="col-md-4 add-category-btn-container">
+              <a href="/admin/offer-add" class="btn btn-primary-top">
+                <i class="material-icons md-plus"></i>+ Add New Offer
+              </a>
+            </div>
+            <form action="/admin/offerManagement" method="get">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search offers" name="search"
+                       value="<%= search %>" id="searchInput"/>
+                <select class="form-control filter-select" name="discountType">
+                  <option value="">All Discount Types</option>
+                  <option value="percentage" <%= discountType === 'percentage' ? 'selected' : '' %>>Percentage</option>
+                  <option value="flat" <%= discountType === 'flat' ? 'selected' : '' %>>Flat</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Search</button>
+                <button class="btn btn-secondary" type="button" id="resetButton">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </header>
+      <div class="right">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th class="text-center">#</th>
+                      <th>Name</th>
+                      <th>Discount Type</th>
+                      <th>Discount</th>
+                      <th>Applicable To</th>
+                      <th>Expiry Date</th>
+                      <th>Status</th>
+                      <th class="text-start">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (offers && offers.length > 0) { %>
+                      <% offers.forEach((offer, index) => { %>
+                        <tr id="row-<%= offer._id %>">
+                          <td class="text-center"><%= index + 1 + (currentPage - 1) * limit %></td>
+                          <td class="text-start"><%= offer.title %></td> <!-- Changed from offer.name -->
+                          <td class="text-start"><%= offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1) %></td>
+                          <td class="text-start">
+                            <%= offer.discountType === 'percentage' ? offer.discountValue + '%' : '₹' + offer.discountValue %>
+                          </td>
+                          <td class="text-start">
+                            <% if (offer.product) { %>
+                              Product: <%= offer.product.productName || 'N/A' %><br>
+                            <% } %>
+                            <% if (offer.category) { %>
+                              Category: <%= offer.category.name || 'N/A' %><br>
+                            <% } %>
+                            <% if (offer.brand) { %>
+                              Brand: <%= offer.brand.name || 'N/A' %>
+                            <% } %>
+                            <% if (!offer.product && !offer.category && !offer.brand) { %>
+                              N/A
+                            <% } %>
+                          </td>
+                          <td class="text-start">
+                            <%= new Date(offer.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %> <!-- Changed from expiryDate -->
+                          </td>
+                          <td class="text-start">
+                            <span class="badge rounded-pill <%= offer.isCurrentlyActive ? 'alert-success' : 'alert-danger' %>">
+                              <%= offer.isCurrentlyActive ? 'Active' : 'Inactive' %>
+                            </span>
+                          </td>
+                          <td class="text-start">
+                            <div class="actions-container">
+                              <a href="/admin/offer-edit/<%= offer._id %>" class="btn btn-primary">Edit</a>
+                              <button class="btn <%= offer.isCurrentlyActive ? 'btn-danger' : 'btn-success' %> toggle-btn"
+                                      onclick="toggleOffer('<%= offer._id %>', 'row-<%= offer._id %>')">
+                                <%= offer.isCurrentlyActive ? 'Deactivate' : 'Activate' %>
+                              </button>
+                              <button class="btn btn-danger delete-btn"
+                                      onclick="deleteOffer('<%= offer._id %>', 'row-<%= offer._id %>')">
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="8" class="text-center">No offers found</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% if (totalPages > 1) { %>
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>">
+                        <%= i %>
+                    </a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+<% } %>
+
+    </section>
+    <script>
+      document.getElementById('resetButton').addEventListener('click', function() {
+        window.location.href = '/admin/offerManagement';
+      });
+
+      async function toggleOffer(offerId, rowId) {
+        try {
+          const response = await fetch(`/admin/offer/${offerId}/toggle`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await response.json();
+
+          if (response.ok) {
+            const statusBadge = document.querySelector(`#${rowId} .badge`);
+            if (statusBadge) {
+              statusBadge.textContent = data.isActive ? 'Active' : 'Inactive';
+              statusBadge.classList.remove('alert-success', 'alert-danger');
+              statusBadge.classList.add(data.isActive ? 'alert-success' : 'alert-danger');
+            }
+
+            const toggleButton = document.querySelector(`#${rowId} .toggle-btn`);
+            if (toggleButton) {
+              toggleButton.textContent = data.isActive ? 'Deactivate' : 'Activate';
+              toggleButton.classList.remove('btn-success', 'btn-danger');
+              toggleButton.classList.add(data.isActive ? 'btn-success' : 'btn-danger');
+            }
+
+            Swal.fire('Success', data.message, 'success');
+          } else {
+            Swal.fire('Error', data.error || 'Failed to toggle offer', 'error');
+          }
+        } catch (error) {
+          console.error('Error toggling offer:', error);
+          Swal.fire('Error', 'An error occurred while toggling the offer', 'error');
+        }
+      }
+
+      async function deleteOffer(offerId, rowId) {
+        try {
+          const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'This offer will be deleted permanently!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+          });
+
+          if (result.isConfirmed) {
+            const response = await fetch(`/admin/offer-delete/${offerId}`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+              document.getElementById(rowId).remove();
+              Swal.fire('Success', data.message, 'success');
+            } else {
+              Swal.fire('Error', data.error || 'Failed to delete offer', 'error');
+            }
+          }
+        } catch (error) {
+          console.error('Error deleting offer:', error);
+          Swal.fire('Error', 'An error occurred while deleting the offer', 'error');
+        }
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </body>
+</main>

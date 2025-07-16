@@ -1,0 +1,213 @@
+<style>
+    :root {
+      --sidebar-bg: #f8f8f8;
+      --sidebar-hover: #e9e9e9;
+      --sidebar-active: #d2c8bc;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --accent-brown: #a89583;
+      --border-color: #e2e2e2;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+    }
+    
+    /* Sidebar Styles */
+    #sidebarMenu {
+        margin-top: 85px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 0;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      width: 250px;
+    }
+    
+    .sidebar-header {
+      padding: 1.5rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .sidebar-brand {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 1.2rem;
+      text-decoration: none;
+    }
+    
+    .sidebar .nav-link {
+      padding: 0.8rem 1rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      border-radius: 0;
+      transition: all 0.2s ease;
+      margin: 0.2rem 0;
+    }
+    
+    .sidebar .nav-link:hover {
+      background-color: var(--sidebar-hover);
+      color: var(--text-primary);
+    }
+    
+    .sidebar .nav-link.active {
+      background-color: var(--sidebar-active);
+      color: var(--text-primary);
+      border-left: 4px solid var(--accent-brown);
+    }
+    
+    .sidebar .nav-link i {
+      margin-right: 10px;
+      font-size: 1.1rem;
+      width: 24px;
+      text-align: center;
+    }
+    
+    .sidebar-toggle {
+      display: none;
+      background: var(--accent-brown);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      justify-content: center;
+      align-items: center;
+    }
+    
+    /* Content area */
+    .main-content {
+      margin-left: 250px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      min-height: 100vh;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 991.98px) {
+      #sidebarMenu {
+        transform: translateX(-100%);
+      }
+      
+      #sidebarMenu.show {
+        transform: translateX(0);
+      }
+      
+      .sidebar-toggle {
+        display: flex;
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      body.sidebar-expanded .main-content {
+        margin-left: 250px;
+      }
+    }
+    
+    @media (min-width: 992px) {
+      body.sidebar-minimized #sidebarMenu {
+        width: 70px;
+      }
+      
+      body.sidebar-minimized .main-content {
+        margin-left: 70px;
+      }
+      
+      body.sidebar-minimized .nav-link span {
+        display: none;
+      }
+      
+      body.sidebar-minimized .sidebar .nav-link {
+        text-align: center;
+        padding: 0.8rem 0;
+      }
+      
+      body.sidebar-minimized .sidebar .nav-link i {
+        margin-right: 0;
+        font-size: 1.3rem;
+      }
+      
+      .sidebar-toggle-desktop {
+        cursor: pointer;
+        color: var(--text-secondary);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav id="sidebarMenu" class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-brand d-none d-lg-block">My Account</a>
+      
+    </div>
+    <div class="position-sticky pt-3">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link " href="/profile">
+            <i class="bi bi-person"></i>
+            <span>My Profile</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/addresses">
+            <i class="bi bi-geo-alt"></i>
+            <span>Address Book</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/orders">
+            <i class="bi bi-bag"></i>
+            <span>My Orders</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/wallet">
+            <i class="bi bi-wallet2"></i>
+            <span>Wallet</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <form action="/logout" method="POST">
+            <button class="nav-link border-0 bg-transparent w-100 text-start" type="submit">
+              <i class="bi bi-box-arrow-right"></i>
+              <span>Logout</span>
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </nav>
+      
+  <!-- Mobile toggle button -->
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <i class="bi bi-list"></i>
+  </button>
+<script>
+   const links = document.querySelectorAll('#sidebarMenu .nav-link');
+  const currentPath = window.location.pathname;
+
+  links.forEach(link => {
+    const linkPath = link.getAttribute('href');
+    if (currentPath === linkPath) {
+      link.classList.add('active');
+    }
+  });
+  </script>

@@ -1,0 +1,20 @@
+2. Schema Types
+
+Specifies the data type of each field.
+Supported types:
+
+String
+Number
+Boolean
+Date
+Buffer
+ObjectId
+Mixed (any type)
+Array
+
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  price: { type: Number, default: 0 },
+  inStock: Boolean,
+  tags: [String]
+});

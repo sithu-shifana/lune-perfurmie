@@ -1,0 +1,801 @@
+<%- include('../partials/user/header') %>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<!-- Include Font Awesome for the heart icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap');
+
+body {
+  background-color: #f8f9fa;
+  font-family: 'Playfair Display', serif;
+}
+
+.breadcrumbs {
+  font-size: 0.9rem;
+  margin: 20px 0;
+  color: #6c757d;
+}
+
+.breadcrumbs a {
+  color: #495057;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.breadcrumbs a:hover {
+  color: #e91e63;
+}
+
+.breadcrumbs span {
+  color: #adb5bd;
+}
+
+.product-container {
+  padding: 20px 0;
+}
+
+.thumbnail-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.3s, transform 0.3s;
+  margin-bottom: 10px;
+}
+
+.thumbnail-img:hover,
+.thumbnail-img.active {
+  border-color: #5a4338;
+  transform: scale(1.05);
+}
+
+.main-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-details {
+  padding: 20px;
+}
+
+.product-title {
+  font-size: 2rem;
+  color: #4a5b6d;
+  margin-bottom: 15px;
+}
+
+.product-price {
+  font-size: 1.8rem;
+  color: #261f10;
+  margin-bottom: 15px;
+}
+
+.original-price {
+  font-size: 1.2rem;
+  color: #6c757d;
+  text-decoration: line-through;
+  margin-left: 10px;
+}
+
+.discount {
+  font-size: 1.2rem;
+  color: #e91e63;
+  margin-left: 10px;
+}
+
+.product-description {
+  font-size: 1rem;
+  color: #495057;
+  margin-bottom: 20px;
+}
+
+.variant-selector select {
+  width: 200px;
+  padding: 8px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+.variant-selector .stock-info {
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.variant-selector .low-stock {
+  color: #28a745; /* Green for low stock */
+}
+
+.variant-selector .out-of-stock {
+  color: #e91e63; /* Red for out of stock */
+}
+
+.error-message {
+  font-size: 0.9rem;
+  color: #e91e63;
+  margin-top: 5px;
+  display: none;
+}
+
+.btn-add-to-cart {
+  background-color: #5d5255;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-add-to-cart:hover:not(:disabled) {
+  background-color: #c4b4ba;
+}
+
+.btn-add-to-cart:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-remove {
+  background-color: #e91e63;
+  color: white;
+}
+
+.btn-remove:hover:not(:disabled) {
+  background-color: #c2185b;
+}
+
+.wishlist-icon:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Zoom Container Styles */
+.zoom-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.zoom-container img {
+  width: 100%;
+  transition: transform 0.2s ease;
+  transform-origin: center center;
+}
+
+#mainImage {
+  width: 100%;
+  transition: transform 0.2s ease-in-out;
+  cursor: zoom-in;
+}
+
+/* Similar Products Section Styles */
+.similar-products-section {
+  margin-top: 60px;
+  padding: 40px 0;
+  background-color: #f9f9fa;
+}
+
+/* Enhanced Section Title Styling */
+.section-title {
+  font-family: 'Paytone One', sans-serif;
+  font-weight: 400;
+  font-size: 2.8rem;
+  text-align: center;
+  margin-bottom: 50px;
+  color: #2c2c2c;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: #e91e63;
+  border-radius: 2px;
+}
+
+/* Products Grid Layout */
+.products-grid {
+  display: grid;
+  gap: 20px;
+  margin-bottom: 30px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .products-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Product Card Styling */
+.product-card {
+  position: relative;
+  background: #fff;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.product-card .wishlist-icon {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  font-size: 22px;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.product-card .wishlist-icon:hover {
+  color: #ed3a72;
+  transform: scale(1.1);
+}
+
+.product-card .wishlist-icon.active {
+  color: #880c33;
+}
+
+.product-details .wishlist-icon {
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.product-details .wishlist-icon:hover{
+  color: #ed3a72;
+  transform: scale(1.2);
+}
+
+.product-details .wishlist-icon.active {
+  color: #880c33;;
+}
+
+.product-card h3 {
+  font-size: 1.1rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  color: #333;
+  margin: 10px 0 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.product-card .price-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.product-card .offer-price {
+  font-weight: 700;
+  color: #2c2c2c;
+  font-size: 1.1rem;
+}
+
+.product-card .original-price {
+  color: #888;
+  text-decoration: line-through;
+  font-size: 0.9rem;
+}
+
+.product-card .discount {
+  color: #e91e63;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 767px) {
+  .product-card .offer-price {
+    font-size: 1rem;
+  }
+  .product-card .original-price {
+    font-size: 0.85rem;
+  }
+  .product-card .discount {
+    font-size: 0.85rem;
+  }
+  .product-card img {
+    height: 150px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .product-card .offer-price {
+    font-size: 1.05rem;
+  }
+  .product-card .original-price {
+    font-size: 0.9rem;
+  }
+  .product-card .discount {
+    font-size: 0.9rem;
+  }
+}
+</style>
+
+<!-- CSRF Token -->
+<% if (typeof csrfToken !== 'undefined') { %>
+  <meta name="csrf-token" content="<%= csrfToken %>">
+<% } %>
+
+<!-- Breadcrumbs -->
+<nav class="breadcrumbs container">
+  <a href="/">Home</a> >
+  <a href="/category/<%= product.category?._id || '#' %>">
+    <%= product.category?.name || 'Category' %>
+  </a> >
+  <span><%= product.productName || 'Product' %></span>
+</nav>
+
+<!-- Product Section -->
+<section class="product-container container">
+  <div class="row">
+    <!-- Thumbnails and Main Image -->
+    <div class="col-md-6">
+      <div class="row">
+        <!-- Thumbnails -->
+        <div class="col-3">
+          <% if (product.images && product.images.length > 0) { %>
+            <% product.images.slice(0, 3).forEach((image, index) => { %>
+              <img src="<%= image.url || '/default-image.jpg' %>"
+                   alt="Thumbnail <%= index + 1 %>"
+                   class="thumbnail-img <%= index === 0 ? 'active' : '' %>"
+                   data-index="<%= index %>">
+            <% }) %>
+          <% } else { %>
+            <img src="/default-image.jpg" alt="Thumbnail" class="thumbnail-img active">
+          <% } %>
+        </div>
+        <!-- Main Image with Zoom -->
+        <div class="col-9">
+          <div class="zoom-container">
+            <img src="<%= product.images?.[0]?.url || '/default-image.jpg' %>"
+                 alt="<%= product.productName || 'Product' %>"
+                 class="main-img" id="mainImage">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Details -->
+    <div class="col-md-6 product-details">
+      <h1 class="product-title"><%= product.productName || 'Unnamed Product' %></h1>
+      <!-- Price Display -->
+<% if (product.variants && product.variants.length > 0) { %>
+  <% const variant = product.variants[0]; %>
+  <div class="product-price">
+    <% if (variant.hasOffer && variant.discountValue > 0) { %>
+      <span>₹<%= variant.offerPrice.toLocaleString('en-IN') %></span>
+      <span class="original-price">₹<%= variant.originalPrice.toLocaleString('en-IN') %></span>
+      <span class="discount">
+        <% if (variant.discountType === 'percentage') { %>
+          <%= variant.discountValue %>% OFF
+        <% } else if (variant.discountType === 'flat' || variant.discountType === 'fixed') { %>
+          ₹<%= variant.discountValue.toLocaleString('en-IN') %> OFF
+        <% } %>
+      </span>
+    <% } else { %>
+      <span>₹<%= variant.originalPrice.toLocaleString('en-IN') %></span>
+    <% } %>
+  </div>
+<% } else { %>
+  <div class="product-price">Price not available</div>
+<% } %>
+      
+      <p class="product-description"><%= product.description || 'No description available' %></p>
+      
+      <!-- Variant Selector -->
+      <% if (product.variants && product.variants.length > 0) { %>
+        <% 
+          const outOfStockSizes = product.variants
+            .filter(v => v.stock === 0)
+            .map(v => v.size)
+            .join(', ');
+        %>
+        <div class="variant-selector mb-3">
+          <label for="variant" class="form-label">Select Size:</label>
+          <select id="variant" name="variant" class="form-select">
+            <% product.variants.forEach((variant, index) => { %>
+              <option value="<%= variant.size %>"
+                      data-stock="<%= variant.stock %>"
+                      <%= index === 0 ? 'selected' : '' %>
+                      <%= variant.stock === 0 ? 'disabled' : '' %>>
+                <%= variant.size %> - ₹<%= variant.offerPrice || variant.originalPrice || 'N/A' %>
+              </option>
+            <% }) %>
+          </select>
+          <% if (outOfStockSizes) { %>
+            <p class="stock-info out-of-stock"><%= outOfStockSizes %> Out of Stock</p>
+          <% } %>
+          <p class="stock-info low-stock"></p>
+        </div>
+      <% } %>
+      
+      <!-- Action Buttons -->
+      <div class="d-flex align-items-center gap-3 mb-3">
+       <!-- Action Buttons -->
+<div class="d-flex align-items-center gap-3 mb-3">
+  <button id="cartButton" 
+          class="btn <%= product.variants[0].isInCart ? 'btn-remove' : 'btn-add-to-cart' %>"
+          data-product-id="<%= product._id %>"
+          data-variant="<%= product.variants[0].size %>">
+    <%= product.variants[0].isInCart ? 'Remove from Cart' : 'Add to Cart' %>
+  </button>
+  <i id="wishlist-icon-<%= product._id %>" 
+     class="fas fa-heart wishlist-icon <%= product.isInWishlist ? 'active' : '' %>" 
+     data-product-id="<%= product._id %>" 
+     onclick="toggleWishlist('<%= product._id %>')">
+  </i>
+</div>
+    </div>
+  </div>
+</section>
+
+<!-- Similar Products Section -->
+<% if (similarProducts && similarProducts.length > 0) { %>
+<section class="similar-products-section">
+  <div class="container">
+    <h2 class="section-title">Similar Products</h2>
+    <div class="products-grid">
+      <% similarProducts.forEach(product => { %>
+        <div class="product-card">
+          <a href="/product-show/<%= product._id %>" style="text-decoration: none; color: inherit;">
+            <img src="<%= product.images && product.images.length ? product.images[0].url : '/images/placeholder.png' %>" 
+                 alt="<%= product.productName %>">
+            <h3><%= product.productName %></h3>
+            <p>Brand: <%= product.brand?.name || 'Unknown' %></p>
+            <% if (product.variant) { %>
+              <div class="price-container">
+                <% if (product.variant.hasOffer && product.variant.discountValue > 0) { %>
+                  <span class="offer-price">₹<%= Number(product.variant.offerPrice).toLocaleString('en-IN') %></span>
+                  <span class="original-price">₹<%= Number(product.variant.originalPrice).toLocaleString('en-IN') %></span>
+                  <span class="discount">
+                    <% if (product.variant.discountType === 'percentage') { %>
+                      <%= product.variant.discountValue %>% OFF
+                    <% } else if (product.variant.discountType === 'flat' || product.variant.discountType === 'fixed') { %>
+                      ₹<%= Number(product.variant.discountValue).toLocaleString('en-IN') %> OFF
+                    <% } %>
+                  </span>
+                <% } else { %>
+                  <span class="offer-price">₹<%= Number(product.variant.originalPrice).toLocaleString('en-IN') %></span>
+                <% } %>
+              </div>
+            <% } else { %>
+              <div class="price-container">
+                <span class="offer-price">Price not available</span>
+              </div>
+            <% } %>
+          </a>
+          <i id="wishlist-icon-<%= product._id %>" 
+             class="fas fa-heart wishlist-icon <%= product.isInWishlist ? 'active' : '' %>" 
+             data-product-id="<%= product._id %>" 
+             onclick="toggleWishlist('<%= product._id %>')">
+          </i>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+document.querySelectorAll('.thumbnail-img').forEach(thumb => {
+  thumb.addEventListener('click', function () {
+    document.querySelectorAll('.thumbnail-img').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    const mainImage = document.getElementById('mainImage');
+    if (mainImage) mainImage.src = this.src;
+  });
+});
+
+// Variant Price and Stock Update
+const variantSelect = document.getElementById('variant');
+const variants = <%- JSON.stringify(product.variants || []) %>;
+const cartButton = document.getElementById('cartButton');
+const productId = cartButton?.dataset.productId;
+
+function updateVariantInfo() {
+  const selectedSize = variantSelect?.value;
+  if (!selectedSize) {
+    showError('Please select a size', false);
+    return;
+  }
+
+  const variant = variants.find(v => v.size === selectedSize);
+  if (!variant) {
+    showError('Invalid variant selected', false);
+    return;
+  }
+
+  // Update price
+  const priceElement = document.querySelector('.product-price');
+  if (priceElement) {
+    const offerPrice = variant.offerPrice || variant.originalPrice || 'N/A';
+    let priceHTML = `₹${offerPrice.toLocaleString('en-IN')}`;
+    if (variant.offerPrice && variant.offerPrice < variant.originalPrice) {
+      priceHTML += ` <span class="original-price">₹${variant.originalPrice.toLocaleString('en-IN')}</span>`;
+      priceHTML += ` <span class="discount">`;
+      if (variant.discountType === 'percentage') {
+        const savingsPercentage = Math.round(
+          ((variant.originalPrice - variant.offerPrice) / variant.originalPrice) * 100
+        );
+        priceHTML += `${savingsPercentage}% off`;
+      } else if (variant.discountType === 'fixed' || variant.discountType === 'flat') {
+        priceHTML += `₹${variant.discountValue.toLocaleString('en-IN')} off`;
+      }
+      priceHTML += `</span>`;
+    }
+    priceElement.innerHTML = priceHTML;
+  }
+
+  // Update stock info
+  const lowStockInfo = document.querySelector('.stock-info.low-stock');
+  const outOfStockInfo = document.querySelector('.stock-info.out-of-stock');
+  const wishlistIcon = document.getElementById(`wishlist-icon-<%= product._id %>`);
+  if (variant.stock === 0) {
+    if (lowStockInfo) lowStockInfo.textContent = '';
+    if (outOfStockInfo) outOfStockInfo.textContent = `${variant.size} Out of Stock`;
+    if (cartButton) {
+      cartButton.disabled = true;
+      cartButton.textContent = 'Out of Stock';
+      cartButton.classList.remove('btn-add-to-cart', 'btn-remove');
+    }
+    if (wishlistIcon) wishlistIcon.classList.add('disabled');
+    showError('This size is out of stock', false);
+  } else {
+    if (lowStockInfo) lowStockInfo.textContent = variant.stock <= 5 ? `Only ${variant.stock} left` : '';
+    if (outOfStockInfo) outOfStockInfo.textContent = '';
+    if (cartButton) {
+      cartButton.disabled = false;
+      cartButton.textContent = variant.isInCart ? 'Remove from Cart' : 'Add to Cart';
+      cartButton.classList.toggle('btn-add-to-cart', !variant.isInCart);
+      cartButton.classList.toggle('btn-remove', variant.isInCart);
+      cartButton.dataset.variant = selectedSize; // Update variant in button dataset
+    }
+    if (wishlistIcon) wishlistIcon.classList.remove('disabled');
+  }
+
+  // Check cart status for the selected size
+  if (cartButton && productId) {
+    checkCartStatus(productId, selectedSize);
+  }
+}
+
+if (variantSelect) {
+  variantSelect.addEventListener('change', updateVariantInfo);
+}
+
+// Image Zoom
+const zoomContainer = document.querySelector('.zoom-container');
+const mainImage = document.getElementById('mainImage');
+if (zoomContainer && mainImage) {
+  zoomContainer.addEventListener('mousemove', function (e) {
+    const rect = zoomContainer.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    mainImage.style.transformOrigin = `${x}% ${y}%`;
+    mainImage.style.transform = 'scale(2)';
+  });
+  zoomContainer.addEventListener('mouseleave', function () {
+    mainImage.style.transform = 'scale(1)';
+    mainImage.style.transformOrigin = 'center center';
+  });
+}
+
+// Show Error/Success Message
+function showError(message, isSuccess = false) {
+  const errorMessage = document.querySelector('.error-message');
+  if (errorMessage) {
+    errorMessage.textContent = message;
+    errorMessage.classList.toggle('success', isSuccess);
+    errorMessage.style.display = 'block';
+    setTimeout(() => {
+      errorMessage.style.display = 'none';
+      errorMessage.classList.remove('success');
+    }, 3000);
+  }
+}
+
+// Wishlist Toggle
+function toggleWishlist(productId) {
+  const btn = document.getElementById(`wishlist-icon-${productId}`);
+  if (!btn || btn.classList.contains('disabled')) return;
+
+  btn.style.pointerEvents = 'none';
+
+  const headers = { 'Content-Type': 'application/json' };
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+  if (csrf) headers['CSRF-Token'] = csrf;
+
+  fetch(`/wishlist-toggle/${productId}`, {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+  })
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      if (data.success) {
+        btn.classList.toggle('active', data.isInWishlist);
+        showError(data.isInWishlist ? 'Added to wishlist' : 'Removed from wishlist', true);
+      } else {
+        showError(data.message || 'Failed to update wishlist', false);
+      }
+    })
+    .catch(err => {
+      console.error('Wishlist toggle error:', err);
+      showError('Error updating wishlist', false);
+    })
+    .finally(() => {
+      btn.style.pointerEvents = 'auto';
+    });
+}
+
+// Cart Toggle
+document.addEventListener('DOMContentLoaded', () => {
+  if (!cartButton || !productId || !variantSelect) {
+    console.warn('Cart button, product ID, or variant select missing');
+    return;
+  }
+
+  const updateCartButton = (isInCart, selectedSize) => {
+    cartButton.textContent = isInCart ? 'Remove from Cart' : 'Add to Cart';
+    cartButton.classList.toggle('btn-add-to-cart', !isInCart);
+    cartButton.classList.toggle('btn-remove', isInCart);
+    cartButton.dataset.variant = selectedSize;
+  };
+
+  const updateCartCount = (count = 0) => {
+    const elements = document.querySelectorAll('.cart-count, #cartCount');
+    elements.forEach(el => (el.textContent = count));
+  };
+
+  const fetchJSON = async (url, options = {}) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (csrf) headers['CSRF-Token'] = csrf;
+
+    const res = await fetch(url, {
+      ...options,
+      headers,
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+    }
+    return res.json();
+  };
+
+  const checkCartStatus = async (productId, size) => {
+    if (!size || !productId) {
+      showError('Missing product ID or size', false);
+      return;
+    }
+    try {
+      const data = await fetchJSON(`/cart/check/${productId}?size=${encodeURIComponent(size)}`);
+      if (data.success) {
+        const variant = variants.find(v => v.size === size);
+        if (variant) {
+          variant.isInCart = data.isInCart; 
+          updateCartButton(data.isInCart, size);
+          updateCartCount(data.cartCount);
+        }
+      } else {
+        showError(data.message || 'Failed to check cart status', false);
+      }
+    } catch (err) {
+      console.error('Check cart status error:', err);
+      showError('Error checking cart status', false);
+    }
+  };
+
+  const toggleCart = async () => {
+    const selectedSize = variantSelect.value;
+    if (!selectedSize) {
+      showError('Please select a size', false);
+      return;
+    }
+
+    const variant = variants.find(v => v.size === selectedSize);
+    if (!variant) {
+      showError('Invalid variant selected', false);
+      return;
+    }
+    if (variant.stock < 1) {
+      showError('This size is out of stock', false);
+      return;
+    }
+
+    cartButton.disabled = true;
+    cartButton.textContent = 'Loading...';
+
+    try {
+      const data = await fetchJSON(`/cart-toggle/${productId}`, {
+        method: 'POST',
+        body: JSON.stringify({ size: selectedSize, quantity: 1 }),
+      });
+
+      if (data.success) {
+        variant.isInCart = data.isInCart; // Update variant's cart status
+        updateCartButton(data.isInCart, selectedSize);
+        updateCartCount(data.cartCount);
+        if (data.removedFromWishlist) {
+          const wishlistIcon = document.getElementById(`wishlist-icon-${productId}`);
+          if (wishlistIcon) wishlistIcon.classList.remove('active');
+        }
+        showError(data.isInCart ? 'Added to cart' : 'Removed from cart', true);
+      } else {
+        showError(data.message || 'Failed to update cart', false);
+      }
+    } catch (err) {
+      console.error('Toggle cart error:', err);
+      showError(err.message || 'Error updating cart', false);
+    } finally {
+      cartButton.disabled = false;
+      updateCartButton(variant.isInCart, selectedSize); // Ensure button state is consistent
+    }
+  };
+
+  cartButton.addEventListener('click', toggleCart);
+
+  // Initial setup
+  if (variantSelect.value && productId) {
+    updateVariantInfo();
+    checkCartStatus(productId, variantSelect.value);
+  }
+});
+</script>
+
+
+<%- include('../partials/user/footer') %>

@@ -1,0 +1,102 @@
+
+// ===== EJS TEMPLATE - Single Product =====
+// views/product.ejs
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= product.productName %></title>
+</head>
+<body>
+    <h1><%= product.productName %></h1>
+    <p><%= product.description %></p>
+    
+    <% product.variants.forEach(variant => { %>
+        <div>
+            <h3><%= variant.size %></h3>
+            <p>Stock: <%= variant.stock %></p>
+            
+            <% if (variant.hasOffer) { %>
+                <span style="text-decoration: line-through;">₹<%= variant.originalPrice %></span>
+                <strong style="color: red;">₹<%= variant.offerPrice %></strong>
+                <span style="background: green; color: white; padding: 2px 5px;">
+                    <% if (variant.discountType === 'percentage') { %>
+                        <%= Math.round((variant.discount / variant.originalPrice) * 100) %>% OFF
+                    <% } else { %>
+                        ₹<%= variant.discount %> OFF
+                    <% } %>
+                </span>
+                <p style="color: green;">You Save: ₹<%= variant.discount %></p>
+                <p><%= variant.offerName %></p>
+            <% } else { %>
+                <strong>₹<%= variant.originalPrice %></strong>
+            <% } %>
+        </div>
+    <% }); %>
+</body>
+</html>
+
+// ===== EJS TEMPLATE - Products List =====
+// views/products.ejs
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Products</title>
+</head>
+<body>
+    <h1>Products</h1>
+    
+    <% products.forEach(product => { %>
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px;">
+            <h3><%= product.productName %></h3>
+            
+            <% 
+                let cheapest = product.variants.reduce((min, v) => 
+                    v.offerPrice < min.offerPrice ? v : min
+                );
+            %>
+            
+            <% if (cheapest.hasOffer) { %>
+                <span style="text-decoration: line-through;">₹<%= cheapest.originalPrice %></span>
+                <strong style="color: red;">₹<%= cheapest.offerPrice %></strong>
+                <span style="background: green; color: white; padding: 2px 5px;">
+                    <% if (cheapest.discountType === 'percentage') { %>
+                        <%= Math.round((cheapest.discount / cheapest.originalPrice) * 100) %>% OFF
+                    <% } else { %>
+                        ₹<%= cheapest.discount %> OFF
+                    <% } %>
+                </span>
+            <% } else { %>
+                <strong>₹<%= cheapest.originalPrice %></strong>
+            <% } %>
+            
+            <br>
+            <a href="/products/<%= product._id %>">View Details</a>
+        </div>
+    <% }); %>
+</body>
+</html>
+
+// public/js/product.js
+async function fetchProduct(productId) {
+    try {
+        const response = await fetch(`/products/${productId}`);
+        const html = await response.text();
+        document.body.innerHTML = html;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function fetchAllProducts() {
+    try {
+        const response = await fetch('/products');
+        const html = await response.text();
+        document.body.innerHTML = html;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Usage:
+// fetchProduct('64f7a1b2c3d4e5f6a7b8c9d0');
+// fetchAllProducts();

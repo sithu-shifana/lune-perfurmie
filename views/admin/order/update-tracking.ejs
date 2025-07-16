@@ -1,0 +1,316 @@
+<%- include('../partials/admin/header') %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<main class="dashboard-content">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 16px;
+    }
+    .content-main {
+      padding: 20px;
+    }
+    .content-header {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+    .content-title {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    .card {
+      color: #212529;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      background: #4a6a4d;
+      color: white;
+      padding: 12px;
+      border-radius: 8px 8px 0 0;
+      font-size: 1.3rem;
+    }
+    .card-body {
+      padding: 15px;
+      font-size: 1.1rem;
+    }
+    .item-details {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+    .item-details img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 12px;
+    }
+    .item-details h6 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+    .item-details p {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    .btn-action {
+      padding: 8px 14px;
+      font-size: 1rem;
+      border-radius: 4px;
+      color: white;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 8px;
+    }
+    .btn-primary {
+      background-color: #007bff;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: #e9ecef;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-size: 1rem;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+    .error-message {
+      color: #dc3545;
+      font-size: 1rem;
+      display: none;
+      margin-top: 8px;
+    }
+    .status-badge {
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: inline-block;
+      min-width: 100px;
+      text-align: center;
+    }
+    .status-processing {
+      background-color: #007bff;
+      color: white;
+    }
+    .status-shipped {
+      background-color: #17a2b8;
+      color: white;
+    }
+    .status-out-for-delivery {
+      background-color: #ffc107;
+      color: black;
+    }
+    .status-delivered {
+      background-color: #28a745;
+      color: white;
+    }
+    .status-cancelled, .status-returned {
+      background-color: #6c757d;
+      color: white;
+    }
+    .status-return-requested {
+      background-color: #fd7e14;
+      color: white;
+    }
+    .reached-place-entry {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .reached-place-entry input {
+      margin-right: 10px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+  </style>
+
+  <section class="content-main">
+    <div class="content-header">
+      <h2 class="content-title">Update Tracking for Order #<%= order._id.toString().slice(-8).toUpperCase() %></h2>
+      <a href="/admin/orderManagement" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Orders</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>Order Details</h5>
+      </div>
+      <div class="card-body">
+        <p><strong>Order Date:</strong> <%= order.orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %></p>
+        <p><strong>Customer:</strong> <%= order.userId?.name || 'Unknown' %> (<%= order.userId?.email || 'N/A' %>)</p>
+        <p><strong>Total:</strong> ₹<%= order.finalTotal.toLocaleString('en-IN') %></p>
+        <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
+        <p><strong>Delivery Status:</strong> 
+          <span class="status-badge status-<%= order.deliveryStatus.toLowerCase().replace(' ', '-') %>">
+            <%= order.deliveryStatus %>
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>Items</h5>
+      </div>
+      <div class="card-body">
+        <% order.items.forEach(item => { %>
+          <div class="item-details">
+            <img src="<%= item.productId?.images && item.productId.images.length > 0 ? item.productId.images[0].url : '/images/placeholder.png' %>" alt="<%= item.productId?.name || 'Missing Product' %>">
+            <div>
+              <h6><%= item.productId?.productName || 'Missing Product (ID: ' + item.productId?._id || 'N/A' + ')' %></h6>
+              <p class="mb-0">Quantity: <%= item.quantity || 1 %> | Total: ₹<%= item.itemTotal.toLocaleString('en-IN') %></p>
+              <p class="mb-0">
+                <span class="status-badge status-<%= item.status.toLowerCase().replace(' ', '-') %>">
+                  <%= item.status %>
+                </span>
+              </p>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>Update Tracking Information</h5>
+      </div>
+      <div class="card-body">
+        <form id="update-tracking-form" action="/admin/orders/update-tracking/<%= order._id %>" method="POST">
+          <div class="form-group">
+            <label for="trackingNumber">Tracking Number</label>
+            <input type="text" class="form-control" id="trackingNumber" name="trackingNumber" value="<%= trackingNumber %>" placeholder="Enter tracking number">
+          </div>
+          <div class="form-group">
+            <label for="carrier">Carrier</label>
+            <input type="text" class="form-control" id="carrier" name="carrier" value="<%= carrier %>" placeholder="Enter carrier name (e.g., FedEx, DHL)">
+          </div>
+          <div class="form-group">
+            <label for="deliveryDate">Expected Delivery Date</label>
+            <input type="date" class="form-control" id="deliveryDate" name="deliveryDate" value="<%= deliveryDate ? new Date(deliveryDate).toISOString().split('T')[0] : '' %>" min="<%= new Date(order.orderDate).toISOString().split('T')[0] %>">
+          </div>
+          <div class="form-group">
+            <label>Reached Places</label>
+            <div id="reached-places-container">
+              <% reachedPlaces.forEach((place, index) => { %>
+                <div class="reached-place-entry" data-index="<%= index %>">
+                  <input type="text" class="form-control" name="reachedPlaces[<%= index %>][place]" value="<%= place.place %>" placeholder="Enter place">
+                  <input type="date" class="form-control" name="reachedPlaces[<%= index %>][date]" value="<%= place.date ? new Date(place.date).toISOString().split('T')[0] : '' %>" min="<%= new Date(order.orderDate).toISOString().split('T')[0] %>">
+                  <button type="button" class="btn btn-danger btn-sm remove-place"><i class="bi bi-trash"></i></button>
+                </div>
+              <% }) %>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="add-place"><i class="bi bi-plus"></i> Add Place</button>
+          </div>
+          <button type="submit" class="btn-action btn-primary">Update Tracking</button>
+        </form>
+        <p class="error-message"></p>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let placeIndex = <%= reachedPlaces.length %>;
+
+    // Add new reached place entry
+    document.getElementById('add-place').addEventListener('click', () => {
+      const container = document.getElementById('reached-places-container');
+      const newEntry = document.createElement('div');
+      newEntry.className = 'reached-place-entry';
+      newEntry.dataset.index = placeIndex;
+      newEntry.innerHTML = `
+        <input type="text" class="form-control" name="reachedPlaces[${placeIndex}][place]" placeholder="Enter place">
+        <input type="date" class="form-control" name="reachedPlaces[${placeIndex}][date]" min="<%= new Date(order.orderDate).toISOString().split('T')[0] %>">
+        <button type="button" class="btn btn-danger btn-sm remove-place"><i class="bi bi-trash"></i></button>
+      `;
+      container.appendChild(newEntry);
+      placeIndex++;
+    });
+
+    // Remove reached place entry
+    document.getElementById('reached-places-container').addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-place') || e.target.closest('.remove-place')) {
+        e.target.closest('.reached-place-entry').remove();
+      }
+    });
+
+    // Form submission
+    document.getElementById('update-tracking-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+
+      // Convert reachedPlaces to array of objects
+      const reachedPlaces = [];
+      for (let i = 0; i < placeIndex; i++) {
+        if (data[`reachedPlaces[${i}][place]`] && data[`reachedPlaces[${i}][date]`]) {
+          reachedPlaces.push({
+            place: data[`reachedPlaces[${i}][place]`],
+            date: data[`reachedPlaces[${i}][date]`]
+          });
+          delete data[`reachedPlaces[${i}][place]`];
+          delete data[`reachedPlaces[${i}][date]`];
+        }
+      }
+      data.reachedPlaces = reachedPlaces;
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          },
+          body: JSON.stringify(data)
+        });
+        if (response.redirected) {
+          showError('Session expired. Please log in again.');
+          setTimeout(() => window.location.href = '/admin/login', 2000);
+          return;
+        }
+        const result = await response.json();
+        if (result.success) {
+          alert('Tracking information updated successfully');
+          window.location.href = '/admin/orderManagement';
+        } else {
+          showError(result.message || 'Failed to update tracking');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        showError('Server error');
+      }
+    });
+
+    function showError(message) {
+      const error = document.querySelector('.error-message');
+      error.textContent = message;
+      error.style.display = 'block';
+      setTimeout(() => error.style.display = 'none', 3000);
+    }
+  </script>
+</main>
