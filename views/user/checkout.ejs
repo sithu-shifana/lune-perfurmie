@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Razorpay Checkout Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <style>
 /* Checkout Page CSS - Consistent with Cart Page Theme */
@@ -910,17 +912,24 @@ h2.mb-4 {
     <!-- Payment and Place Order Section -->
     <div class="payment-section">
       <h4>Select Payment Method & Place Order</h4>
-      <div class="payment-option" data-method="COD">
-        <input type="radio" id="paymentCOD" name="paymentMethod" value="COD" checked>
-        <label for="paymentCOD">Cash on Delivery (COD)</label>
+      <div class="payment-option <%= codAvailable ? '' : 'disabled' %>" data-method="COD" id="paymentCOD">
+        <input type="radio" id="paymentCODInput" name="paymentMethod" value="COD" <%= codAvailable ? 'checked' : 'disabled' %>>
+        <label for="paymentCODInput">Cash on Delivery (COD)</label>
+        <% if (!codAvailable) { %>
+          <span class="insufficient-funds">COD available only for orders ≥ ₹10,000</span>
+        <% } %>
       </div>
       <div class="payment-option <%= walletEnabled ? '' : 'disabled' %>" data-method="WALLET" id="paymentWallet">
-        <input type="radio" id="paymentWalletInput" name="paymentMethod" value="WALLET" <%= walletEnabled ? '' : 'disabled' %>>
+        <input type="radio" id="paymentWalletInput" name="paymentMethod" value="WALLET" <%= walletEnabled ? '' : 'disabled' %> <%= !codAvailable && walletEnabled ? 'checked' : '' %>>
         <label for="paymentWalletInput">Wallet</label>
         <span class="badge">Balance: ₹<%= walletBalance.toLocaleString() %></span>
         <% if (!walletEnabled) { %>
           <span class="insufficient-funds">Insufficient funds</span>
         <% } %>
+      </div>
+      <div class="payment-option" data-method="RAZORPAY" id="paymentRazorpay">
+        <input type="radio" id="paymentRazorpayInput" name="paymentMethod" value="RAZORPAY" <%= !codAvailable && !walletEnabled ? 'checked' : '' %>>
+        <label for="paymentRazorpayInput">Pay with Razorpay</label>
       </div>
       <div class="mt-3">
         <button class="btn btn-primary w-100" onclick="placeOrder()">Place Order</button>
@@ -931,191 +940,219 @@ h2.mb-4 {
 
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <script>
-  // Utility functions
-  const showLoading = () => {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.classList.add('show');
-  };
+// Socket.IO setup with error handling
+const socket = io();
 
-  const hideLoading = () => {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.classList.remove('show');
-  };
+socket.on('connect_error', (error) => {
+  console.error('Socket connection error:', error);
+  showMessage('Error', 'Failed to connect to server. Please try again.', 'error');
+});
 
-  // SweetAlert2 message function
-  function showMessage(title, text, icon = 'success') {
-    Swal.fire({
-      title: title,
-      text: text,
-      icon: icon,
-      confirmButtonText: 'OK',
-      timer: 4000,
-      timerProgressBar: true,
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.getPopup().style.padding = '12px 20px';
-        Swal.getPopup().style.fontSize = '14px';
-        Swal.getPopup().style.minWidth = '250px';
-        Swal.getPopup().style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        Swal.getPopup().style.borderRadius = '6px';
-      }
-    });
+socket.on('product-toggled-complete', (data) => {
+  if (data.newStatus === 'unlisted') {
+    showMessage('Success', 'A product was unlisted. Reloading...', 'info');
+    location.reload();
   }
+});
 
-  // Address dropdown functionality
-  const dropdownBtn = document.getElementById('addressDropdownBtn');
-  const dropdown = document.getElementById('addressDropdown');
-  const selectedAddressSpan = document.getElementById('selectedAddress');
-  const selectedAddressIdInput = document.getElementById('selectedAddressId');
+socket.on('category-toggled-complete', (data) => {
+  if (data.newStatus === 'unlisted') {
+    showMessage('Success', 'A category was unlisted. Some products may have been removed. Reloading...', 'info');
+    location.reload();
+  }
+});
 
-  dropdownBtn.addEventListener('click', (e) => {
+socket.on('brand-toggled', (data) => {
+  if (data && data.newStatus === 'unlisted') {
+    showMessage("A brand was unlisted. Related products may have been removed. Reloading...", false);
+    setTimeout(() => location.reload(), 2000);
+  }
+});
+// Utility functions
+const showLoading = () => {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.classList.add('show');
+};
+
+const hideLoading = () => {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.classList.remove('show');
+};
+
+// SweetAlert2 message function
+function showMessage(title, text, icon = 'success') {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: icon,
+    confirmButtonText: 'OK',
+    timer: 4000,
+    timerProgressBar: true,
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.getPopup().style.padding = '12px 20px';
+      Swal.getPopup().style.fontSize = '14px';
+      Swal.getPopup().style.minWidth = '250px';
+      Swal.getPopup().style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      Swal.getPopup().style.borderRadius = '6px';
+    }
+  });
+}
+
+// Address dropdown functionality
+const dropdownBtn = document.getElementById('addressDropdownBtn');
+const dropdown = document.getElementById('addressDropdown');
+const selectedAddressSpan = document.getElementById('selectedAddress');
+const selectedAddressIdInput = document.getElementById('selectedAddressId');
+
+dropdownBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  dropdown.classList.toggle('hidden');
+  dropdown.classList.toggle('show');
+  dropdownBtn.classList.toggle('active');
+});
+
+dropdown.querySelectorAll('li').forEach(item => {
+  item.addEventListener('click', async (e) => {
     e.preventDefault();
-    dropdown.classList.toggle('hidden');
-    dropdown.classList.toggle('show');
-    dropdownBtn.classList.toggle('active');
-  });
-
-  dropdown.querySelectorAll('li').forEach(item => {
-    item.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const addressId = item.dataset.id;
-      if (addressId) {
-        const addressText = item.querySelector('strong').textContent;
-        const addressDetails = item.querySelector('.address-details').textContent.split(', ')[1];
-        selectedAddressSpan.textContent = `${addressText}, ${addressDetails}`;
-        selectedAddressIdInput.value = addressId;
-        dropdown.classList.add('hidden');
-        dropdown.classList.remove('show');
-        dropdownBtn.classList.remove('active');
-
-        // Save selected address to session
-        try {
-          const response = await fetch('/select-address', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ addressId })
-          });
-          const result = await response.json();
-          if (!result.success) {
-            showMessage('Error', 'Failed to select address', 'error');
-          }
-        } catch (error) {
-          console.error('Error selecting address:', error);
-          showMessage('Error', 'Failed to select address', 'error');
-        }
-      }
-    });
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!dropdownBtn.contains(e.target) && !dropdown.contains(e.target)) {
+    const addressId = item.dataset.id;
+    if (addressId) {
+      const addressText = item.querySelector('strong').textContent;
+      const addressDetails = item.querySelector('.address-details').textContent.split(', ')[1];
+      selectedAddressSpan.textContent = `${addressText}, ${addressDetails}`;
+      selectedAddressIdInput.value = addressId;
       dropdown.classList.add('hidden');
       dropdown.classList.remove('show');
       dropdownBtn.classList.remove('active');
-    }
-  });
 
-  // Modal functions
-  function openAddAddressModal() {
-    document.getElementById('addAddressModal').classList.remove('hidden');
-    document.getElementById('addAddressModal').classList.add('show');
-  }
-
-  function closeAddAddressModal() {
-    document.getElementById('addAddressModal').classList.add('hidden');
-    document.getElementById('addAddressModal').classList.remove('show');
-    document.getElementById('addAddressForm').reset();
-    clearErrors();
-  }
-
-  // Clear form errors
-  function clearErrors() {
-    document.querySelectorAll('.error-text').forEach(error => error.textContent = '');
-  }
-
-  // Validate form
-  function validateForm(formData) {
-    let isValid = true;
-    clearErrors();
-
-    if (!formData.name) {
-      document.getElementById('name-error').textContent = 'Full name is required';
-      isValid = false;
-    }
-    if (!formData.phone || !/^\d{10}$/.test(formData.phone)) {
-      document.getElementById('phone-error').textContent = 'Valid 10-digit phone number is required';
-      isValid = false;
-    }
-    if (!formData.street) {
-      document.getElementById('street-error').textContent = 'Street address is required';
-      isValid = false;
-    }
-    if (!formData.city) {
-      document.getElementById('city-error').textContent = 'City is required';
-      isValid = false;
-    }
-    if (!formData.state) {
-      document.getElementById('state-error').textContent = 'State is required';
-      isValid = false;
-    }
-    if (!formData.pinCode || !/^\d{6}$/.test(formData.pinCode)) {
-      document.getElementById('pinCode-error').textContent = 'Valid 6-digit pin code is required';
-      isValid = false;
-    }
-    if (!formData.country) {
-      document.getElementById('country-error').textContent = 'Country is required';
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  // Add address form submission
-  document.getElementById('addAddressForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const formData = {
-      name: form.name.value.trim(),
-      phone: form.phone.value.trim(),
-      street: form.street.value.trim(),
-      city: form.city.value.trim(),
-      state: form.state.value.trim(),
-      pinCode: form.pinCode.value.trim(),
-      country: form.country.value.trim()
-    };
-
-    if (!validateForm(formData)) return;
-
-    showLoading();
-    try {
-      const response = await fetch('/add-address', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const result = await response.json();
-
-      if (result.success) {
-        showMessage('Success', result.message);
-        closeAddAddressModal();
-        // Reload page to reflect new address
-        window.location.reload();
-      } else {
-        showMessage('Error', result.message, 'error');
+      // Save selected address to session
+      try {
+        const response = await fetch('/select-address', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ addressId })
+        });
+        const result = await response.json();
+        if (!result.success) {
+          showMessage('Error', 'Failed to select address', 'error');
+        }
+      } catch (error) {
+        console.error('Error selecting address:', error);
+        showMessage('Error', 'Failed to select address', 'error');
       }
-    } catch (error) {
-      console.error('Error adding address:', error);
-      showMessage('Error', 'Failed to add address', 'error');
-    } finally {
-      hideLoading();
     }
   });
+});
 
-  // Apply coupon
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!dropdownBtn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.add('hidden');
+    dropdown.classList.remove('show');
+    dropdownBtn.classList.remove('active');
+  }
+});
+
+// Modal functions
+function openAddAddressModal() {
+  document.getElementById('addAddressModal').classList.remove('hidden');
+  document.getElementById('addAddressModal').classList.add('show');
+}
+
+function closeAddAddressModal() {
+  document.getElementById('addAddressModal').classList.add('hidden');
+  document.getElementById('addAddressModal').classList.remove('show');
+  document.getElementById('addAddressForm').reset();
+  clearErrors();
+}
+
+// Clear form errors
+function clearErrors() {
+  document.querySelectorAll('.error-text').forEach(error => error.textContent = '');
+}
+
+// Validate form
+function validateForm(formData) {
+  let isValid = true;
+  clearErrors();
+
+  if (!formData.name) {
+    document.getElementById('name-error').textContent = 'Full name is required';
+    isValid = false;
+  }
+  if (!formData.phone || !/^\d{10}$/.test(formData.phone)) {
+    document.getElementById('phone-error').textContent = 'Valid 10-digit phone number is required';
+    isValid = false;
+  }
+  if (!formData.street) {
+    document.getElementById('street-error').textContent = 'Street address is required';
+    isValid = false;
+  }
+  if (!formData.city) {
+    document.getElementById('city-error').textContent = 'City is required';
+    isValid = false;
+  }
+  if (!formData.state) {
+    document.getElementById('state-error').textContent = 'State is required';
+    isValid = false;
+  }
+  if (!formData.pinCode || !/^\d{6}$/.test(formData.pinCode)) {
+    document.getElementById('pinCode-error').textContent = 'Valid 6-digit pin code is required';
+    isValid = false;
+  }
+  if (!formData.country) {
+    document.getElementById('country-error').textContent = 'Country is required';
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+// Add address form submission
+document.getElementById('addAddressForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const formData = {
+    name: form.name.value.trim(),
+    phone: form.phone.value.trim(),
+    street: form.street.value.trim(),
+    city: form.city.value.trim(),
+    state: form.state.value.trim(),
+    pinCode: form.pinCode.value.trim(),
+    country: form.country.value.trim()
+  };
+
+  if (!validateForm(formData)) return;
+
+  showLoading();
+  try {
+    const response = await fetch('/add-address', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      showMessage('Success', result.message);
+      closeAddAddressModal();
+      // Reload page to reflect new address
+      window.location.reload();
+    } else {
+      showMessage('Error', result.message, 'error');
+    }
+  } catch (error) {
+    console.error('Error adding address:', error);
+    showMessage('Error', 'Failed to add address', 'error');
+  } finally {
+    hideLoading();
+  }
+});
+
 // Apply coupon
 async function applyCoupon() {
   const couponCode = document.getElementById('couponCode').value.trim();
@@ -1127,6 +1164,11 @@ async function applyCoupon() {
   const appliedCouponCodeInput = document.getElementById('appliedCouponCode');
   const couponDiscountInput = document.getElementById('couponDiscount');
   const removeCouponBtn = document.getElementById('removeCouponBtn');
+  const paymentCOD = document.getElementById('paymentCOD');
+  const paymentCODInput = document.getElementById('paymentCODInput');
+  const paymentWallet = document.getElementById('paymentWallet');
+  const paymentWalletInput = document.getElementById('paymentWalletInput');
+  const paymentRazorpayInput = document.getElementById('paymentRazorpayInput');
 
   if (!couponCode) {
     messageEl.style.color = 'red';
@@ -1144,7 +1186,6 @@ async function applyCoupon() {
     });
 
     const data = await response.json();
-    console.log('Coupon response:', data);
 
     const subtotal = data.subtotal ?? 0;
     const couponDiscount = data.couponDiscount ?? 0;
@@ -1167,12 +1208,37 @@ async function applyCoupon() {
       // Show remove coupon button
       removeCouponBtn.style.display = 'inline-block';
 
-      // Update wallet status
+      // Update COD and wallet status
+      const codAvailable = finalTotal >= 10000;
       const walletBalance = parseFloat('<%= walletBalance %>');
-      const paymentWallet = document.getElementById('paymentWallet');
-      const paymentWalletInput = document.getElementById('paymentWalletInput');
+      const walletEnabled = walletBalance >= finalTotal;
 
-      if (walletBalance >= finalTotal) {
+      // Update COD
+      if (codAvailable) {
+        paymentCOD.classList.remove('disabled');
+        paymentCODInput.disabled = false;
+        paymentCOD.querySelector('.insufficient-funds')?.remove();
+      } else {
+        paymentCOD.classList.add('disabled');
+        paymentCODInput.disabled = true;
+        if (!paymentCOD.querySelector('.insufficient-funds')) {
+          const span = document.createElement('span');
+          span.className = 'insufficient-funds';
+          span.textContent = 'COD available only for orders ≥ ₹10,000';
+          paymentCOD.appendChild(span);
+        }
+        // If COD was selected, switch to another available option
+        if (paymentCODInput.checked) {
+          if (walletEnabled) {
+            paymentWalletInput.checked = true;
+          } else {
+            paymentRazorpayInput.checked = true;
+          }
+        }
+      }
+
+      // Update wallet
+      if (walletEnabled) {
         paymentWallet.classList.remove('disabled');
         paymentWalletInput.disabled = false;
         paymentWallet.querySelector('.insufficient-funds')?.remove();
@@ -1184,6 +1250,14 @@ async function applyCoupon() {
           span.className = 'insufficient-funds';
           span.textContent = 'Insufficient funds';
           paymentWallet.appendChild(span);
+        }
+        // If wallet was selected, switch to another available option
+        if (paymentWalletInput.checked) {
+          if (codAvailable) {
+            paymentCODInput.checked = true;
+          } else {
+            paymentRazorpayInput.checked = true;
+          }
         }
       }
     } else {
@@ -1207,69 +1281,177 @@ async function applyCoupon() {
   }
 }
 
+// Remove coupon
+function removeCoupon() {
+  const messageEl = document.getElementById('coupon-message');
+  const subtotalEl = document.getElementById('subtotal');
+  const couponDiscountContainer = document.getElementById('coupon-discount-container');
+  const couponDiscountDisplay = document.getElementById('couponDiscountDisplay');
+  const finalTotalEl = document.getElementById('finalTotal');
+  const appliedCouponCodeInput = document.getElementById('appliedCouponCode');
+  const couponDiscountInput = document.getElementById('couponDiscount');
+  const couponCodeInput = document.getElementById('couponCode');
+  const removeCouponBtn = document.getElementById('removeCouponBtn');
+  const originalSubtotal = parseFloat(document.getElementById('originalSubtotal').value);
+  const paymentCOD = document.getElementById('paymentCOD');
+  const paymentCODInput = document.getElementById('paymentCODInput');
+  const paymentWallet = document.getElementById('paymentWallet');
+  const paymentWalletInput = document.getElementById('paymentWalletInput');
+  const paymentRazorpayInput = document.getElementById('paymentRazorpayInput');
 
-  // Remove coupon
-  function removeCoupon() {
-    const messageEl = document.getElementById('coupon-message');
-    const subtotalEl = document.getElementById('subtotal');
-    const couponDiscountContainer = document.getElementById('coupon-discount-container');
-    const couponDiscountDisplay = document.getElementById('couponDiscountDisplay');
-    const finalTotalEl = document.getElementById('finalTotal');
-    const appliedCouponCodeInput = document.getElementById('appliedCouponCode');
-    const couponDiscountInput = document.getElementById('couponDiscount');
-    const couponCodeInput = document.getElementById('couponCode');
-    const removeCouponBtn = document.getElementById('removeCouponBtn');
-    const originalSubtotal = parseFloat(document.getElementById('originalSubtotal').value);
-    const paymentWallet = document.getElementById('paymentWallet');
-    const paymentWalletInput = document.getElementById('paymentWalletInput');
-    const walletBalance = parseFloat('<%= walletBalance %>');
+  // Reset order summary
+  subtotalEl.textContent = `₹${originalSubtotal.toLocaleString()}`;
+  couponDiscountContainer.style.display = 'none';
+  couponDiscountDisplay.textContent = '₹0';
+  finalTotalEl.textContent = `₹${originalSubtotal.toLocaleString()}`;
+  appliedCouponCodeInput.value = '';
+  couponDiscountInput.value = '0';
+  couponCodeInput.value = '';
+  removeCouponBtn.style.display = 'none';
+  messageEl.style.color = 'green';
+  messageEl.textContent = 'Coupon removed successfully.';
 
-    // Reset order summary
-    subtotalEl.textContent = `₹${originalSubtotal.toLocaleString()}`;
-    couponDiscountContainer.style.display = 'none';
-    couponDiscountDisplay.textContent = '₹0';
-    finalTotalEl.textContent = `₹${originalSubtotal.toLocaleString()}`;
-    appliedCouponCodeInput.value = '';
-    couponDiscountInput.value = '0';
-    couponCodeInput.value = '';
-    removeCouponBtn.style.display = 'none';
-    messageEl.style.color = 'green';
-    messageEl.textContent = 'Coupon removed successfully.';
+  // Update COD and wallet enabled status
+  const codAvailable = originalSubtotal >= 10000;
+  const walletBalance = parseFloat('<%= walletBalance %>');
+  const walletEnabled = walletBalance >= originalSubtotal;
 
-    // Update wallet enabled status
-    if (walletBalance >= originalSubtotal) {
-      paymentWallet.classList.remove('disabled');
-      paymentWalletInput.disabled = false;
-      paymentWallet.querySelector('.insufficient-funds')?.remove();
-    } else {
-      paymentWallet.classList.add('disabled');
-      paymentWalletInput.disabled = true;
-      if (!paymentWallet.querySelector('.insufficient-funds')) {
-        const span = document.createElement('span');
-        span.className = 'insufficient-funds';
-        span.textContent = 'Insufficient funds';
-        paymentWallet.appendChild(span);
+  // Update COD
+  if (codAvailable) {
+    paymentCOD.classList.remove('disabled');
+    paymentCODInput.disabled = false;
+    paymentCOD.querySelector('.insufficient-funds')?.remove();
+  } else {
+    paymentCOD.classList.add('disabled');
+    paymentCODInput.disabled = true;
+    if (!paymentCOD.querySelector('.insufficient-funds')) {
+      const span = document.createElement('span');
+      span.className = 'insufficient-funds';
+      span.textContent = 'COD available only for orders ≥ ₹10,000';
+      paymentCOD.appendChild(span);
+    }
+    // If COD was selected, switch to another available option
+    if (paymentCODInput.checked) {
+      if (walletEnabled) {
+        paymentWalletInput.checked = true;
+      } else {
+        paymentRazorpayInput.checked = true;
       }
     }
   }
 
-  // Place order
-  async function placeOrder() {
-    const addressId = document.getElementById('selectedAddressId').value;
-    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-    const couponCode = document.getElementById('appliedCouponCode').value;
-
-    if (!addressId) {
-      showMessage('Error', 'Please select a delivery address', 'error');
-      return;
+  // Update wallet
+  if (walletEnabled) {
+    paymentWallet.classList.remove('disabled');
+    paymentWalletInput.disabled = false;
+    paymentWallet.querySelector('.insufficient-funds')?.remove();
+  } else {
+    paymentWallet.classList.add('disabled');
+    paymentWalletInput.disabled = true;
+    if (!paymentWallet.querySelector('.insufficient-funds')) {
+      const span = document.createElement('span');
+      span.className = 'insufficient-funds';
+      span.textContent = 'Insufficient funds';
+      paymentWallet.appendChild(span);
     }
+    // If wallet was selected, switch to another available option
+    if (paymentWalletInput.checked) {
+      if (codAvailable) {
+        paymentCODInput.checked = true;
+      } else {
+        paymentRazorpayInput.checked = true;
+      }
+    }
+  }
+}
 
-    showLoading();
-    try {
+async function placeOrder() {
+  const addressId = document.getElementById('selectedAddressId').value;
+  const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+  const couponCode = document.getElementById('appliedCouponCode').value;
+
+  if (!addressId) {
+    showMessage('Error', 'Please select a delivery address', 'error');
+    return;
+  }
+
+  showLoading();
+  try {
+    if (paymentMethod === 'RAZORPAY') {
+      const response = await fetch('/create-razorpay-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addressId, couponCode }),
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        showMessage('Error', result.message, 'error');
+        hideLoading();
+        return;
+      }
+
+      // Validate Razorpay order response
+      if (!result.razorpayOrder || !result.razorpayOrder.id || !result.razorpayOrder.amount || !result.razorpayOrder.currency) {
+        showMessage('Error', 'Invalid Razorpay order response', 'error');
+        hideLoading();
+        return;
+      }
+
+      const options = {
+        key: '<%= RAZORPAY_KEY_ID %>', // Use the variable passed from the server
+        amount: result.razorpayOrder.amount,
+        currency: result.razorpayOrder.currency,
+        name: 'Your Store Name',
+        description: 'Order Payment',
+        order_id: result.razorpayOrder.id,
+        handler: async function (response) {
+          try {
+            const verifyResponse = await fetch('/verify-razorpay-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            const verifyResult = await verifyResponse.json();
+
+            if (verifyResult.success) {
+              showMessage('Success', verifyResult.message);
+              window.location.href = `/order-confirmation/${verifyResult.orderId}`;
+            } else {
+              showMessage('Error', verifyResult.message, 'error');
+            }
+          } catch (error) {
+            console.error('Error verifying payment:', error);
+            showMessage('Error', 'Payment verification failed', 'error');
+          } finally {
+            hideLoading();
+          }
+        },
+        prefill: {
+          name: '<%= user ? user.name : "" %>',
+          email: '<%= user ? user.email : "" %>',
+          contact: '<%= user ? user.phone : "" %>',
+        },
+        theme: {
+          color: '#0dcaf0',
+        },
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        showMessage('Error', `Payment failed: ${response.error.description}`, 'error');
+        hideLoading();
+      });
+      rzp.open();
+    } else {
       const response = await fetch('/place-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ addressId, paymentMethod, couponCode })
+        body: JSON.stringify({ addressId, paymentMethod, couponCode }),
       });
       const result = await response.json();
 
@@ -1279,13 +1461,16 @@ async function applyCoupon() {
       } else {
         showMessage('Error', result.message, 'error');
       }
-    } catch (error) {
-      console.error('Error placing order:', error);
-      showMessage('Error', 'Failed to place order', 'error');
-    } finally {
-      hideLoading();
     }
+  } catch (error) {
+    console.error('Error placing order:', error);
+    showMessage('Error', 'Failed to place order', 'error');
+  } finally {
+    if (paymentMethod !== 'RAZORPAY') hideLoading();
   }
+}
+
+
 </script>
 
 <%- include('../partials/user/footer') %>

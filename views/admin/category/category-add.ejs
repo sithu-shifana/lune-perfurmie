@@ -274,7 +274,6 @@
                 window.location.replace('/admin/categoryManagement');
               });
             } else {
-              // Display specific error based on errorType
               if (data.errorType === "top") {
                 topError.textContent = data.error || "Unexpected error";
                 topError.style.display = "block";

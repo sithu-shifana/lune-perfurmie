@@ -22,7 +22,7 @@ exports.getProfilePage = async (req, res) => {
             await user.generateReferralCode();
         }
 
-        res.render('dashboard/profile', { defaultAddress, wallet });
+        res.render('dashboard/profile', { defaultAddress, wallet ,user});
     } catch (error) {
         console.error('Error getting profile page:', error);
         res.status(500).render('error');
@@ -30,26 +30,59 @@ exports.getProfilePage = async (req, res) => {
 }
 
 
-exports.updateProfile=async(req,res)=>{
-    try{
-        const { name, phoneNo } = req.body;
-        const user=await User.findBySessionID(req.sessionID);
-        
-        if (phoneNo && !/^\d{10}$/.test(phoneNo)) {
-            return res.status(400).json({ error: 'Invalid phone number. Must be 10 digits.' });
-        }
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    const userId = req.session.user?.id;
+    const user = await User.findById(userId);
+    console.log('Updating profile with:', { name, phone });
 
-        user.name = name.trim();
-        user.phone = phoneNo ? phoneNo.trim() : user.phone;
-        await user.save();
-
-        res.json({ message: 'Profile updated successfully' });
-    }catch(error){
-        console.error('Error updating profile:', error);
-        res.status(500).json({ error: 'Error updating profile' });
-
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
-}
+
+    if (phone && !/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ error: 'Invalid phone number. Must be 10 digits.' });
+    }
+
+    // Update user fields
+    user.name = name.trim();
+    user.phone = phone ? phone.trim() : user.phone;
+    await user.save();
+    console.log(user.phone)
+    req.session.user = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      profilePicture: user.profilePicture,
+    };
+
+    // Save the session to ensure persistence
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) {
+          console.error('Error saving session:', err);
+          return reject(err);
+        }
+        resolve();
+      });
+    });
+
+    console.log('Updated session user:', req.session.user);
+
+    res.json({
+      message: 'Profile updated successfully',
+      updatedUser: {
+        name: user.name,
+        phone: user.phone,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Error updating profile' });
+  }
+};
+
 
 exports.uploadProfilePicture = async (req, res) => {
   try {

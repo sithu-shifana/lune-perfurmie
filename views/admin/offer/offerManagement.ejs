@@ -1,9 +1,80 @@
 <%- include('../partials/admin/header') %>
+<style>
+  .btn-primary-top {
+  background-color: #4a6a4d;       /* Green background */
+  color: white;                    /* White text */
+  border: none;
+  padding: 10px 18px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary-top:hover {
+  background-color: #3c543f;       /* Darker green on hover */
+  color: white;
+  text-decoration: none;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px; /* Space between buttons */
+  flex-wrap: wrap;
+}
+
+.btn-offer {
+  min-width: 100px;
+  text-align: center;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Specific Styles */
+.btn-offer.edit {
+  background-color: #007bff;
+  color: white;
+}
+.btn-offer.edit:hover {
+  background-color: #0069d9;
+}
+
+.btn-offer.activate {
+  background-color: #28a745;
+  color: white;
+}
+.btn-offer.activate:hover {
+  background-color: #218838;
+}
+
+.btn-offer.deactivate {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-offer.deactivate:hover {
+  background-color: #c82333;
+}
+
+.btn-offer.delete {
+  background-color: #6c757d;
+  color: white;
+}
+.btn-offer.delete:hover {
+  background-color: #5a6268;
+}
+
+
+</style>
 <main class="dashboard-content">
-  <head>
+  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
-     </head>
-  <body>
     <section class="content-main">
       <div class="content-header">
         <h2 class="content-body">Offer Management</h2>
@@ -21,11 +92,18 @@
                 <p>Total Offers</p>
               </div>
             </div>
-            <div class="col-md-4 add-category-btn-container">
+            
+
+        <header class="card-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div class="col-md-4 add-category-btn-container">
               <a href="/admin/offer-add" class="btn btn-primary-top">
                 <i class="material-icons md-plus"></i>+ Add New Offer
               </a>
-            </div>
+            </div> 
+        </div>
+               
             <form action="/admin/offerManagement" method="get">
               <div class="input-group">
                 <input type="text" class="form-control" placeholder="Search offers" name="search"
@@ -92,20 +170,21 @@
                               <%= offer.isCurrentlyActive ? 'Active' : 'Inactive' %>
                             </span>
                           </td>
-                          <td class="text-start">
-                            <div class="actions-container">
-                              <a href="/admin/offer-edit/<%= offer._id %>" class="btn btn-primary">Edit</a>
-                              <button class="btn <%= offer.isCurrentlyActive ? 'btn-danger' : 'btn-success' %> toggle-btn"
-                                      onclick="toggleOffer('<%= offer._id %>', 'row-<%= offer._id %>')">
-                                <%= offer.isCurrentlyActive ? 'Deactivate' : 'Activate' %>
-                              </button>
-                              <button class="btn btn-danger delete-btn"
-                                      onclick="deleteOffer('<%= offer._id %>', 'row-<%= offer._id %>')">
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
+                       <td class="text-start">
+  <div class="action-buttons">
+    <a href="/admin/offer-edit/<%= offer._id %>" class="btn btn-offer edit">Edit</a>
+    <button class="btn btn-offer toggle-btn <%= offer.isCurrentlyActive ? 'btn-success' : 'btn-danger' %>"
+        onclick="toggleOffer('<%= offer._id %>', 'row-<%= offer._id %>')">
+  <%= offer.isCurrentlyActive ? 'Deactivate' : 'Activate' %>
+</button>
+
+    <button class="btn btn-offer delete"
+            onclick="deleteOffer('<%= offer._id %>', 'row-<%= offer._id %>')">
+      Delete
+    </button>
+  </div>
+</td>
+
                       <% }) %>
                     <% } else { %>
                       <tr>
@@ -124,7 +203,7 @@
         <ul class="pagination">
             <% for (let i = 1; i <= totalPages; i++) { %>
                 <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>">
+                    <a class="page-link" href="?page=<%= i %><%= search ? '&search=' + search : '' %>">
                         <%= i %>
                     </a>
                 </li>
@@ -141,7 +220,7 @@
 
       async function toggleOffer(offerId, rowId) {
         try {
-          const response = await fetch(`/admin/offer/${offerId}/toggle`, {
+          const response = await fetch(`/admin/offer-toggle/${offerId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' }
           });
@@ -206,5 +285,4 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  </body>
 </main>

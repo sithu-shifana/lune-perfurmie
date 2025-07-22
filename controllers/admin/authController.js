@@ -5,6 +5,13 @@ const generateLedgerPDF = require('../../utils/generateLedgerPDf');
 
 exports.getAdminLoginPage=(req,res)=>{
     try{
+        if(req.session.admin){
+           return res.redirect('/admin/dashboard')
+        }
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '-1');
+
          res.render('admin/auth/login')
     }catch(error){
         console.error('error fetching Admin login page',error)
@@ -33,6 +40,14 @@ exports.loginAdmin = (req, res) => {
 
 exports.getDashboardPage= async (req,res)=>{
     try{
+
+        if(!req.session.admin){
+            return res.redirect('/admin/login')
+        }
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '-1');
+        
         const topSoldProducts = await (await getProductSoldCount()).sort((a, b) => b.totalSold - a.totalSold);
         const categorySales=await (await getCategorySoldCount()).sort((a, b) => b.totalSold - a.totalSold);
         const brandSales = (await getBrandSoldCount()).sort((a, b) => b.totalSold - a.totalSold);

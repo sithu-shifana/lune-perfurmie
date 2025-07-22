@@ -2,7 +2,17 @@ const Product = require('../../models/productSchema');
 const Brand = require('../../models/brandSchema');
 const Category = require('../../models/categorySchema');
 const Offer = require('../../models/offerSchema');
+const Order = require('../../models/orderSchema');
+const Wishlist = require('../../models/wishlistSchema');
+const Cart = require('../../models/cartSchema');
 const mongoose = require('mongoose');
+
+const {
+  getProductsWithOffersAndWishlist,
+  getFilterOptions
+} = require('../../helper/filterProducts');
+const { getProductWithOffers } = require('../../helper/productHelper');
+const { getProductPageHelper } = require('../../helper/productPageHelper');
 
 exports.getProductManagementPage = async (req, res) => {
   try {
@@ -14,7 +24,7 @@ exports.getProductManagementPage = async (req, res) => {
     if (search) {
       const flexibleRegex = search.replace(/\s+/g, '.*');
       query = {
-        productName: { $regex: flexibleRegex, $options: 'i' }
+        productName: { $regex: flexibleRegex, $options: 'i' },
       };
     }
 
@@ -26,7 +36,7 @@ exports.getProductManagementPage = async (req, res) => {
     const totalProducts = await Product.countDocuments({
       ...query,
       brand: { $in: listedBrands },
-      category: { $in: listedCategories }
+      category: { $in: listedCategories },
     });
 
     console.log(`Total products before filtering: ${totalProducts}, page: ${page}, limit: ${limit}`);
@@ -39,33 +49,38 @@ exports.getProductManagementPage = async (req, res) => {
     const products = await Product.find({
       ...query,
       brand: { $in: listedBrands },
-      category: { $in: listedCategories }
+      category: { $in: listedCategories },
     })
       .populate({
         path: 'brand',
         match: { status: 'listed' },
-        select: 'name'
+        select: 'name',
       })
       .populate({
         path: 'category',
         match: { status: 'listed' },
-        select: 'name'
+        select: 'name',
       })
       .skip((page - 1) * limit)
       .limit(limit)
       .sort({ createdAt: -1 });
 
     // Filter out products where brand or category population failed
-    const filteredProducts = products.filter(product => product.brand && product.category);
+    const filteredProducts = products.filter((product) => product.brand && product.category);
 
     console.log(`Filtered products count: ${filteredProducts.length}`);
 
-    // Fetch products with offers, handling errors individually
+    // Fetch products with offers, handling both errors and null returns
     const productsWithOffers = [];
     for (const product of filteredProducts) {
       try {
-        const productWithOffer = await Product.getProductWithOffers(product._id);
-        productsWithOffers.push(productWithOffer);
+        const productWithOffer = await getProductPageHelper(product._id);
+        if (productWithOffer) {
+          // Only push valid products with offers
+          productsWithOffers.push(productWithOffer);
+        } else {
+          console.warn(`Product ${product._id} skipped (unlisted or invalid)`);
+        }
       } catch (error) {
         console.error(`Error fetching offer for product ${product._id}:`, error.message);
         // Include product without offers if getProductWithOffers fails
@@ -76,7 +91,7 @@ exports.getProductManagementPage = async (req, res) => {
           brand: product.brand,
           category: product.category,
           images: product.images,
-          variants: product.variants.map(variant => ({
+          variants: product.variants.map((variant) => ({
             size: variant.size,
             stock: variant.stock,
             soldCount: variant.soldCount,
@@ -85,9 +100,9 @@ exports.getProductManagementPage = async (req, res) => {
             discount: 0,
             discountType: null,
             hasOffer: false,
-            offerName: null
+            offerName: null,
           })),
-          status: product.status
+          status: product.status,
         });
       }
     }
@@ -96,11 +111,11 @@ exports.getProductManagementPage = async (req, res) => {
 
     res.render('admin/products/productManagement', {
       totalProducts,
-      products: productsWithOffers,
+      products: productsWithOffers.filter((product) => product !== null), // Ensure no null products
       search,
       currentPage: page,
       totalPages: Math.ceil(totalProducts / limit) || 1,
-      limit
+      limit,
     });
   } catch (error) {
     console.error('Error fetching products:', error.message, error.stack);
@@ -342,3 +357,116 @@ exports.updateProduct = async (req, res) => {
     });
   }
 };
+
+
+
+exports.getProductDetails = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    
+    // Get product with offers using the helper function
+    const product = await getProductWithOffers(productId);
+    
+    if (!product) {
+       console.log(`error no product`)      
+    }
+
+    const totalBuyers = await Order.distinct('user', {
+      'items.product': productId,
+      orderStatus: { $in: ['delivered', 'shipped', 'processing'] }
+    }).then(users => users.length);
+
+    if (!totalBuyers) {
+       console.log(`error no total`)      
+    }
+    const totalUserWishlist = await Wishlist.countDocuments({
+      'items.product': productId
+    });
+
+    const totalUserCart = await Cart.countDocuments({
+      'items.product': productId
+    });
+
+    // Calculate total units sold and revenue
+    const salesData = await Order.aggregate([
+      {
+        $match: {
+          orderStatus: { $in: ['delivered', 'shipped', 'processing'] },
+          'items.product': new mongoose.Types.ObjectId(productId)
+        }
+      },
+      {
+        $unwind: '$items'
+      },
+      {
+        $match: {
+          'items.product': new mongoose.Types.ObjectId(productId)
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalUnitsSold: { $sum: '$items.quantity' },
+          totalRevenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } }
+        }
+      }
+    ]);
+
+    const totalUnitsSold = salesData.length > 0 ? salesData[0].totalUnitsSold : 0;
+    const totalRevenue = salesData.length > 0 ? salesData[0].totalRevenue : 0;
+
+    res.render('admin/products/product-detail', {
+      product,
+      totalBuyers,
+      totalUserWishlist,
+      totalUserCart,
+      totalUnitsSold,
+      totalRevenue
+    });
+
+  } catch (error) {
+    console.log('Error in getProductDetails:', error);
+    res.status(500).render('admin/error', { 
+      message: 'An error occurred while fetching product details' 
+    });
+  }
+};
+
+exports.toggleProducts = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    product.status = product.status === 'listed' ? 'unlisted' : 'listed';
+    await product.save();
+
+    if (product.status === 'unlisted') {
+      await Cart.updateMany({}, {
+        $pull: { items: { product: product._id } }
+      });
+
+      await Wishlist.updateMany({}, {
+        $pull: { items: { product: product._id } }
+      });
+    }
+
+    const io = req.app.get('io');
+    io.emit('product-toggled', {
+      productId: product._id,
+      newStatus: product.status
+    });
+
+    res.json({
+      success: true,
+      status: product.status,
+      message: `Product successfully ${product.status}`
+    });
+
+  } catch (error) {
+    console.error('Error toggling Product status:', error);
+    return res.status(500).json({ 
+      success: false,
+      error: 'Server error' 
+    });
+  }
+};
+
+

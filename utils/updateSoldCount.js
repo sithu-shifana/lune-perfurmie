@@ -1,6 +1,6 @@
 const Order = require('../models/orderSchema'); 
 
-// 1. Product Sold Count
+// Product Sold Count
 const getProductSoldCount = async () => {
   return await Order.aggregate([
     { $unwind: '$items' },
@@ -23,7 +23,7 @@ const getProductSoldCount = async () => {
   ]);
 };
 
-// 2. Variant Sold Count
+// Variant Sold Count
 const getVariantSoldCount = async () => {
   return await Order.aggregate([
     { $unwind: '$items' },

@@ -1,5 +1,9 @@
 const Category=require('../../models/categorySchema');
 const cloudinary = require('../../config/cloudinary'); // adjust path accordingly
+const Product = require('../../models/productSchema');
+const Order = require('../../models/orderSchema');
+const Wishlist = require('../../models/wishlistSchema');
+const Cart = require('../../models/cartSchema');
 
 exports.getCategoryPage=async(req,res)=>{
     try{
@@ -128,14 +132,49 @@ exports.EditCategory=async(req,res)=>{
 }
 
 exports.toggleStatus = async (req, res) => {
-    try {
-      const category = await Category.findById(req.params.id);
-      category.status = category.status === 'listed' ? 'unlisted' : 'listed';
-      await category.save();
-      res.json({ message: `Category successfully ${category.status === 'listed' ? 'listed' : 'unlisted'}` });
+  try {
+    const category = await Category.findById(req.params.id);
+    category.status = category.status === 'listed' ? 'unlisted' : 'listed';
+    await category.save();
 
-    } catch (error) {
-      console.error('Error toggling category status:', error);
-      return res.status(500).json({ error: 'Server error' });
+    if (category.status === 'unlisted') {
+      const products = await Product.find({ category: category._id }, '_id');
+      const productIds = products.map(p => p._id);
+
+      await Cart.updateMany({}, {
+        $pull: {
+          items: {
+            product: { $in: productIds }
+          }
+        }
+      });
+
+      await Wishlist.updateMany({}, {
+        $pull: {
+          items: {
+            product: { $in: productIds }
+          }
+        }
+      });
     }
-  };
+
+    const io = req.app.get('io');
+    io.emit('category-toggled', {
+      categoryId: category._id,
+      newStatus: category.status
+    });
+
+    res.json({
+      success: true,
+      status: category.status,
+      message: `Category successfully ${category.status}`
+    });
+
+  } catch (error) {
+    console.error('Error toggling category status:', error);
+    return res.status(500).json({ 
+      success: false,
+      error: 'Server error' 
+    });
+  }
+};

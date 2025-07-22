@@ -1,27 +1,42 @@
 const Brand=require('../../models/brandSchema');
+const Product=require('../../models/productSchema')
 const cloudinary = require('../../config/cloudinary');
+const Cart=require('../../models/cartSchema');
+const Wishlist=require('../../models/wishlistSchema');
 
-exports.getBrandPage=async(req,res)=>{
-    try{
-        let query = {};
-        let searchQuery = (req.query.search || '').trim();
+exports.getBrandPage = async (req, res) => {
+  try {
+    let query = {};
+    let searchQuery = (req.query.search || '').trim();
 
-        if (searchQuery) {
-            query = { name: { $regex: searchQuery, $options: 'i' } };
-        }
-
-        const totalBrands = await Brand.countDocuments();
-        const brands = await Brand.find(query).sort({ createdAt: -1 });
-
-        res.render('admin/brand/brandManagement',{
-            brands,
-            searchQuery,
-            totalBrands
-        })
-    }catch(error){
-
+    if (searchQuery) {
+      query = { name: { $regex: searchQuery, $options: 'i' } };
     }
-}
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6; // Brands per page
+
+    const totalBrands = await Brand.countDocuments(query); // use filtered count
+    const totalPages = Math.ceil(totalBrands / limit);
+
+    const brands = await Brand.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.render('admin/brand/brandManagement', {
+      brands,
+      searchQuery,
+      totalBrands,
+      currentPage: page,
+      totalPages
+    });
+  } catch (error) {
+    console.error('Error in getBrandPage:', error);
+    res.status(500).send("Server Error");
+  }
+};
+
 
 exports.getAddBrandPage=async(req,res)=>{
     try{
@@ -122,3 +137,53 @@ exports.getAddBrandPage=async(req,res)=>{
       return res.status(500).json({ error: 'brand updating error' });
     }
   }
+
+
+  exports.toggleBrand = async (req, res) => {
+    try {
+      const brand = await Brand.findById(req.params.id);
+      brand.status = brand.status === 'listed' ? 'unlisted' : 'listed';
+      await brand.save();
+  
+      if (brand.status === 'unlisted') {
+        const products = await Product.find({ brand: brand._id }, '_id');
+        const productIds = products.map(p => p._id);
+  
+        await Cart.updateMany({}, {
+          $pull: {
+            items: {
+              product: { $in: productIds }
+            }
+          }
+        });
+  
+        await Wishlist.updateMany({}, {
+          $pull: {
+            items: {
+              product: { $in: productIds }
+            }
+          }
+        });
+      }
+  
+    const io = req.app.get('io');
+io.emit('brand-toggled', {
+  brandId: brand._id,
+  newStatus: brand.status
+});
+
+res.json({
+  success: true,
+  status: brand.status,
+  message: `Brand successfully ${brand.status}`
+});
+
+  
+    } catch (error) {
+      console.error('Error toggling brand status:', error);
+      return res.status(500).json({ 
+        success: false,
+        error: 'Server error' 
+      });
+    }
+  };

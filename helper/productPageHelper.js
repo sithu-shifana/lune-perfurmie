@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { calculateBestOffer } = require('./offerHelper');
 
-const getProductWithOffers = async (productId, userId = null) => {
+const getProductPageHelper = async (productId, userId = null) => {
   const Product = mongoose.model('Product');
   const Wishlist = mongoose.model('Wishlist');
   const Cart = mongoose.model('Cart');
@@ -18,7 +18,7 @@ const getProductWithOffers = async (productId, userId = null) => {
       })
       .lean();
 
-    if (!product || product.status !== 'listed' || !product.brand || !product.category) {
+    if (!product || !product.brand || !product.category) {
       return null; // Return null instead of throwing error to handle gracefully
     }
 
@@ -104,5 +104,5 @@ const getProductWithOffers = async (productId, userId = null) => {
 };
 
 module.exports = {
-  getProductWithOffers
+  getProductPageHelper
 };

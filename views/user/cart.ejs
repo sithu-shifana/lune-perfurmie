@@ -497,7 +497,7 @@ h2.mb-4 {
             <img src="<%= item.image %>" class="img-fluid rounded" alt="<%= item.name %>">
           </a>
           <div class="cart-item-content">
-            <h5><%= item.productName %></h5>
+            <h5><%= item.productName %> ( <%=item.size %> )</h5>
             <div class="price-display">
               <div class="current-price">₹<%= item.offerPrice.toLocaleString() %> each</div>
               <% if (item.hasOffer) { %>
@@ -597,7 +597,7 @@ function showMessage(message, isSuccess = true) {
   setTimeout(() => {
     messageDiv.classList.remove('show');
     setTimeout(() => messageDiv.remove(), 300);
-  }, 2000);
+  }, 1000);
 }
 
 function updateCartSummary() {
@@ -663,11 +663,15 @@ async function changeQuantity(itemId, change, directValue = null) {
     return;
   }
   
-  if (newQuantity > maxStock) {
+ if (newQuantity > maxStock) {
+  setTimeout(() => {
     showMessage(`Cannot exceed stock of ${maxStock}`, false);
-    input.value = currentQuantity;
-    return;
-  }
+  }, 2000); // Delay of 2000 milliseconds (2 seconds)
+
+  input.value = currentQuantity;
+  return;
+}
+
 
   // If quantity hasn't changed, no need to update
   if (newQuantity === currentQuantity) {
@@ -830,5 +834,26 @@ function proceedToCheckout() {
 
 document.addEventListener('DOMContentLoaded', () => {
   updateCartSummary();
+});
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  socket.on('product-toggled', (data) => {
+    console.log("Product status changed:", data);
+    location.reload();
+  });
+
+  socket.on('category-toggled', (data) => {
+    console.log("Category status changed:", data);
+    location.reload(); 
+  });
+
+  socket.on('brand-toggled', (data) => {
+  if (data && data.newStatus === 'unlisted') {
+    showMessage("A brand was unlisted. Related products may have been removed. Reloading...", false);
+    setTimeout(() => location.reload(), 2000);
+  }
 });
 </script>

@@ -84,8 +84,7 @@ const userSchema = new mongoose.Schema({
     timestamps: true // Automatically adds createdAt and updatedAt
 });
 
-// Add this to userSchema.js
-// Generate unique referral code before saving
+
 userSchema.pre('save', async function(next) {
     if (this.isNew && !this.referralCode) {
         let referralCode;
@@ -104,7 +103,6 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-// Hash password before saving (only if password exists)
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password') || !this.password) return next();
     

@@ -95,6 +95,19 @@
       </div>
     </section>
 
+    <!-- Pagination -->
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center mt-4">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+        <a class="page-link" href="/admin/brandManagement?page=<%= i %><%= searchQuery ? `&search=${searchQuery}` : '' %>">
+          <%= i %>
+        </a>
+      </li>
+    <% } %>
+  </ul>
+</nav>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -106,7 +119,7 @@
 
       async function toggleBrand(brandId) {
         try {
-          const response = await fetch(`/admin/brand/${brandId}/toggle`, {
+          const response = await fetch(`/admin/brand-toggle/${brandId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' }
           });

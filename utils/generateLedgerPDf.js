@@ -10,13 +10,11 @@ const generateTable = (doc, headers, rows, startY) => {
   const rowHeight = 20;
   let y = startY;
 
-  // Header
   doc.font('Helvetica-Bold').fontSize(12);
   headers.forEach((header, i) => doc.text(header, columnSpacing[i], y));
   y += rowHeight;
   doc.moveTo(50, y - 5).lineTo(550, y - 5).stroke();
 
-  // Rows
   doc.font('Helvetica').fontSize(11);
   rows.forEach(row => {
     row.forEach((cell, i) => {
@@ -34,15 +32,13 @@ const generateLedgerPDF = async () => {
   const writeStream = fs.createWriteStream(filePath);
   doc.pipe(writeStream);
 
-  // Main Title
   doc.font('Helvetica-Bold')
     .fontSize(20)
-    .text('Lecora Lexe - Ledger Book', {
+    .text('LUNE PERFUMERIE - Ledger Book', {
       align: 'center'
     })
     .moveDown(2);
 
-  // Top Sold Products
   const topSoldProducts = (await getProductSoldCount()).sort((a, b) => b.totalSold - a.totalSold);
   doc.font('Helvetica-Bold')
     .fontSize(16)
@@ -57,7 +53,6 @@ const generateLedgerPDF = async () => {
 
   doc.moveDown(2);
 
-  // Category-wise Sales
   const categorySales = (await getCategorySoldCount()).sort((a, b) => b.totalSold - a.totalSold);
   doc.font('Helvetica-Bold')
     .fontSize(16)
@@ -72,7 +67,6 @@ const generateLedgerPDF = async () => {
 
   doc.moveDown(2);
 
-  // Brand-wise Sales
   const brandSales = (await getBrandSoldCount()).sort((a, b) => b.totalSold - a.totalSold);
   doc.font('Helvetica-Bold')
     .fontSize(16)
@@ -85,7 +79,6 @@ const generateLedgerPDF = async () => {
   currentY = doc.y;
   generateTable(doc, ['Brand Name', 'Total Sold'], brandRows, currentY + 10);
 
-  // Footer
   doc.moveDown(2);
   doc.font('Helvetica')
     .fontSize(10)

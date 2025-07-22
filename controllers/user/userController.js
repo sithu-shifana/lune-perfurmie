@@ -5,7 +5,20 @@ const Wallet = require('../../models/walletSchema');
 
 exports.getSignUp = async (req, res) => {
     try {
-        const referralCode = req.query.ref || '';
+
+    if (req.session.user) {
+        return res.redirect('/profile');
+    }
+
+    if(req.session.tempUser){
+        return res.redirect('/verify-otp')
+    }
+
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '-1');
+
+    const referralCode = req.query.ref || '';
 
     let isValidReferral = false;
 
@@ -22,6 +35,13 @@ exports.getSignUp = async (req, res) => {
 
 exports.getLogin = async (req, res) => {
     try {
+        if (req.session.user) {
+            return res.redirect('/profile');
+        }
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '-1');
+
         res.render('auth/login');
     } catch (error) {
         console.error('Error fetching login page:', error);
@@ -117,9 +137,11 @@ exports.getVerifyotpPage = (req, res) => {
     try {
         const tempUser = req.session.tempUser;
         if (!tempUser) {
-            console.log('No temp user found in session for OTP verification page');
-            return res.redirect('/signup');
+            return res.redirect('/login');
         }
+         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '-1');
         res.render('auth/verify-otp', {
             otpCreatedAt: tempUser.otpCreatedAt,
             expiresAt: tempUser.otpExpireAt || (Date.now() + 60000)
@@ -212,9 +234,9 @@ exports.resendOtp = async (req, res) => {
     }
 };
 
-// FORGOT PASSWORD FUNCTIONS - CORRECTED
 exports.getForgotPassword = (req, res) => {
     try {
+       
         res.render('auth/forgot-password');
     } catch (error) {
         console.error('Error fetching forgot password page:', error);
@@ -224,6 +246,8 @@ exports.getForgotPassword = (req, res) => {
 
 exports.submitForgotPassword = async (req, res) => {
     try {
+
+        
         const { email } = req.body;
         const user = await User.findOne({ email });
         
@@ -335,6 +359,7 @@ exports.getPasswordOtpVerifyPage = (req, res) => {
 
 exports.verifyForgotPasswordOtp = async (req, res) => {
     try {
+        
         const { otp } = req.body;
         const forgotPasswordUser = req.session.forgotPasswordUser;
 
@@ -474,19 +499,19 @@ exports.resetPassword = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        // Find the user and clear their session
         if (req.session && req.session.user) {
             const user = await User.findById(req.session.user.id);
             if (user) {
-                await user.clearSession();
+                await user.clearSession(); 
             }
         }
 
-        // Destroy the session
         req.session.destroy((err) => {
             if (err) {
                 console.error('Session destruction error:', err);
+                return res.redirect('/login'); 
             }
+            res.clearCookie('connect.sid');
             res.redirect('/login');
         });
 
@@ -495,6 +520,7 @@ exports.logout = async (req, res) => {
         res.redirect('/login');
     }
 };
+
 
 const passport = require('passport');
 

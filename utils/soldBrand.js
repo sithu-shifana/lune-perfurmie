@@ -5,7 +5,6 @@ const getBrandSoldCount = async () => {
     { $unwind: '$items' },
     { $match: { 'items.status': 'Active' } },
 
-    // Join product info
     {
       $lookup: {
         from: 'products',
@@ -16,7 +15,6 @@ const getBrandSoldCount = async () => {
     },
     { $unwind: '$product' },
 
-    // Group by brand
     {
       $group: {
         _id: '$product.brand',
@@ -24,7 +22,6 @@ const getBrandSoldCount = async () => {
       }
     },
 
-    // Join brand info
     {
       $lookup: {
         from: 'brands',
@@ -35,7 +32,6 @@ const getBrandSoldCount = async () => {
     },
     { $unwind: '$brand' },
 
-    // Final shape
     {
       $project: {
         _id: 0,

@@ -402,7 +402,7 @@ function showMessage(message, isSuccess = true) {
   setTimeout(() => {
     messageDiv.classList.remove('show');
     setTimeout(() => document.body.removeChild(messageDiv), 300);
-  }, 2000);
+  }, 1000);
 }
 
 function updateWishlistCount() {
@@ -627,6 +627,31 @@ document.addEventListener('change', function(e) {
         showMessage('Error updating variant details', false);
       }
     }
+  }
+});
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  socket.on('product-toggled', (data) => {
+    if (data.newStatus === 'unlisted') {
+      showMessage("A product was unlisted. Reloading...", false);
+      setTimeout(() => location.reload(), 1500);
+    }
+  });
+
+  socket.on('category-toggled', (data) => {
+    if (data.newStatus === 'unlisted') {
+      showMessage("A category was unlisted. Some products may have been removed. Reloading...", false);
+      setTimeout(() => location.reload(), 2000); 
+    }
+  });
+
+  socket.on('brand-toggled', (data) => {
+  if (data && data.newStatus === 'unlisted') {
+    showMessage("A brand was unlisted. Related products may have been removed. Reloading...", false);
+    setTimeout(() => location.reload(), 2000);
   }
 });
 </script>

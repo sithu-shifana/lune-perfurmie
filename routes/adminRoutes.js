@@ -46,19 +46,24 @@ router.get('/brand-add',isAdmin,brandController.getAddBrandPage)
 router.post('/brand-add',isAdmin,uploadBrand.single('image'),brandController.addBrand)
 router.get('/brand-edit/:id',isAdmin,brandController.getEditBrandPage);
 router.post('/brand-edit/:id',uploadBrand.single('image'),isAdmin,brandController.editBrand);
-// router.put('/brand/:id/toggle',isAdmin,brandController.toggleStatus)
+router.put('/brand-toggle/:id',isAdmin,brandController.toggleBrand)
 
 //product routes
 router.get('/productManagement',isAdmin,productController.getProductManagementPage);
 router.get('/product-add',isAdmin,productController.getaddProductPage);
 router.post('/product-add',isAdmin,uploadProduct,productController.addProduct)
 router.get('/product-edit/:id',isAdmin,productController.showEditProductForm);
-router.post('/product-edit/:id',isAdmin,uploadProduct,productController.updateProduct)
-
+router.post('/product-edit/:id',isAdmin,uploadProduct,productController.updateProduct);
+router.get('/product-detail/:id',isAdmin,productController.getProductDetails)
+router.put('/product-toggle/:id',productController.toggleProducts)
 
 router.get('/offerManagement', offerController.getOfferPage);
 router.get('/offer-add',isAdmin,offerController.getAddOfferForm);
 router.post('/offer-add',isAdmin,offerController.addOffer);
+router.get('/offer-edit/:id', offerController.getEditOffer);
+router.post('/offer-edit/:id', offerController.editOffer);
+router.put('/offer-toggle/:id', offerController.toggleOffer);
+router.delete('/offer-delete/:id', offerController.deleteOffer);
 
 
 router.get('/couponManagement',isAdmin,coupenManagement.getCouponManagement);
@@ -68,13 +73,13 @@ router.get('/coupon-edit/:id', isAdmin, coupenManagement.getEditCoupon);
 router.put('/coupon-edit/:id', isAdmin, coupenManagement.postEditCoupon);
 router.put('/coupon/:id/toggle', isAdmin, coupenManagement.toggleCoupon);
 
-
 router.get('/orderManagement', orderController.getOrderManagement);
 router.get('/view-order/:orderId', orderController.getViewOrder);
 router.post('/orders/:orderId/delivery-status', orderController.updateDeliveryStatus);
 router.post('/cancel-order/:orderId', orderController.cancelOrder);
 router.get('/update-tracking/:orderId', orderController.getUpdateTracking);
 router.post('/orders/update-tracking/:orderId', orderController.updateTracking);
+router.get('/order/:orderId/pdf', isAdmin, orderController.generateInvoicePDF);
 
 //returns
 // GET Routes

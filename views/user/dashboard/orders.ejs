@@ -424,6 +424,258 @@
       padding: 6px 12px;
     }
   }
+
+  /* Enhanced Modal Styles */
+  .custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    animation: modalFadeIn 0.4s ease forwards;
+  }
+
+  .custom-modal-content {
+    background: #ffffff;
+    margin: 5% auto;
+    padding: 30px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    animation: modalSlideIn 0.4s ease forwards;
+    scrollbar-width: thin;
+    scrollbar-color: #50140f #e9ecef;
+  }
+
+  .custom-modal-content::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-modal-content::-webkit-scrollbar-track {
+    background: #e9ecef;
+    border-radius: 4px;
+  }
+
+  .custom-modal-content::-webkit-scrollbar-thumb {
+    background: #513d0c;
+    border-radius: 4px;
+  }
+
+  .custom-modal-content::-webkit-scrollbar-thumb:hover {
+    background: #6c3b16;
+  }
+
+  .custom-modal .custom-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #2c3e50;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  .custom-modal .custom-close:hover {
+    color: #181a19;
+    transform: rotate(90deg);
+  }
+
+  .custom-modal-content h4 {
+    margin: 0 0 25px;
+    color: #2c3e50;
+    font-size: 1.8rem;
+    text-align: center;
+    font-weight: 700;
+    border-bottom: 2px solid #787d79;
+    padding-bottom: 10px;
+  }
+
+  .custom-modal-content h5 {
+    margin: 20px 0 15px;
+    color: #565a57;
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .custom-modal-content .tracking-details {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+  }
+
+  .custom-modal-content .address-details {
+    background: #f5f6f5;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #6b6d6b;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: #2c3e50;
+    line-height: 1.6;
+  }
+
+  .custom-modal-content .address-details p {
+    margin: 0;
+    display: inline;
+  }
+
+  .custom-modal-content .address-details p:not(:last-child)::after {
+    content: ", ";
+  }
+
+  .custom-modal-content .address-details strong {
+    color: #111111;
+    font-weight: 600;
+  }
+
+  .custom-modal-content .tracking-details p {
+    margin: 10px 0;
+    color: #2c3e50;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .custom-modal-content .tracking-details p strong {
+    color: #191c1a;
+    font-weight: 600;
+  }
+
+  .custom-modal-content .no-updates {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.95rem;
+    text-align: center;
+    margin: 15px 0;
+    padding: 10px;
+    background: #afafaf;
+    border-radius: 6px;
+  }
+
+  .custom-modal-content .timeline {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .custom-modal-content .timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #3f4240;
+  }
+
+  .custom-modal-content .timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+    padding-left: 45px;
+    opacity: 0;
+    transform: translateX(-30px);
+    animation: timelineSlideIn 0.6s ease forwards;
+    animation-delay: calc(0.15s * var(--index));
+  }
+
+  .custom-modal-content .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border: 3px solid #28a745;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+    z-index: 1;
+  }
+
+  .custom-modal-content .timeline-content {
+    background: #d4d4d2;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #f8f8f8;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .custom-modal-content .timeline-content:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .custom-modal-content .timeline-status {
+    display: block;
+    font-weight: 600;
+    color: #28a745;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+
+  .custom-modal-content .timeline-place {
+    display: block;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 1rem;
+  }
+
+  .custom-modal-content .timeline-date {
+    display: block;
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+
+  @keyframes modalFadeIn {
+    to { opacity: 1; }
+  }
+
+  @keyframes modalSlideIn {
+    to { transform: translateY(0); }
+  }
+
+  @keyframes timelineSlideIn {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @media (max-width: 576px) {
+    .custom-modal-content {
+      margin: 10% auto;
+      padding: 20px;
+      max-width: 95%;
+    }
+    .custom-modal-content h4 {
+      font-size: 1.6rem;
+    }
+    .custom-modal-content h5 {
+      font-size: 1.2rem;
+    }
+    .custom-modal-content .tracking-details p,
+    .custom-modal-content .address-details {
+      font-size: 0.95rem;
+    }
+    .custom-modal-content .timeline-item {
+      padding-left: 35px;
+    }
+    .custom-modal-content .timeline::before {
+      left: 10px;
+    }
+    .custom-modal-content .timeline-item::before {
+      left: 5px;
+      width: 12px;
+      height: 12px;
+    }
+  }
 </style>
 
 <div class="content-placeholder">
@@ -461,29 +713,28 @@
                       <strong>Quantity:</strong> <%= item.quantity || 1 %>
                     </p>
                     
-                   <div class="item-price">
-  <% if (item.offerPrice && item.offerPrice < item.originalPrice) { %>
-    <div>
-      Original Price:
-      <span class="original-price"> ₹<%= item.originalPrice.toLocaleString('en-IN') %></span>
-    </div>
-    <div>
-      <span class="text-muted">Price: ₹<%= item.offerPrice.toLocaleString('en-IN') %></span>
-    </div>
-    <div>
-      <strong>Total: ₹<%= (item.offerPrice * item.quantity).toLocaleString('en-IN') %></strong>
-    </div>
-  <% } else { %>
-    <div>
-      <span class="text-muted">Price: ₹<%= (item.originalPrice || 0).toLocaleString('en-IN') %></span>
-    </div>
-    <div>
-      <strong >Total: ₹<%= (item.offerPrice * item.quantity).toLocaleString('en-IN') %></strong>
-    </div>
-  <% } %>
-</div>
+                    <div class="item-price">
+                      <% if (item.offerPrice && item.offerPrice < item.originalPrice) { %>
+                        <div>
+                          Original Price:
+                          <span class="original-price"> ₹<%= item.originalPrice.toLocaleString('en-IN') %></span>
+                        </div>
+                        <div>
+                          <span class="text-muted">Price: ₹<%= item.offerPrice.toLocaleString('en-IN') %></span>
+                        </div>
+                        <div>
+                          <strong>Total: ₹<%= (item.offerPrice * item.quantity).toLocaleString('en-IN') %></strong>
+                        </div>
+                      <% } else { %>
+                        <div>
+                          <span class="text-muted">Price: ₹<%= (item.originalPrice || 0).toLocaleString('en-IN') %></span>
+                        </div>
+                        <div>
+                          <strong>Total: ₹<%= (item.offerPrice * item.quantity).toLocaleString('en-IN') %></strong>
+                        </div>
+                      <% } %>
+                    </div>
 
-                    
                     <% if (item.status !== 'Active') { %>
                       <p class="text-muted">
                         <strong>Status:</strong> <%= item.status %>
@@ -501,7 +752,6 @@
                       </p>
                     <% } %>
                   
-                    
                     <!-- Display refund message for cancelled or returned items with refunds -->
                     <% if ((item.status === 'Cancelled' || item.status === 'Returned') && (item.isRefunded || (order.refundDetails && order.refundDetails.amount > 0))) { %>
                       <div class="refund-item">
@@ -511,14 +761,12 @@
                         <% } else { %>
                           on N/A
                         <% } %>
-
                         <% if (item.couponDiscount && item.couponDiscount > 0) { %>
                           <p class="refund-note">📝 Note: Refund is based on the amount paid after applying coupon discounts.</p>
                         <% } %>
                       </div>
                     <% } %>
                   </div>
-                  
                   
                   <div class="item-actions">
                     <% if (['Placed', 'Processing'].includes(order.deliveryStatus) && item.status === 'Active') { %>
@@ -538,9 +786,8 @@
                       </button>
                     <% } else if (item.returnRejected) { %>
                       <span class="text-danger">
-                      Admin rejected Return request    <%= item.returnRejectionReason || '' %>
-                     </span>
-
+                        Admin rejected Return request <%= item.returnRejectionReason || '' %>
+                      </span>
                     <% } else if (item.status === 'ReturnRequested') { %>
                       <span class="text-return">Return Requested</span>
                     <% } %>
@@ -576,7 +823,7 @@
                 </div>
                 <div class="payment-item">
                   <h6>Payment Method</h6>
-                  <p><%= order.paymentMethod === 'ONLINE' ? 'GPay/Online' : order.paymentMethod === 'WALLET' ? 'Wallet' : 'Cash on Delivery' %></p>
+                  <p><%= order.paymentMethod === 'RAZORPAY' ? 'GPay/Online' : order.paymentMethod === 'WALLET' ? 'Wallet' : 'Cash on Delivery' %></p>
                 </div>
                 <div class="payment-item">
                   <h6>Payment Status</h6>
@@ -586,7 +833,6 @@
                 </div>
               </div>
               
-              <!-- Display order-level refund summary if applicable -->
               <% if (order.paymentStatus === 'Refunded' && order.refundDetails && order.refundDetails.amount > 0) { %>
                 <div class="refund-item">
                   <strong>💰 Total Refund:</strong> ₹<%= order.refundDetails.amount.toLocaleString('en-IN') %> processed
@@ -613,13 +859,71 @@
                 <div class="action-buttons">
                   <button class="btn btn-info btn-sm track-order-btn" 
                           data-order-id="<%= order._id %>"
-                          title="Track this order">
+                          data-modal-id="trackModal-<%= order._id %>"
+                          title="View delivery address">
                     Track Order
                   </button>
-                  <a href="/user/order/<%= order._id %>/pdf" class="btn btn-primary btn-sm" target="_blank">
-                    Download Invoice
-                  </a>
+                  <% if (order.deliveryStatus === 'Failed' && order.paymentMethod === 'ONLINE') { %>
+                    <button class="btn btn-retry btn-sm retry-payment-btn" 
+                            data-order-id="<%= order._id %>"
+                            data-coupon-code="<%= order.couponCode || '' %>"
+                            data-address-id="<%= order.address?._id || order.addressId || '' %>"
+                            title="Retry payment for this order">
+                      Pay
+                    </button>
+                  <% } else if (['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Return Requested', 'Returned'].includes(order.deliveryStatus) && ['Completed', 'Refunded','Pending'].includes(order.paymentStatus)) { %>
+                    <a href="/user/order/<%= order._id %>/pdf" class="btn btn-primary btn-sm" target="_blank">
+                      Download Invoice
+                    </a>
+                  <% } %>
                 </div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="trackModal-<%= order._id %>" class="custom-modal">
+            <div class="custom-modal-content">
+              <span class="custom-close">×</span>
+              <h4>Order Tracking</h4>
+              <div class="tracking-details">
+                <h5>Delivery Address</h5>
+                <div class="address-details">
+                  <p><strong>Name:</strong> <%= order.addressId.name || 'N/A' %></p>
+                  <p><strong>Phone:</strong> <%= order.addressId.phone || 'N/A' %></p>
+                  <p><strong>Street:</strong> <%= order.addressId.street || 'N/A' %></p>
+                  <p><strong>City:</strong> <%= order.addressId.city || 'N/A' %></p>
+                  <p><strong>State:</strong> <%= order.addressId.state || 'N/A' %></p>
+                  <p><strong>Pin Code:</strong> <%= order.addressId.pinCode || 'N/A' %></p>
+                  <p><strong>Country:</strong> <%= order.addressId.country || 'N/A' %></p>
+                </div>
+                <h5>Tracking Information</h5>
+                <p><strong>Tracking Number:</strong> <%= order.trackingInfo?.trackingNumber || 'N/A' %></p>
+                <p><strong>Carrier:</strong> <%= order.trackingInfo?.carrier || 'N/A' %></p>
+                <p><strong>Current Status:</strong> <%= order.deliveryStatus || order.trackingInfo?.status || 'N/A' %></p>
+                <h5>Delivery Timeline</h5>
+                <% if (order.trackingInfo?.reachedPlaces?.length > 0) { %>
+                  <ul class="timeline">
+                    <% order.trackingInfo.reachedPlaces.forEach((place, index) => { %>
+                      <li class="timeline-item" style="--index: <%= index %>;">
+                        <div class="timeline-content">
+                          <span class="timeline-status"><%= order.deliveryStatus === 'Delivered' && index === order.trackingInfo.reachedPlaces.length - 1 ? 'Delivered' : ['Placed', 'Processing', 'Shipped', 'Out for Delivery'][index] || 'Updated' %></span>
+                          <span class="timeline-place"><%= place.place || 'Unknown' %></span>
+                          <span class="timeline-date"><%= place.date ? new Date(place.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A' %></span>
+                        </div>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } else { %>
+                  <p class="no-updates">No tracking updates available</p>
+                <% } %>
+                <h5>Delivery Date</h5>
+                <p>
+                  <% if (order.deliveryDate) { %>
+                    <strong>Delivered on:</strong> <%= new Date(order.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                  <% } else { %>
+                    <strong>Approx. Delivery:</strong> <%= new Date(new Date(order.orderDate || order.createdAt).getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                  <% } %>
+                </p>
               </div>
             </div>
           </div>
@@ -639,8 +943,48 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const cancelItemButtons = document.querySelectorAll('.cancel-item-btn');
+    // Track Order Modal Handling
+    const trackButtons = document.querySelectorAll('.track-order-btn');
+    const modals = document.querySelectorAll('.custom-modal');
 
+    // Function to close all modals
+    const closeAllModals = () => {
+      modals.forEach(modal => {
+        modal.style.display = 'none';
+      });
+    };
+
+    // Handle track order button clicks
+    trackButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        closeAllModals(); // Close any open modals to prevent overlap
+        const modalId = button.dataset.modalId;
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.style.display = 'block';
+        }
+      });
+    });
+
+    // Handle close button clicks
+    document.querySelectorAll('.custom-close').forEach(button => {
+      button.addEventListener('click', () => {
+        const modal = button.closest('.custom-modal');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+      if (e.target.classList.contains('custom-modal')) {
+        e.target.style.display = 'none';
+      }
+    });
+
+    // Cancel Item Handling
+    const cancelItemButtons = document.querySelectorAll('.cancel-item-btn');
     cancelItemButtons.forEach(button => {
       button.addEventListener('click', async () => {
         const orderId = button.dataset.orderId;
@@ -661,8 +1005,6 @@
 
         if (result.isConfirmed) {
           const reason = result.value || 'User wants to cancel this product';
-
-
           try {
             const response = await fetch(`/orders/cancel-item/${orderId}/${itemId}`, {
               method: 'POST',
@@ -672,7 +1014,6 @@
             });
 
             const data = await response.json();
-
             Swal.fire({
               icon: data.success ? 'success' : 'error',
               title: data.success ? 'Success' : 'Error',
@@ -680,7 +1021,6 @@
             }).then(() => {
               if (data.success) location.reload();
             });
-
           } catch (error) {
             Swal.fire({
               icon: 'error',
@@ -692,113 +1032,63 @@
       });
     });
 
-  const returnButtons = document.querySelectorAll('.return-item-btn');
-returnButtons.forEach(button => {
-  button.addEventListener('click', async () => {
-    const orderId = button.dataset.orderId;
-    const itemId = button.dataset.itemId;
-
-    const { value: reason } = await Swal.fire({
-      title: 'Request Return',
-      input: 'text',
-      inputLabel: 'Reason for return (required)',
-      inputPlaceholder: 'Enter your reason...',
-      inputAttributes: {
-        autocomplete: 'off'
-      },
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (!value) return 'You must provide a reason for return';
-      }
-    });
-
-    if (reason) {
-      try {
-        const response = await fetch(`/orders/return-item/${orderId}/${itemId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reason }),
-          credentials: 'include'
-        });
-
-        const data = await response.json();
-        if (data.success === true) {
-          await Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: data.message
-          });
-          location.reload();
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: data.message || 'Something went wrong'
-          });
-        }
-
-      } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Server Error',
-          text: 'Please try again later.'
-        });
-      }
-    }
-  });
-});
-
-
-    const trackButtons = document.querySelectorAll('.track-order-btn');
-    trackButtons.forEach(button => {
+    // Return Item Handling
+    const returnButtons = document.querySelectorAll('.return-item-btn');
+    returnButtons.forEach(button => {
       button.addEventListener('click', async () => {
         const orderId = button.dataset.orderId;
-        try {
-          const response = await fetch(`/orders/track/${orderId}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include'
-          });
-          const data = await response.json();
-          if (data.success) {
-            const reachedPlacesHtml = data.trackingInfo.reachedPlaces.length
-              ? data.trackingInfo.reachedPlaces.map(place =>
-                  `<li><strong>${place.place}</strong> - ${new Date(place.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</li>`
-                ).join('')
-              : '<li>No tracking updates available</li>';
+        const itemId = button.dataset.itemId;
 
-            Swal.fire({
-              title: `Order #${orderId.slice(-8).toUpperCase()} Tracking`,
-              html: `
-                <div style="text-align: left;">
-                  <p><strong>Status:</strong> ${data.trackingInfo.status || 'N/A'}</p>
-                  <p><strong>Tracking Number:</strong> ${data.trackingInfo.trackingNumber || 'N/A'}</p>
-                  <p><strong>Carrier:</strong> ${data.trackingInfo.carrier || 'N/A'}</p>
-                  <p><strong>Delivery Date:</strong> ${data.deliveryDate ? new Date(data.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</p>
-                  <p><strong>Tracking Updates:</strong></p>
-                  <ul>${reachedPlacesHtml}</ul>
-                </div>
-              `,
-              icon: 'info',
-              confirmButtonText: 'Close'
+        const { value: reason } = await Swal.fire({
+          title: 'Request Return',
+          input: 'text',
+          inputLabel: 'Reason for return (required)',
+          inputPlaceholder: 'Enter your reason...',
+          inputAttributes: {
+            autocomplete: 'off'
+          },
+          showCancelButton: true,
+          inputValidator: (value) => {
+            if (!value) return 'You must provide a reason for return';
+          }
+        });
+
+        if (reason) {
+          try {
+            const response = await fetch(`/orders/return-item/${orderId}/${itemId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ reason }),
+              credentials: 'include'
             });
-          } else {
+
+            const data = await response.json();
+            if (data.success === true) {
+              await Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: data.message
+              });
+              location.reload();
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Something went wrong'
+              });
+            }
+          } catch (error) {
             Swal.fire({
               icon: 'error',
-              title: 'Error',
-              text: data.message || 'Unable to fetch tracking information'
+              title: 'Server Error',
+              text: 'Please try again later.'
             });
           }
-        } catch (error) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Server error while fetching tracking information'
-          });
         }
       });
     });
 
+    // Retry Payment Handling
     const retryPaymentButtons = document.querySelectorAll('.retry-payment-btn');
     retryPaymentButtons.forEach(button => {
       button.addEventListener('click', async () => {

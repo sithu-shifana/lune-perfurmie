@@ -27,25 +27,31 @@ const orderSchema = new mongoose.Schema({
   couponCode: { type: String, default: null }, 
   totalCouponDiscount: { type: Number, default: 0, min: 0 }, 
   finalTotal: { type: Number, required: true, min: 0, default: 0 },
-  paymentMethod: { type: String, enum: ['COD', 'ONLINE', 'WALLET'], required: true },
+  paymentMethod: { type: String, enum: ['COD', 'RAZORPAY', 'WALLET'], required: true },
   paymentStatus: { 
     type: String, 
     enum: ['Pending', 'Completed', 'Failed', 'Cancelled', 'Refunded'], 
     default: function() {
-      return ['ONLINE', 'WALLET'].includes(this.paymentMethod) ? 'Completed' : 'Pending';
+      return ['RAZORPAY', 'WALLET'].includes(this.paymentMethod) ? 'Completed' : 'Pending';
     }
   },
   status: {
     type: String,
     enum: ['Pending', 'Paid', 'Failed', 'Cancelled', 'Refunded'],
     default: function() {
-      return ['ONLINE', 'WALLET'].includes(this.paymentMethod) ? 'Paid' : 'Pending';
+      return ['RAZORPAY', 'WALLET'].includes(this.paymentMethod) ? 'Paid' : 'Pending';
     }
   },
   deliveryStatus: { 
     type: String, 
     enum: ['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'ReturnRequested', 'Returned'], 
     default: 'Placed' 
+  },
+  trackingInfo: {
+    trackingNumber: { type: String },
+    carrier: { type: String },
+    status: { type: String },
+    reachedPlaces: [{ place: String, date: Date }]
   },
   orderDate: { type: Date, default: Date.now },
   deliveryDate: { type: Date },
@@ -62,13 +68,16 @@ orderSchema.virtual('totalSavings').get(function () {
   let originalTotal = 0;
 
   this.items.forEach(item => {
-    originalTotal += item.originalPrice * item.quantity;
+    if (item.status === 'Active') {
+      originalTotal += item.originalPrice * item.quantity;
+    }
   });
 
   const totalSavings = originalTotal - this.subtotal + this.totalCouponDiscount;
 
-  return totalSavings;
+  return Math.max(0, totalSavings); // prevent negative values
 });
+
 
 orderSchema.set('toObject', { virtuals: true });
 orderSchema.set('toJSON', { virtuals: true });

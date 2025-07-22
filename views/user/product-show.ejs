@@ -362,6 +362,8 @@ body {
   <meta name="csrf-token" content="<%= csrfToken %>">
 <% } %>
 
+
+
 <!-- Breadcrumbs -->
 <nav class="breadcrumbs container">
   <a href="/">Home</a> >
@@ -370,6 +372,16 @@ body {
   </a> >
   <span><%= product.productName || 'Product' %></span>
 </nav>
+
+ <div id="login-alert" style="
+  display: none; position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+  background: #fff; color: #333; padding: 16px 24px; border: 1px solid #ccc;
+  border-radius: 8px; font: 16px 'Segoe UI', sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 9999; min-width: 280px; text-align: center;
+">
+  ⚠️ Please <a href="/login" style="color:#007bff; text-decoration: underline;">log in</a> to add to wishlist.
+  <span onclick="hideLoginAlert()" style="position:absolute; top:8px; right:12px; cursor:pointer; color:#888;">×</span>
+</div>
 
 <!-- Product Section -->
 <section class="product-container container">
@@ -465,11 +477,11 @@ body {
           data-variant="<%= product.variants[0].size %>">
     <%= product.variants[0].isInCart ? 'Remove from Cart' : 'Add to Cart' %>
   </button>
-  <i id="wishlist-icon-<%= product._id %>" 
-     class="fas fa-heart wishlist-icon <%= product.isInWishlist ? 'active' : '' %>" 
-     data-product-id="<%= product._id %>" 
-     onclick="toggleWishlist('<%= product._id %>')">
-  </i>
+   <i id="wishlist-icon-<%= product._id %>" 
+             class="fas fa-heart wishlist-icon <%= product.isInWishlist ? 'active' : '' %>" 
+             data-product-id="<%= product._id %>" 
+             onclick="toggleWishlist('<%= product._id %>')">
+          </i>
 </div>
     </div>
   </div>
@@ -641,7 +653,6 @@ function showError(message, isSuccess = false) {
   }
 }
 
-// Wishlist Toggle
 function toggleWishlist(productId) {
   const btn = document.getElementById(`wishlist-icon-${productId}`);
   if (!btn || btn.classList.contains('disabled')) return;
@@ -655,23 +666,22 @@ function toggleWishlist(productId) {
   fetch(`/wishlist-toggle/${productId}`, {
     method: 'POST',
     headers,
-    credentials: 'include',
+    credentials: 'include'
   })
     .then(res => {
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      if (res.status === 401) {
+          showLoginAlert(); 
+      return;
+      }
       return res.json();
     })
     .then(data => {
-      if (data.success) {
-        btn.classList.toggle('active', data.isInWishlist);
-        showError(data.isInWishlist ? 'Added to wishlist' : 'Removed from wishlist', true);
-      } else {
-        showError(data.message || 'Failed to update wishlist', false);
-      }
+      if (!data?.success) return alert('Failed to update wishlist');
+      btn.classList.toggle('active', data.isInWishlist);
     })
     .catch(err => {
       console.error('Wishlist toggle error:', err);
-      showError('Error updating wishlist', false);
+      showLoginAlert();
     })
     .finally(() => {
       btn.style.pointerEvents = 'auto';
@@ -766,6 +776,11 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ size: selectedSize, quantity: 1 }),
       });
 
+    if (data.redirect) {
+    window.location.href = data.redirect;
+    return;
+  }
+
       if (data.success) {
         variant.isInCart = data.isInCart; // Update variant's cart status
         updateCartButton(data.isInCart, selectedSize);
@@ -795,6 +810,13 @@ document.addEventListener('DOMContentLoaded', () => {
     checkCartStatus(productId, variantSelect.value);
   }
 });
+
+function showLoginAlert() {
+  document.getElementById('login-alert').style.display = 'block';
+}
+function hideLoginAlert() {
+  document.getElementById('login-alert').style.display = 'none';
+}
 </script>
 
 

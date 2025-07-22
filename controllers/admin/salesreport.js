@@ -4,51 +4,85 @@ const ExcelJS = require('exceljs');
 
 exports.generateSalesReport = async (req, res) => {
   try {
-    const { startDate, endDate, timePeriod } = req.query;
+    const { startDate, endDate, timePeriod, page = 1, query = '' } = req.query;
 
+    let queryObj = {
+      paymentStatus: 'Completed' 
+    };
     
-    let query = {};
     const now = new Date();
     now.setHours(23, 59, 59, 999);
 
+    // Date range filtering
     if (timePeriod === 'daily') {
       const start = new Date(now);
       start.setHours(0, 0, 0, 0);
-      query.orderDate = { $gte: start, $lte: now };
+      queryObj.orderDate = { $gte: start, $lte: now };
     } else if (timePeriod === 'weekly') {
       const start = new Date(now);
       start.setDate(now.getDate() - 7);
       start.setHours(0, 0, 0, 0);
-      query.orderDate = { $gte: start, $lte: now };
+      queryObj.orderDate = { $gte: start, $lte: now };
     } else if (timePeriod === 'monthly') {
       const start = new Date(now);
       start.setMonth(now.getMonth() - 1);
       start.setHours(0, 0, 0, 0);
-      query.orderDate = { $gte: start, $lte: now };
+      queryObj.orderDate = { $gte: start, $lte: now };
     } else if (timePeriod === 'yearly') {
       const start = new Date(now);
       start.setFullYear(now.getFullYear() - 1);
       start.setHours(0, 0, 0, 0);
-      query.orderDate = { $gte: start, $lte: now };
+      queryObj.orderDate = { $gte: start, $lte: now };
     } else if (startDate && endDate) {
-      query.orderDate = {
+      queryObj.orderDate = {
         $gte: new Date(startDate),
         $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
       };
     }
 
-    // Fetch orders with population
-    const orders = await Order.find(query)
+    // Search functionality - only search within completed payment orders
+    if (query) {
+      queryObj.$and = [
+        { paymentStatus: 'Completed' }, // Ensure payment status filter is maintained
+        {
+          $or: [
+            { _id: { $regex: query.slice(-6), $options: 'i' } }, // Match last 6 chars of order ID
+            { 'userId.name': { $regex: query, $options: 'i' } }, // Match customer name
+          ]
+        }
+      ];
+      // Remove the separate paymentStatus since it's now in $and
+      delete queryObj.paymentStatus;
+    }
+
+    // Pagination settings
+    const limit = 10; // Orders per page
+    const currentPage = parseInt(page, 10) || 1;
+    const skip = (currentPage - 1) * limit;
+
+    // Fetch total count for pagination (only completed payments)
+    const totalOrdersCount = await Order.countDocuments(queryObj);
+
+    // Fetch orders with pagination and population (only completed payments)
+    const orders = await Order.find(queryObj)
       .populate('userId items.productId')
-      .sort({ orderDate: -1 });
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    // Calculate totals
-    const totalOrders = orders.length;
-    const totalOrderAmount = orders.reduce((sum, order) => sum + order.finalTotal, 0);
-    const totalDiscount = orders.reduce((sum, order) => sum + (order.totalSavings || 0) + (order.couponDiscount || 0), 0);
-    const netSales = totalOrderAmount - totalDiscount;
+    // Calculate totals based only on completed payment orders
+    const allCompletedOrders = await Order.find(
+      query ? queryObj : { ...queryObj, paymentStatus: 'Completed' }
+    );
 
-    // Render report view with 'now' passed
+    const totalOrders = totalOrdersCount; // Total completed orders for the query
+    const totalOrderAmount = allCompletedOrders.reduce((sum, order) => sum + (order.finalTotal || 0), 0);
+    const totalDiscount = allCompletedOrders.reduce((sum, order) => 
+      sum + (order.totalSavings || 0) + (order.couponDiscount || 0), 0
+    );
+    const netSales = totalOrderAmount-totalDiscount;
+
+    // Render report view with pagination and query data
     res.render('admin/salesReport', {
       orders,
       totalOrders,
@@ -59,6 +93,9 @@ exports.generateSalesReport = async (req, res) => {
       endDate: endDate || '',
       timePeriod: timePeriod || 'custom',
       now: now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      currentPage,
+      totalPages: Math.ceil(totalOrdersCount / limit),
+      query: query || '',
     });
   } catch (error) {
     console.error('Error generating sales report:', error);

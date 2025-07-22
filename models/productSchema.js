@@ -3,6 +3,7 @@ const { getProductWithOffers } = require('../helper/productHelper');
 
 const productSchema = new mongoose.Schema({
   productName: { type: String, required: true },
+  fragranceType:{type:String},
   description: { type: String, required: true },
 
   brand: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true },

@@ -6,19 +6,29 @@ const Category = require('../models/categorySchema');
 const Brand = require('../models/brandSchema');
 const Wishlist = require('../models/wishlistSchema');
 const {getProductWithOffers}=require('../helper/productHelper')
-// Helper to build filter query
 const buildFilterQuery = (queryParams) => {
-    const { category, brand, minPrice, maxPrice } = queryParams;
+    const { category, brand, minPrice, maxPrice ,search } = queryParams;
     
     const query = { status: 'listed' };
     
     if (category) query.category = category;
     if (brand) query.brand = brand;
+
+    if (search) {
+      const trimmedSearch = search.trim();
+      const fuzzySearch = trimmedSearch.split(' ').join('.*'); // Adds in-between flexibility
+      const searchRegex = new RegExp(fuzzySearch, 'i');
+
+  query.$or = [
+    { name: searchRegex },
+    { description: searchRegex }
+  ];
+}
+
     
     return { query, priceFilter: { minPrice, maxPrice } };
 };
 
-// Helper to get sort options
 const getSortOption = (sort) => {
     switch (sort) {
         case 'priceLowHigh':
@@ -36,16 +46,14 @@ const getSortOption = (sort) => {
     }
 };
 
-// Helper to get products with offers and wishlist status
 const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
     const { query, priceFilter } = buildFilterQuery(queryParams);
     const sortOption = getSortOption(queryParams.sort);
     const page = Number(queryParams.page) || 1;
-    const limit = 25;
+    const limit = 12;
     const skip = (page - 1) * limit;
     
     try {
-        // Get products with basic filtering
         let products = await Product.find(query)
             .populate({
                 path: 'brand',
@@ -57,7 +65,7 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
                 match: { status: 'listed' },
                 select: 'name _id'
             })
-            .sort(sortOption) 
+            .sort({ createdAt: -1 })
             .lean();
 
         // Filter out products where brand or category is null

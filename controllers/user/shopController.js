@@ -6,10 +6,9 @@ const {
   getFilterOptions
 } = require('../../helper/filterProducts');
 const {
-  getProductWithOffers  // Updated import - single function
+  getProductWithOffers 
 } = require('../../helper/productHelper');
 
-// Get Home Page
 exports.getHomePage = async (req, res) => {
   try {
     const categories = await Category.find({ status: 'listed' })
@@ -44,10 +43,11 @@ exports.getShopPage = async (req, res) => {
     const queryParams = {
       category: req.query.category,
       brand: req.query.brand,
-      originalPriceMin: req.query.originalPriceMin,
-      originalPriceMax: req.query.originalPriceMax,
+      minPrice: req.query.minPrice,
+      maxPrice: req.query.maxPrice,
       sort: req.query.sort,
-      page: req.query.page || 1
+      page: req.query.page || 1,
+      search: req.query.search?.trim()
     };
     const userId = req.session.user?.id;
 
@@ -67,7 +67,8 @@ exports.getShopPage = async (req, res) => {
         products,
         currentPage: productResult.currentPage,
         totalPages: productResult.totalPages,
-        totalProducts: productResult.totalProducts
+        totalProducts: productResult.totalProducts,
+        query: req.query
       });
     }
 
@@ -78,10 +79,11 @@ exports.getShopPage = async (req, res) => {
       query: {
         category: queryParams.category || '',
         brand: queryParams.brand || '',
-        originalPriceMin: queryParams.originalPriceMin || '',
-        originalPriceMax: queryParams.originalPriceMax || '',
-        sort: queryParams.sort || ''
+        sort: queryParams.sort || '',
+        search: queryParams.search || ''
       },
+      minPrice: queryParams.minPrice || '',
+      maxPrice: queryParams.maxPrice || '',
       currentPage: productResult.currentPage,
       totalPages: productResult.totalPages,
       totalProducts: productResult.totalProducts
@@ -110,6 +112,14 @@ exports.getproductshowpage = async (req, res) => {
 
     if (!product) {
       return res.status(404).render('404', { message: 'Product not found' });
+    }
+
+     if (
+       product.status === 'Unlisted' ||
+       product.category?.status === 'unlisted' ||
+       product.brand?.status === 'unlisted'
+    ) {
+      return res.redirect('/products');
     }
 
     // Set variant and top-level offer fields for consistency

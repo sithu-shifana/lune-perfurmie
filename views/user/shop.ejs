@@ -240,48 +240,40 @@ select:hover, input:focus {
   }
 }
 
-.pagination-container {
+.pagination-simple {
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin: 30px 0;
-  font-family: 'Outfit', sans-serif;
-}
-
-.pagination-info {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 10px;
-  text-align: center;
+  gap: 8px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 60px;
 }
 
 .pagination-btn {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  background: white;
+  padding: 5px 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
   color: #333;
   text-decoration: none;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-  font-size: 14px;
+  transition: background 0.2s;
 }
 
 .pagination-btn:hover {
-  background: #f5f5f5;
-  border-color: #ccc;
+  background-color: #dcdcdc;
 }
 
 .pagination-btn.active {
-  background: #5b4944;
+  background-color: #333;
   color: white;
-  border-color: #5b4944;
-}
-
-.pagination-btn.disabled {
-  opacity: 0.5;
+  font-weight: bold;
   pointer-events: none;
 }
+
+.pagination-dots {
+  padding: 5px 8px;
+  color: #888;
+}
+
 
 .product-card {
   position: relative;
@@ -359,6 +351,121 @@ select:hover, input:focus {
     margin-top: 2px;
   }
 }
+
+#searchContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  #searchInput {
+    padding: 10px 14px;
+    font-size: 15px;
+    border: 1px solid #b7a69b;
+    border-radius: 6px;
+    background-color: #f9f9f6;
+    color: #333;
+    width: 250px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  #searchInput:focus {
+    border-color: #bbad9b;
+  }
+
+  #searchBtn {
+    padding: 10px 16px;
+    font-size: 15px;
+    background-color: #5f5038;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  #searchBtn:hover {
+    background-color: #767c5f;
+  }
+
+  #result {
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+  }
+
+
+  #searchContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+#searchInput {
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #333;
+  width: 300px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+#searchInput:focus {
+  border-color: #5f5038;
+}
+
+#searchBtn {
+  padding: 12px 16px;
+  background-color: #5f5038;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+}
+
+#searchBtn:hover {
+  background-color: #767c5f;
+  transform: translateY(-1px);
+}
+
+#searchBtn:active {
+  transform: translateY(0);
+}
+
+#searchBtn svg {
+  transition: transform 0.2s ease;
+}
+
+#searchBtn:hover svg {
+  transform: scale(1.1);
+}
+
+#result {
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+}
+
+@media (max-width: 480px) {
+  #searchInput {
+    width: 250px;
+  }
+}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -378,6 +485,9 @@ select:hover, input:focus {
   ⚠️ Please <a href="/login" style="color:#007bff; text-decoration: underline;">log in</a> to add to wishlist.
   <span onclick="hideLoginAlert()" style="position:absolute; top:8px; right:12px; cursor:pointer; color:#888;">×</span>
 </div>
+
+
+
 
   <div class="filter-container">
     <button id="filterToggle" class="filter-toggle">
@@ -411,8 +521,8 @@ select:hover, input:focus {
         </div>
         <div class="filter-section">
           <h3>Price Range</h3>
-          <input type="number" name="minPrice" placeholder="Min Price" value="<%= query.minPrice || '' %>">
-          <input type="number" name="maxPrice" placeholder="Max Price" value="<%= query.maxPrice || '' %>">
+          <input type="number" name="minPrice" placeholder="Min Price" value="<%= minPrice %>">
+  <input type="number" name="maxPrice" placeholder="Max Price" value="<%= maxPrice %>">
         </div>
         <div class="filter-section">
           <h3>Sort By</h3>
@@ -436,6 +546,25 @@ select:hover, input:focus {
 
   <!-- Products container -->
   <div class="products-container">
+
+
+<form action="/products" method="GET" class="search-form" id="searchContainer">
+  <input
+    type="text"
+    id="searchInput"
+    name="search"
+    placeholder="Search the best one..."
+    value="<%= query.search %>"
+  />
+  <button type="submit" id="searchBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.35-4.35"/>
+    </svg>
+  </button>
+</form>
+
+
     <!-- Products Grid -->
     <div class="products-grid">
     <% if (products.length === 0) { %>
@@ -464,7 +593,7 @@ select:hover, input:focus {
             </div>
           <% } else { %>
             <div class="price-section">
-              <span class="regular-price">₹<%= variant.originalPrice %></span>
+              <span class="offer-price">₹<%= variant.originalPrice %></span>
             </div>
           <% } %>
         </div>
@@ -482,54 +611,37 @@ select:hover, input:focus {
 </div>
 
 
-    <!-- Pagination -->
-    <% if (totalPages > 1) { %>
-      <div class="pagination-container">
-        <!-- Previous button -->
-        <% if (currentPage > 1) { %>
-          <a href="?page=<%= currentPage - 1 %><%= query.category ? '&category=' + query.category : '' %><%= query.brand ? '&brand=' + query.brand : '' %><%= query.minPrice ? '&minPrice=' + query.minPrice : '' %><%= query.maxPrice ? '&maxPrice=' + query.maxPrice : '' %><%= query.sort ? '&sort=' + query.sort : '' %>" class="pagination-btn">Previous</a>
-        <% } else { %>
-          <span class="pagination-btn disabled">Previous</span>
-        <% } %>
+<% if (totalPages > 1) { %>
+  <div class="pagination-simple">
+    <% 
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, currentPage + 2);
+    %>
 
-        <!-- Page numbers -->
-        <% 
-          const startPage = Math.max(1, currentPage - 2);
-          const endPage = Math.min(totalPages, currentPage + 2);
-        %>
+    <% if (startPage > 1) { %>
+      <a href="?page=1" class="pagination-btn">1</a>
+      <% if (startPage > 2) { %>
+        <span class="pagination-dots">...</span>
+      <% } %>
+    <% } %>
 
-        <% if (startPage > 1) { %>
-          <a href="?page=1<%= query.category ? '&category=' + query.category : '' %><%= query.brand ? '&brand=' + query.brand : '' %><%= query.minPrice ? '&minPrice=' + query.minPrice : '' %><%= query.maxPrice ? '&maxPrice=' + query.maxPrice : '' %><%= query.sort ? '&sort=' + query.sort : '' %>" class="pagination-btn">1</a>
-          <% if (startPage > 2) { %>
-            <span class="pagination-btn disabled">...</span>
-          <% } %>
-        <% } %>
+    <% for (let i = startPage; i <= endPage; i++) { %>
+      <% if (i === currentPage) { %>
+        <span class="pagination-btn active"><%= i %></span>
+      <% } else { %>
+        <a href="?page=<%= i %>" class="pagination-btn"><%= i %></a>
+      <% } %>
+    <% } %>
 
-        <% for (let i = startPage; i <= endPage; i++) { %>
-          <% if (i === currentPage) { %>
-            <span class="pagination-btn active"><%= i %></span>
-          <% } else { %>
-            <a href="?page=<%= i %><%= query.category ? '&category=' + query.category : '' %><%= query.brand ? '&brand=' + query.brand : '' %><%= query.minPrice ? '&minPrice=' + query.minPrice : '' %><%= query.maxPrice ? '&maxPrice=' + query.maxPrice : '' %><%= query.sort ? '&sort=' + query.sort : '' %>" class="pagination-btn"><%= i %></a>
-          <% } %>
-        <% } %>
-
-        <% if (endPage < totalPages) { %>
-          <% if (endPage < totalPages - 1) { %>
-            <span class="pagination-btn disabled">...</span>
-          <% } %>
-          <a href="?page=<%= totalPages %><%= query.category ? '&category=' + query.category : '' %><%= query.brand ? '&brand=' + query.brand : '' %><%= query.minPrice ? '&minPrice=' + query.minPrice : '' %><%= query.maxPrice ? '&maxPrice=' + query.maxPrice : '' %><%= query.sort ? '&sort=' + query.sort : '' %>" class="pagination-btn"><%= totalPages %></a>
-        <% } %>
-
-        <!-- Next button -->
-        <% if (currentPage < totalPages) { %>
-          <a href="?page=<%= currentPage + 1 %><%= query.category ? '&category=' + query.category : '' %><%= query.brand ? '&brand=' + query.brand : '' %><%= query.minPrice ? '&minPrice=' + query.minPrice : '' %><%= query.maxPrice ? '&maxPrice=' + query.maxPrice : '' %><%= query.sort ? '&sort=' + query.sort : '' %>" class="pagination-btn">Next</a>
-        <% } else { %>
-          <span class="pagination-btn disabled">Next</span>
-        <% } %>
-      </div>
+    <% if (endPage < totalPages) { %>
+      <% if (endPage < totalPages - 1) { %>
+        <span class="pagination-dots">...</span>
+      <% } %>
+      <a href="?page=<%= totalPages %>" class="pagination-btn"><%= totalPages %></a>
     <% } %>
   </div>
-</div>
+<% } %>
+
 
 <script>
   // Filter sidebar toggle
@@ -579,7 +691,7 @@ function toggleWishlist(productId) {
   const btn = document.getElementById(`wishlist-icon-${productId}`);
   if (!btn) return console.error('Wishlist icon not found');
 
-  btn.style.pointerEvents = 'none'; // Prevent double-clicks
+  btn.style.pointerEvents = 'none'; 
 
   const headers = {};
   const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -612,4 +724,3 @@ function toggleWishlist(productId) {
 
 </script>
 
-<%- include('../partials/user/footer') %>

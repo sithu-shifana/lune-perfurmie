@@ -1,7 +1,6 @@
 <%- include('../partials/admin/header') %>
 
 <style>
-/* Modern CSS Reset and Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -10,7 +9,7 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a6a4d 0%, #3a5a3d 100%);
   min-height: 100vh;
 }
 
@@ -22,14 +21,15 @@ body {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 /* Enhanced Header */
-.report-header {
+.report-title {
+  color: #efe9e9;
   font-size: 2.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: white;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -44,11 +44,11 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #f8f9fa;
   padding: 1.5rem;
-  border-radius: 16px;
+  border-radius: 12px;
   margin-bottom: 2rem;
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid #ddd;
 }
 
 .filter-group {
@@ -60,7 +60,7 @@ body {
 .filter-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #475569;
+  color: #333;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -68,52 +68,54 @@ body {
 .filter-section select,
 .filter-section input[type="date"] {
   padding: 0.75rem 1rem;
-  border: 2px solid #e2e8f0;
+  border: 1px solid #ddd;
   border-radius: 12px;
-  font-size: 1rem;
-  color: #334155;
+  font-size: 14px;
+  color: #333;
   background: white;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .filter-section select:focus,
 .filter-section input[type="date"]:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #4a6a4d;
+  box-shadow: 0 0 0 3px rgba(74, 106, 77, 0.1);
   transform: translateY(-1px);
 }
 
 .filter-section input:disabled {
-  background: #f1f5f9;
-  color: #94a3b8;
+  background: #e9ecef;
+  color: #6c757d;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .generate-btn {
   padding: 0.75rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a6a4d 0%, #3a5a3d 100%);
   color: white;
   border: none;
   border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(74, 106, 77, 0.3);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.5px;
 }
 
 .generate-btn:hover {
+  background: linear-gradient(135deg, #3a5a3d 0%, #2a4a2d 100%);
+  box-shadow: 0 6px 18px rgba(74, 106, 77, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
 }
 
 .generate-btn:active {
   transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(74, 106, 77, 0.3);
 }
 
 /* Enhanced Summary Cards */
@@ -125,11 +127,11 @@ body {
 }
 
 .summary-card {
-  background: white;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -141,8 +143,8 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  height: 3px;
+  background: linear-gradient(90deg, #4a6a4d, #3a5a3d);
 }
 
 .summary-card:hover {
@@ -152,7 +154,7 @@ body {
 
 .summary-label {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #6c757d;
   font-weight: 500;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
@@ -162,7 +164,7 @@ body {
 .summary-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #333;
   margin-bottom: 0.25rem;
 }
 
@@ -171,28 +173,28 @@ body {
 }
 
 .summary-value.negative {
-  color: #dc2626;
+  color: #dc3545;
 }
 
 .summary-change {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #6c757d;
   font-weight: 500;
 }
 
 /* Download Section */
 .download-section {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #f8f9fa;
   padding: 1.5rem;
-  border-radius: 16px;
+  border-radius: 12px;
   margin-bottom: 2rem;
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid #ddd;
 }
 
 .download-header {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #374151;
+  color: #333;
   margin-bottom: 1rem;
 }
 
@@ -209,30 +211,33 @@ body {
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: 500;
+  font-size: 14px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(74, 106, 77, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .download-btn.pdf {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #4a6a4d 0%, #3a5a3d 100%);
   color: white;
 }
 
 .download-btn.excel {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #3a5a3d 0%, #2a4a2d 100%);
   color: white;
 }
 
 .download-btn:hover {
+  background: linear-gradient(135deg, #3a5a3d 0%, #2a4a2d 100%);
+  box-shadow: 0 6px 18px rgba(74, 106, 77, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .download-info {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #6c757d;
   margin-top: 0.5rem;
   font-style: italic;
 }
@@ -240,51 +245,53 @@ body {
 /* Modern Table Design */
 .table-container {
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .table-header {
   display: grid;
   grid-template-columns: 120px 100px 180px 2fr 120px 120px 120px 120px 120px;
-  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  background: linear-gradient(135deg, #4a6a4d 0%, #3a5a3d 100%);
   color: white;
   padding: 1rem;
   font-weight: 600;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 14px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.5px;
 }
 
 .report-table {
   width: 100%;
-  border-collapse: collapse;
-  background: white;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #ddd;
+  background-color: #fff;
 }
 
 .report-table tr {
   display: grid;
   grid-template-columns: 120px 100px 180px 2fr 120px 120px 120px 120px 120px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #ddd;
   transition: all 0.3s ease;
 }
 
 .report-table tr:hover {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: #f8f9fa;
   transform: scale(1.001);
 }
 
 .report-table td {
   padding: 1rem 0.5rem;
   text-align: center;
-  font-size: 0.875rem;
-  color: #334155;
+  font-size: 14px;
+  color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-right: 1px solid rgba(226, 232, 240, 0.5);
+  border-right: 1px solid #ddd;
 }
 
 .report-table td:last-child {
@@ -297,7 +304,7 @@ body {
 }
 
 .report-table td.discount {
-  color: #dc2626;
+  color: #dc3545;
   font-weight: 600;
 }
 
@@ -312,7 +319,7 @@ body {
 .order-item {
   margin-bottom: 0.25rem;
   padding: 0.25rem;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(74, 106, 77, 0.1);
   border-radius: 4px;
 }
 
@@ -320,7 +327,7 @@ body {
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: #6c757d;
 }
 
 .empty-state-icon {
@@ -337,7 +344,7 @@ body {
 
 .empty-state-subtext {
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: #6c757d;
 }
 
 /* Loading State */
@@ -352,14 +359,14 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(5px);
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #e2e8f0;
-  border-top: 4px solid #667eea;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4a6a4d;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -407,7 +414,7 @@ body {
   .report-table tr {
     display: block;
     margin-bottom: 1rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #ddd;
     border-radius: 12px;
     padding: 1rem;
     background: white;
@@ -419,7 +426,7 @@ body {
     text-align: left;
     padding: 0.5rem 0;
     border: none;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #e9ecef;
   }
 
   .report-table td:last-child {
@@ -429,7 +436,7 @@ body {
   .report-table td:before {
     content: attr(data-label);
     font-weight: 600;
-    color: #475569;
+    color: #333;
     display: inline-block;
     width: 120px;
     margin-right: 1rem;
@@ -447,32 +454,83 @@ body {
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   body {
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    background: linear-gradient(135deg, #2e3e2f 0%, #3a5a3d 100%);
   }
   
   .dashboard-content {
-    background: rgba(26, 32, 44, 0.95);
-    color: #e2e8f0;
+    background: rgba(46, 62, 47, 0.95);
+    color: #e9ecef;
+    border: 1px solid #4a6a4d;
   }
   
   .summary-card {
-    background: #2d3748;
-    border-color: #4a5568;
+    background: #2e3e2f;
+    border: 1px solid #4a6a4d;
+    color: #ddd;
   }
   
   .table-container {
-    background: #2d3748;
-    border-color: #4a5568;
+    background: #2e3e2f;
+    border: 1px solid #4a6a4d;
+  }
+  
+  .report-table tr {
+    border: 1px solid #4a6a4d;
   }
   
   .report-table tr:hover {
-    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    background: #3a5a3d;
+  }
+
+  .report-table td {
+    color: #121213;
+    border-right: 1px solid #4a6a4d;
+  }
+
+  .report-table td:last-child {
+    border-right: none;
+  }
+
+  .report-table td:before {
+    color: #141415;
+  }
+
+  .filter-section {
+    background: #3a5a3d;
+    border: 1px solid #4a6a4d;
+  }
+
+  .filter-section select,
+  .filter-section input[type="date"] {
+    background: #2e3e2f;
+    color: #e9ecef;
+    border: 1px solid #4a6a4d;
+  }
+
+  .filter-section input:disabled {
+    background: #4a6a4d;
+    color: #e9ecef;
+  }
+
+  .filter-label,
+  .summary-label,
+  .summary-change,
+  .download-info,
+  .empty-state,
+  .summary-value,
+  .empty-state-subtext {
+    color: #e9ecef;
+  }
+
+  .download-section {
+    background: #3a5a3d;
+    border: 1px solid #4a6a4d;
   }
 }
 </style>
 
 <div class="dashboard-content">
-    <h1 class="report-header">📊 Sales Analytics Dashboard</h1>
+    <h1 class="report-title">📊 Sales Analytics Dashboard</h1>
 
     <!-- Enhanced Filter Section -->
     <div class="filter-section">
@@ -638,6 +696,20 @@ body {
         <% } %>
     </div>
 </div>
+
+<!-- Pagination -->
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center mt-4">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+        <a class="page-link" href="/admin/brandManagement?page=<%= i %><%= query ? `&query=${query}` : '' %>">
+          <%= i %>
+        </a>
+      </li>
+    <% } %>
+  </ul>
+</nav>
+
 
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay" style="display: none;">

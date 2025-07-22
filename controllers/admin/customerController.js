@@ -54,7 +54,6 @@ exports.toggleBlockCustomer = async (req, res) => {
       { new: true }
     );
 
-    // If blocked, destroy all sessions of that user
     if (action === 'block') {
       const sessionCollection = mongoose.connection.collection('sessions');
       await sessionCollection.deleteMany({ "session.user._id": id }); // Note: adjust if your session structure is different

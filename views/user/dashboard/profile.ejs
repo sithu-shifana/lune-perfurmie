@@ -1,6 +1,6 @@
 <%- include('../partials/user/header') %>
 <style>
-  /* Enhanced Profile Page Styles */
+  /* [All existing styles remain unchanged] */
   .profile-container {
     background: #fff;
     padding: 2rem;
@@ -199,7 +199,7 @@
   }
 
   .btn-secondary:hover {
-        background: linear-gradient(45deg, #191a1d, #373439);
+    background: linear-gradient(45deg, #191a1d, #373439);
     transform: translateY(-2px);
   }
 
@@ -450,7 +450,7 @@
 
   .copy-btn:hover {
     background: linear-gradient(45deg, #d2d5d2, #f5f9f8);
-    color:#141514;
+    color: #141514;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(74, 77, 75, 0.4);
   }
@@ -500,124 +500,122 @@
     }
   }
   .icon-small {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  vertical-align: middle;
-  margin-right: 5px;
-}
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
 
-.btn-action {
-  background-color: transparent;
-  color: rgb(18, 17, 17);
-  border: 1px solid lightgray;
-  padding: 6px 12px;
-  font-size: 14px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: background-color 0.3s, border-color 0.3s;
-}
+  .btn-action {
+    background-color: transparent;
+    color: rgb(18, 17, 17);
+    border: 1px solid lightgray;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
 
-.btn-action:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgb(16, 16, 16);
-  color: rgba(91, 72, 54, 0.755);
-  cursor: pointer;
-}
+  .btn-action:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgb(16, 16, 16);
+    color: rgba(91, 72, 54, 0.755);
+    cursor: pointer;
+  }
 
-/* Modal base */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
-}
+  /* Modal base */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
 
-/* Modal box */
-.modal-content {
-  background-color: #fff;
-  margin: auto;
-  margin-top: 10%;
-  padding: 30px 25px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 0.3s ease-in-out;
-}
+  /* Modal box */
+  .modal-content {
+    background-color: #fff;
+    margin: auto;
+    margin-top: 10%;
+    padding: 30px 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease-in-out;
+  }
 
-/* OTP Input Group */
-.otp-container {
-  margin-top: 20px;
-}
+  /* OTP Input Group */
+  .otp-container {
+    margin-top: 20px;
+  }
 
-.otp-inputs {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 10px 0;
-}
+  .otp-inputs {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 10px 0;
+  }
 
-.otp-input {
-  width: 40px;
-  height: 45px;
-  text-align: center;
-  font-size: 20px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  transition: 0.2s;
-}
+  .otp-input {
+    width: 40px;
+    height: 45px;
+    text-align: center;
+    font-size: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    transition: 0.2s;
+  }
 
-.otp-input:focus {
-  border-color: #007bff;
-  outline: none;
-}
+  .otp-input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
 
-/* Utility classes */
-.mt-2 {
-  margin-top: 12px;
-}
+  /* Utility classes */
+  .mt-2 {
+    margin-top: 12px;
+  }
 
-.mt-3 {
-  margin-top: 16px;
-}
+  .mt-3 {
+    margin-top: 16px;
+  }
 
-.mb-2 {
-  margin-bottom: 12px;
-}
+  .mb-2 {
+    margin-bottom: 12px;
+  }
 
-.btn-sm {
-  padding: 8px 14px;
-  font-size: 14px;
-}
+  .btn-sm {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
 
-.text-success {
-  color: green;
-}
+  .text-success {
+    color: green;
+  }
 
-.btn-link {
-  background: none;
-  color: #007bff;
-  padding: 0;
-  border: none;
-  text-decoration: underline;
-  cursor: pointer;
-}
+  .btn-link {
+    background: none;
+    color: #007bff;
+    padding: 0;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+  }
 
-/* Animation */
-@keyframes fadeIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-
+  /* Animation */
+  @keyframes fadeIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
 </style>
 
 <div class="content-placeholder">
@@ -662,8 +660,8 @@
                 <img src="/icons/gift.png" class="icon-small white-icon"> Get Referral Code
               </button>
               <button id="changeEmailBtn" class="btn btn-action" onclick="openCurrentEmailModal()">
-              <img src="/icons/email.png" class="icon-small white-icon"> Change Email
-            </button>
+                <img src="/icons/email.png" class="icon-small white-icon"> Change Email
+              </button>
               <button id="changePasswordBtn" class="btn btn-action" onclick="openPasswordModal()">
                 <img src="/icons/password-protection.png" class="icon-small white-icon"> Change Password
               </button>
@@ -695,7 +693,7 @@
 
             <!-- Address Information -->
             <div class="profile-card">
-              <h3><span class="card-icon"> <img src="/icons/location.png" class="icon-small white-icon"></span> Default Address</h3>
+              <h3><span class="card-icon"><img src="/icons/location.png" class="icon-small white-icon"></span> Default Address</h3>
               <% if (defaultAddress) { %>
                 <div class="info-item">
                   <span class="info-label">Name</span>
@@ -718,8 +716,8 @@
                 </div>
               <% } else { %>
                 <div class="no-address">
-                  <p>         <img src="/icons/location.png" class="icon-small white-icon">        </div>
-                   No default address set</p>
+                  <p><img src="/icons/location.png" class="icon-small white-icon"></p>
+                  <p>No default address set</p>
                   <p>Add an address to get started</p>
                 </div>
               <% } %>
@@ -751,10 +749,10 @@
 
                 <div class="btn-group">
                   <button type="submit" class="btn btn-primary">
-                     Save Changes
+                    Save Changes
                   </button>
                   <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
-                     Cancel
+                    Cancel
                   </button>
                 </div>
               </form>
@@ -792,84 +790,78 @@
                     Upload Picture
                   </button>
                   <button type="button" class="btn btn-secondary" onclick="closePictureModal()">
-                     Cancel
+                    Cancel
                   </button>
                 </div>
               </form>
             </div>
           </div>
           
-<!-- Verify Current Email Modal -->
-<div id="verifyCurrentEmailModal" class="modal">
-  <div class="modal-content">
-     <div class="modal-header">
+          <!-- Verify Current Email Modal -->
+          <div id="verifyCurrentEmailModal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3>Verify Current Email</h3>
+                <button class="close-btn" onclick="closeAllModals()">×</button>
+              </div>
+              <p class="current-email">Email: <span id="currentEmailText"><%= user.email %></span></p>
 
-    <h3>Verify Current Email</h3>
-    <button class="close-btn" onclick="closeAllModals()">×</button>
-    </div>
-    <p class="current-email">Email: <span id="currentEmailText"><%=user.email%></span></p>
+              <button id="sendOtpCurrentBtn" class="btn btn-sm btn-primary">Send OTP to your email</button>
+              <p id="otpSentMsg" class="text-message" style="display: none;"></p>
 
-    <button id="sendOtpCurrentBtn" class="btn btn-sm btn-primary">Send OTP to your email</button>
-    <p id="otpSentMsg" class="text-message" style="display: none;"></p>
+              <div class="otp-container" id="otpSection" style="display: none;">
+                <p id="otpErrorMsgCurrent" class="text-error" style="color: red; display: none;"></p>
 
-    <div class="otp-container" id="otpSection" style="display: none;">
-            <p id="otpErrorMsgCurrent" class="text-error" style="color: red; display: none;"></p>
+                <label>Enter 6-digit OTP:</label>
+                <div class="otp-inputs">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                </div>
+                <button id="verifyCurrentOtpBtn" class="btn btn-sm btn-success mt-2">Verify</button>
+                <div class="resend-container mt-2">
+                  <span>Resend in <span id="countdown1">60s</span></span>
+                  <button id="resendCurrentOtpBtn" class="btn btn-link" disabled>Resend OTP</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <label>Enter 6-digit OTP:</label>
-      <div class="otp-inputs">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-      </div>
-      <button id="verifyCurrentOtpBtn" class="btn btn-sm btn-success mt-2">Verify</button>
-      <div class="resend-container mt-2">
-        <span>Resend in <span id="countdown1">60s</span></span>
-        <button id="resendCurrentOtpBtn" class="btn btn-link" disabled>Resend OTP</button>
-      </div>
-    </div>
-  </div>
-</div>
+          <!-- Enter New Email Modal -->
+          <div id="verifyNewEmailModal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3>Enter New Email</h3>
+                <button class="close-btn" onclick="closeAllModals()">×</button>
+              </div>
 
+              <input type="email" id="newEmailInput" placeholder="Enter new email" class="form-control mb-2">
+              <button id="sendOtpNewBtn" class="btn btn-sm btn-primary">Send OTP to new email</button>
+              <p id="otpSentMsgNew" class="text-success" style="display: none;">OTP sent to new email!</p>
 
-<!-- enter new email -->
-<div id="verifyNewEmailModal" class="modal">
-  <div class="modal-content">
-     <div class="modal-header">
+              <div class="otp-container mt-3" style="display: none;" id="otpSectionNew">
+                <p id="otpErrorMsgNew" class="text-error" style="color: red; display: none;"></p>
 
-    <h3>Enter New Email</h3>
-      <button class="close-btn" onclick="closeAllModals()">×</button>
-
-    </div>
-
-    <input type="email" id="newEmailInput" placeholder="Enter new email" class="form-control mb-2">
-    <p id="otpSentMsgNew" class="text-success" style="display: none;">OTP sent to new email!</p>
-
-
-
-
-    <div class="otp-container mt-3" style="display: none;" id="otpSectionNew">
-      <p id="otpErrorMsgNew" class="text-error" style="color: red; display: none;"></p>
-
-      <label>Enter 6-digit OTP:</label>
-      <div class="otp-inputs">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-        <input type="text" class="otp-input" maxlength="1">
-      </div>
-      <button id="verifyNewOtpBtn" class="btn btn-sm btn-success mt-3">Confirm Change</button>
-      <div class="resend-container mt-2">
-        <span class="countdown-text">Resend in <span id="countdown2">60s</span></span>
-        <button id="resendNewOtpBtn" class="btn btn-link" disabled>Resend OTP</button>
-      </div>
-    </div>
-  </div>
-</div>
+                <label>Enter 6-digit OTP:</label>
+                <div class="otp-inputs">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                  <input type="text" class="otp-input" maxlength="1">
+                </div>
+                <button id="verifyNewOtpBtn" class="btn btn-sm btn-success mt-3">Confirm Change</button>
+                <div class="resend-container mt-2">
+                  <span class="countdown-text">Resend in <span id="countdown2">60s</span></span>
+                  <button id="resendNewOtpBtn" class="btn btn-link" disabled>Resend OTP</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <!-- Change Password Modal -->
           <div id="passwordModal" class="modal" style="display:none;">
@@ -885,10 +877,8 @@
               <form id="changePasswordForm">
                 <div class="form-group">
                   <label for="currentPassword">Current Password</label>
-                  <input type="password" id="currentPassword"  >
-                  <div class="mt-2">
-                    <button type="button" class="btn btn-link p-0" onclick="forgotPassword()">Forgot Password?</button>
-                  </div>
+                  <input type="password" id="currentPassword" >
+                  
                 </div>
         
                 <div class="btn-group">
@@ -977,9 +967,8 @@
   }
 
   function closeCurrentEmailModal() {
-    pictureModal.style.display = 'none';
-    clearPictureMessages();
-    resetFileInput();
+    document.getElementById('verifyCurrentEmailModal').style.display = 'none';
+    clearMessages(); // Assuming this should clear related messages
   }
 
   function openPasswordModal() {
@@ -1040,6 +1029,27 @@
     if (event.target === newPasswordModal) closeNewPasswordModal();
     if (event.target.classList.contains('referral-modal')) closeReferralModal();
   };
+
+  function showMessage(title, text, icon = 'success') {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      confirmButtonText: 'OK',
+      timer: 1000,
+      timerProgressBar: true,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.getPopup().style.padding = '12px 20px';
+        Swal.getPopup().style.fontSize = '14px';
+        Swal.getPopup().style.minWidth = '250px';
+        Swal.getPopup().style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        Swal.getPopup().style.borderRadius = '6px';
+      }
+    });
+  }
 
   // File Upload Preview
   document.getElementById('profilePicInput').onchange = function(e) {
@@ -1112,57 +1122,57 @@
   };
 
   // Picture Upload Form Submission
-pictureForm.onsubmit = async (e) => {
-  e.preventDefault();
-  clearPictureMessages();
+  pictureForm.onsubmit = async (e) => {
+    e.preventDefault();
+    clearPictureMessages();
 
-  const formData = new FormData();
-  const fileInput = document.getElementById('profilePicInput');
+    const formData = new FormData();
+    const fileInput = document.getElementById('profilePicInput');
 
-  if (!fileInput.files[0]) {
-    pictureErrorMessage.textContent = 'Please select an image file';
-    pictureErrorMessage.style.display = 'block';
-    return;
-  }
-
-  formData.append('profilePicture', fileInput.files[0]);
-
-  try {
-    const response = await fetch('/upload-profile-picture', {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      pictureSuccessMessage.textContent = data.message;
-      pictureSuccessMessage.style.display = 'block';
-
-      // Update the profile picture dynamically
-      const img = document.getElementById('currentProfilePic');
-      const profileInitial = document.getElementById('profileInitial');
-      if (img && data.imageUrl) {
-        img.src = `${data.imageUrl}?t=${new Date().getTime()}`; // Cache-busting
-        img.style.display = 'block'; // Ensure image is visible
-        if (profileInitial) profileInitial.style.display = 'none'; // Hide initial
-      }
-
-      // Close modal after a short delay
-      setTimeout(() => {
-        closePictureModal();
-      }, 2000);
-    } else {
-      pictureErrorMessage.textContent = data.error || 'Error uploading picture';
+    if (!fileInput.files[0]) {
+      pictureErrorMessage.textContent = 'Please select an image file';
       pictureErrorMessage.style.display = 'block';
+      return;
     }
-  } catch (error) {
-    pictureErrorMessage.textContent = 'Error uploading picture. Please try again.';
-    pictureErrorMessage.style.display = 'block';
-    console.error('Upload error:', error);
-  }
-};
+
+    formData.append('profilePicture', fileInput.files[0]);
+
+    try {
+      const response = await fetch('/upload-profile-picture', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        pictureSuccessMessage.textContent = data.message;
+        pictureSuccessMessage.style.display = 'block';
+
+        // Update the profile picture dynamically
+        const img = document.getElementById('currentProfilePic');
+        const profileInitial = document.getElementById('profileInitial');
+        if (img && data.imageUrl) {
+          img.src = `${data.imageUrl}?t=${new Date().getTime()}`; // Cache-busting
+          img.style.display = 'block'; // Ensure image is visible
+          if (profileInitial) profileInitial.style.display = 'none'; // Hide initial
+        }
+
+        // Close modal after a short delay
+        setTimeout(() => {
+          closePictureModal();
+        }, 2000);
+      } else {
+        pictureErrorMessage.textContent = data.error || 'Error uploading picture';
+        pictureErrorMessage.style.display = 'block';
+      }
+    } catch (error) {
+      pictureErrorMessage.textContent = 'Error uploading picture. Please try again.';
+      pictureErrorMessage.style.display = 'block';
+      console.error('Upload error:', error);
+    }
+  };
 
   // Validate Password and Open New Password Modal
   document.getElementById('validatePasswordBtn').onclick = async () => {
@@ -1255,14 +1265,10 @@ pictureForm.onsubmit = async (e) => {
     }
   };
 
-  function forgotPassword() {
-    alert("Redirecting to Forgot Password Page...");
-    window.location.href = "/forgot-password";
-  }
+
 
   // Referral Code Functionality
   const getReferralBtn = document.getElementById('getReferralBtn');
-
   getReferralBtn.onclick = async () => {
     console.log('Get Referral Code button clicked');
     try {
@@ -1284,11 +1290,11 @@ pictureForm.onsubmit = async (e) => {
         }
         showReferralModal(data.referralCode, data.referralLink);
       } else {
-        alert('Error getting referral code: ' + (data.error || 'Unknown error'));
+        showMessage('Error', 'Error getting referral code: ' + (data.error || 'Unknown error'), 'error');
       }
     } catch (error) {
       console.error('Error fetching referral code:', error);
-      alert('Something went wrong while fetching referral code.');
+      showMessage('Error', 'Something went wrong while fetching referral code.', 'error');
     }
   };
 
@@ -1324,14 +1330,13 @@ pictureForm.onsubmit = async (e) => {
     navigator.clipboard.writeText(input.value)
       .then(() => {
         console.log('Referral link copied');
-        alert('Referral link copied to clipboard!');
+        showMessage('Success', 'Referral link copied to clipboard!', 'success');
       })
       .catch(err => {
         console.error('Copy failed:', err);
-        alert('Failed to copy. Please copy manually.');
+        showMessage('Error', 'Failed to copy. Please copy manually.', 'error');
       });
   }
-
   function closeReferralModal() {
     console.log('closeReferralModal called');
     const modal = document.getElementById('referralModal');
@@ -1348,130 +1353,165 @@ pictureForm.onsubmit = async (e) => {
     }
   });
 
+  // Helper to collect OTP from 6 inputs
+  function getOTPFromInputs(inputs) {
+    return Array.from(inputs).map(input => input.value.trim()).join('');
+  }
 
-// Helper to collect OTP from 6 inputs
-function getOTPFromInputs(inputs) {
-  return Array.from(inputs).map(input => input.value.trim()).join('');
-}
-
-// Countdown timer function
-function startCountdown(duration, countdownEl, resendBtn) {
-  let timeLeft = duration;
-  countdownEl.textContent = `${timeLeft}s`;
-  resendBtn.disabled = true;
-
-  const interval = setInterval(() => {
-    timeLeft--;
+  // Countdown timer function
+  function startCountdown(duration, countdownEl, resendBtn) {
+    let timeLeft = duration;
     countdownEl.textContent = `${timeLeft}s`;
+    resendBtn.disabled = true;
 
-    if (timeLeft <= 0) {
-      clearInterval(interval);
-      resendBtn.disabled = false;
-      countdownEl.textContent = '';
+    const interval = setInterval(() => {
+      timeLeft--;
+      countdownEl.textContent = `${timeLeft}s`;
+
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        resendBtn.disabled = false;
+        countdownEl.textContent = '';
+      }
+    }, 1000);
+  }
+
+  // ===========================
+  // 1. Modal 1 - Current Email
+  // ===========================
+  document.getElementById('sendOtpCurrentBtn').addEventListener('click', async () => {
+    const button = document.getElementById('sendOtpCurrentBtn');
+    const msg = document.getElementById('otpSentMsg');
+    const otpSection = document.getElementById('otpSection');
+    const countdown = document.getElementById('countdown1');
+    const resendBtn = document.getElementById('resendCurrentOtpBtn');
+
+    button.disabled = true;
+    msg.style.display = 'block';
+    msg.textContent = 'Sending OTP to your current email...';
+    
+    try {
+      const res = await fetch('/send-otp/current', {
+        method: 'POST',
+        credentials: 'include' // Added for session support
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        msg.textContent = 'OTP sent to your email.';
+        otpSection.style.display = 'block';
+        startCountdown(60, countdown, resendBtn);
+      } else {
+        msg.textContent = data.message || 'Failed to send OTP.';
+        showMessage('Error', data.message || 'Failed to send OTP', 'error');
+      }
+    } catch (err) {
+      msg.textContent = 'Something went wrong while sending OTP.';
+      showMessage('Error', 'Something went wrong while sending OTP', 'error');
+    } finally {
+      setTimeout(() => {
+        button.disabled = false;
+      }, 3000);
     }
-  }, 1000);
-}
+  });
 
-// ===========================
-// 1. Modal 1 - Current Email
-// ===========================
-document.getElementById('sendOtpCurrentBtn').addEventListener('click', async () => {
-  const button = document.getElementById('sendOtpCurrentBtn');
-  const msg = document.getElementById('otpSentMsg');
-  const otpSection = document.getElementById('otpSection');
-  const countdown = document.getElementById('countdown1');
-  const resendBtn = document.getElementById('resendCurrentOtpBtn');
+  // Verify OTP for current email
+  document.getElementById('verifyCurrentOtpBtn').addEventListener('click', async () => {
+    const otpInputs = document.querySelectorAll('#otpSection .otp-input');
+    const otp = getOTPFromInputs(otpInputs);
+    const errorMsgCurrent = document.getElementById('otpErrorMsgCurrent');
 
-  button.disabled = true;
-  msg.style.display = 'block';
-  msg.textContent = 'Sending OTP to your current email...';
+    errorMsgCurrent.textContent = '';
+    errorMsgCurrent.style.display = 'none';
+    otpErrorMsgCurrent.textContent='';
+
+
   
 
-  try {
-    const res = await fetch('/send-otp/current', { method: 'POST' });
-    const data = await res.json();
-
-    if (res.ok) {
-      msg.textContent = 'OTP sent to your email.';
-      otpSection.style.display = 'block';
-      startCountdown(60, countdown, resendBtn);
-    } else {
-      msg.textContent = data.message || 'Failed to send OTP.';
-    }
-  } catch (err) {
-    msg.textContent = 'Something went wrong while sending OTP.';
-  } finally {
-    setTimeout(() => {
-      button.disabled = false;
-    }, 3000);
-  }
-});
-
-
-
-document.getElementById('verifyCurrentOtpBtn').addEventListener('click', async () => {
-  const otpInputs = document.querySelectorAll('#otpSection .otp-input');
-  const otp = getOTPFromInputs(otpInputs);
-  const errorMsgCurrent = document.getElementById('otpErrorMsgCurrent');
-
-  // Clear previous error
-  errorMsgCurrent.textContent = '';
-
-  const res = await fetch('/verify-otp/current', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ otp })
-  });
+    try {
+      const res = await fetch('/verify-otp/current', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp }),
+        credentials: 'include'
+      });
 
       const data = await res.json();
 
-  if (res.ok) {
-    document.getElementById('verifyCurrentEmailModal').style.display = 'none';
-    document.getElementById('verifyNewEmailModal').style.display = 'block';
-  } else {
-    errorMsgCurrent.textContent = data.message || 'Invalid OTP';
-    errorMsgCurrent.style.display = 'block';
-  } 
-});
+      if (res.ok) {
+        document.getElementById('verifyCurrentEmailModal').style.display = 'none';
+        document.getElementById('verifyNewEmailModal').style.display = 'block';
+        showMessage('Success', 'Current email verified!', 'success');
+      } else {
+        errorMsgCurrent.textContent = data.message || 'Invalid OTP';
+        errorMsgCurrent.style.display = 'block';
+      }
+    } catch (err) {
+      errorMsgCurrent.textContent = 'Something went wrong during verification.';
+      errorMsgCurrent.style.display = 'block';
+      console.error('Verification error:', err);
+    }
+  });
 
-// ===========================
-// 2. Modal 2 - New Email
-// ===========================
+
+let isOtpSent = false;
+
 document.getElementById('sendOtpNewBtn').addEventListener('click', async () => {
-  const newEmail = document.getElementById('newEmailInput').value;
+  const newEmail = document.getElementById('newEmailInput').value.trim();
   const msg = document.getElementById('otpSentMsgNew');
   const otpSection = document.getElementById('otpSectionNew');
   const countdown = document.getElementById('countdown2');
   const resendBtn = document.getElementById('resendNewOtpBtn');
+  const emailInput = document.getElementById('newEmailInput');
+  const sendOtpBtn = document.getElementById('sendOtpNewBtn');
 
-  if (!newEmail) return alert('Please enter new email');
+  if (!newEmail) {
+    showMessage('Error', 'Please enter new email', 'error');
+    return;
+  }
+
+  if (isOtpSent) {
+    return; 
+  }
 
   msg.style.display = 'block';
-  msg.textContent = 'Sending OTP to your current email...';
+  msg.textContent = 'Sending OTP to your new email...';
+
+
   try {
     const res = await fetch('/send-otp/new', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: newEmail })
+      body: JSON.stringify({ email: newEmail }),
+      credentials: 'include'
     });
 
-
+    const data = await res.json();
 
     if (res.ok) {
-      msg.style.display = 'block';
-      msg.textContent = 'OTP sent to new email!';
+      // Hide email input and send button, set state
+      emailInput.style.display = 'none';
+      sendOtpBtn.style.display = 'none';
+      msg.textContent = `OTP sent to ${newEmail}!`;
       otpSection.style.display = 'block';
+      isOtpSent = true; // Mark OTP as sent
+
+      otpInputs.forEach(input => input.value = '');
+      otpError.style.display = 'none';
+      otpError.textContent = '';
       startCountdown(60, countdown, resendBtn);
     } else {
-      const data = await res.json();
-
+      msg.textContent = data.message || 'Failed to send OTP';
+      showMessage('Error', data.message || 'Failed to send OTP', 'error');
     }
   } catch (err) {
-    alert('Something went wrong while sending OTP');
+    msg.textContent = 'Something went wrong while sending OTP';
+    showMessage('Error', 'Something went wrong while sending OTP', 'error');
+    console.error('Send OTP error:', err);
   }
 });
 
-// Verify OTP
+// Verify OTP for new email
 document.getElementById('verifyNewOtpBtn').addEventListener('click', async () => {
   const otpInputs = document.querySelectorAll('#otpSectionNew .otp-input');
   const otp = getOTPFromInputs(otpInputs);
@@ -1480,105 +1520,97 @@ document.getElementById('verifyNewOtpBtn').addEventListener('click', async () =>
   // Clear old error message
   otpError.style.display = 'none';
 
-  if (otp.length < 6 || otp.includes('')) {
-    otpError.textContent = 'Please enter the complete 6-digit OTP.';
-    otpError.style.display = 'block';
-    return;
-  }
-
   try {
     const res = await fetch('/verify-otp/new', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ otp })
+      body: JSON.stringify({ otp }),
+      credentials: 'include'
     });
 
     const data = await res.json();
 
     if (res.ok) {
-      alert('Email updated successfully!');
-      location.reload();
+      showMessage('Success', 'Email updated successfully!', 'success');
+      setTimeout(() => location.reload(), 1500);
+      isOtpSent = false;
     } else {
       otpError.textContent = data.message || 'Invalid OTP';
       otpError.style.display = 'block';
+      showMessage('Error', data.message || 'Invalid OTP', 'error');
     }
   } catch (err) {
     otpError.textContent = 'Something went wrong during verification.';
     otpError.style.display = 'block';
+    showMessage('Error', 'Something went wrong during verification.', 'error');
+    console.error('Verification error:', err);
   }
 });
 
-
-// ===========================
-// Resend Button for New OTP
-// ===========================
 document.getElementById('resendNewOtpBtn').addEventListener('click', () => {
-  document.getElementById('sendOtpNewBtn').click(); // Trigger send OTP again
+  document.getElementById('sendOtpNewBtn').click();
 });
 
-document.getElementById('resendCurrentOtpBtn').addEventListener('click', () => {
-  document.getElementById('sendOtpCurrentBtn').click(); // Trigger send OTP again
-});
 
-// ===========================
-// Optional: Modal Controls
-// ===========================
-function openCurrentEmailModal() {
-  document.getElementById('verifyCurrentEmailModal').style.display = 'block';
-}
 
-function closeAllModals() {
-  document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
-}
 
-// ===========================
-// OTP Input Smart Behavior
-// ===========================
-function setupOtpInputs(sectionSelector) {
-  const inputs = document.querySelectorAll(`${sectionSelector} .otp-input`);
-
-  inputs.forEach((input, index) => {
-    input.addEventListener('input', (e) => {
-      const value = e.target.value;
-      if (value.length > 1) {
-        const chars = value.split('');
-        chars.forEach((char, i) => {
-          if (inputs[index + i]) {
-            inputs[index + i].value = char;
-          }
-        });
-        const nextInput = inputs[index + chars.length];
-        if (nextInput) nextInput.focus();
-      } else if (value && index < inputs.length - 1) {
-        inputs[index + 1].focus();
-      }
-    });
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !input.value && index > 0) {
-        inputs[index - 1].focus();
-      }
-    });
-
-    input.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, inputs.length);
-      pasteData.split('').forEach((char, i) => {
-        inputs[i].value = char;
-      });
-      if (inputs[pasteData.length - 1]) {
-        inputs[pasteData.length - 1].focus();
-      }
-    });
+  document.getElementById('resendCurrentOtpBtn').addEventListener('click', () => {
+    document.getElementById('sendOtpCurrentBtn').click();
   });
-}
-
-// Activate for both sections
-setupOtpInputs('#otpSection');
-setupOtpInputs('#otpSectionNew');
 
 
+  function openCurrentEmailModal() {
+    document.getElementById('verifyCurrentEmailModal').style.display = 'block';
+  }
 
+  function closeAllModals() {
+    document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+  }
 
+  // ===========================
+  // OTP Input Smart Behavior
+  // ===========================
+  function setupOtpInputs(sectionSelector) {
+    const inputs = document.querySelectorAll(`${sectionSelector} .otp-input`);
+
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        const value = e.target.value;
+        if (value.length > 1) {
+          const chars = value.split('');
+          chars.forEach((char, i) => {
+            if (inputs[index + i]) {
+              inputs[index + i].value = char;
+            }
+          });
+          const nextInput = inputs[index + chars.length];
+          if (nextInput) nextInput.focus();
+        } else if (value && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, inputs.length);
+        pasteData.split('').forEach((char, i) => {
+          inputs[i].value = char;
+        });
+        if (inputs[pasteData.length - 1]) {
+          inputs[pasteData.length - 1].focus();
+        }
+      });
+    });
+  }
+
+  // Activate for both sections
+  setupOtpInputs('#otpSection');
+  setupOtpInputs('#otpSectionNew');
 </script>
 <%- include('../partials/user/sidebarFooter') %>

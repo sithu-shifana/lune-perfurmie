@@ -18,15 +18,28 @@ const generateUniqueCode = async () => {
 exports.getCouponManagement = async (req, res) => {
   try {
     const searchQuery = req.query.search || '';
-    const coupons = await Coupon.find({
-      code: { $regex: searchQuery, $options: 'i' }
-    });
-    const totalCoupons = await Coupon.countDocuments();
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      code: { $regex: searchQuery.trim(), $options: 'i' }
+    };
+
+    const totalCoupons = await Coupon.countDocuments(filter);
+
+    const coupons = await Coupon.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .lean(); 
+
     res.render('admin/coupon/couponManagement', {
       title: 'Coupon Management',
       coupons,
       totalCoupons,
       searchQuery,
+      currentPage: page,
+      totalPages: Math.ceil(totalCoupons / limit),
       error: null
     });
   } catch (error) {
@@ -36,10 +49,13 @@ exports.getCouponManagement = async (req, res) => {
       coupons: [],
       totalCoupons: 0,
       searchQuery: '',
+      currentPage: 1,
+      totalPages: 1,
       error: 'Failed to load coupons'
     });
   }
 };
+
 
 exports.getAddCoupon = (req, res) => {
   try {
@@ -114,7 +130,7 @@ exports.getEditCoupon = async (req, res) => {
     if (!coupon) {
       return res.redirect('/admin/couponManagement');
     }
-    res.render('admin/coupon-edit', { title: 'Edit Coupon', coupon, error: null });
+    res.render('admin/coupon/coupon-edit', { title: 'Edit Coupon', coupon, error: null });
   } catch (error) {
     console.error('Error fetching edit coupon page', error);
     res.redirect('/admin/couponManagement');

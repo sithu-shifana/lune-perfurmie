@@ -6,28 +6,36 @@ const mongoose = require('mongoose'); // Add this import
 
 const { getProductWithOffers } = require('../../helper/productHelper');
 
-// Get cart page
+
 exports.getCart = async (req, res) => {
   try {
     const userId = req.session.user?.id;
     const cart = await Cart.findOne({ user: userId }).populate('items.product');
-    
+   
     if (!cart || cart.items.length === 0) {
       return res.render('user/cart', {
         cartItems: [],
         totalPrice: 0,
         totalSavings: 0,
-        subtotal: 0
+        subtotal: 0,
       });
     }
 
     const cartItemsWithDetails = await Promise.all(
       cart.items.map(async (item) => {
         const productDetails = await getProductWithOffers(item.product, userId);
-        const variant = productDetails.variants.find(v => v.size === item.variant);
+        
+        if (!productDetails) {
+          return null;  
+        }
+
+        const variant = productDetails.variants.find((v) => v.size === item.variant);
+        if (!variant) {
+          return null; 
+        }
 
         return {
-          _id: item._id.toString(), // Use _id instead of id
+          _id: item._id.toString(),
           productId: productDetails._id,
           productName: productDetails.productName,
           image: productDetails.images[0]?.url || '',
@@ -38,29 +46,43 @@ exports.getCart = async (req, res) => {
           offerPrice: variant.offerPrice,
           totalOriginal: variant.originalPrice * item.quantity,
           totalOffer: variant.offerPrice * item.quantity,
-          saving: productDetails.hasOffer ? (variant.originalPrice - variant.offerPrice) : 0,
-          totalSavings: productDetails.hasOffer ? (variant.originalPrice - variant.offerPrice) * item.quantity : 0,
+          saving: productDetails.hasOffer ? variant.originalPrice - variant.offerPrice : 0,
+          totalSavings: productDetails.hasOffer
+            ? (variant.originalPrice - variant.offerPrice) * item.quantity
+            : 0,
           discountType: productDetails.discountType,
           discountValue: productDetails.discountValue,
-          maxstock: variant.stock
+          maxstock: variant.stock,
         };
       })
     );
 
-    const totalPrice = cartItemsWithDetails.reduce((acc, item) => acc + item.totalOriginal, 0);
-    const subtotal = cartItemsWithDetails.reduce((acc, item) => acc + item.totalOffer, 0);
-    const totalSavings = cartItemsWithDetails.reduce((acc, item) => acc + item.totalSavings, 0);
+    const validCartItems = cartItemsWithDetails.filter((item) => item !== null);
+
+    const invalidProductIds = cart.items
+      .map((item, index) => cartItemsWithDetails[index] === null ? item.product : null)
+      .filter(productId => productId !== null);
+
+    if (invalidProductIds.length > 0) {
+      await Cart.updateOne(
+        { user: userId },
+        { $pull: { items: { product: { $in: invalidProductIds } } } }
+      );
+    }
+
+    const totalPrice = validCartItems.reduce((acc, item) => acc + item.totalOriginal, 0);
+    const subtotal = validCartItems.reduce((acc, item) => acc + item.totalOffer, 0);
+    const totalSavings = validCartItems.reduce((acc, item) => acc + item.totalSavings, 0);
 
     res.render('user/cart', {
-      cartItems: cartItemsWithDetails,
+      cartItems: validCartItems,
       totalPrice,
       totalSavings,
-      subtotal
+      subtotal,
     });
-
   } catch (error) {
-    console.error("Error loading cart:", error);
-    res.status(500).send("Internal Server Error");
+    console.error('Error loading cart:', error);
+    res.status(500).send('Internal Server Error');
   }
 };
 
