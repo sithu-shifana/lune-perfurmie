@@ -323,15 +323,13 @@ img.product-image {
 
 <main class="dashboard-content">
   <section class="content-main">
-    <!-- Header -->
-    <div class="content-header row">
+        <div class="content-header row">
       <div class="d-flex justify-content-between align-items-center">
         <h2 class="content-body card-title">Order Management</h2>
       </div>
     </div>
 
-    <!-- Search and Filters -->
-    <div class="card-header text-center mb-4">
+        <div class="card-header text-center mb-4">
       <form id="searchForm" action="/admin/orderManagement" method="get" class="d-inline-block w-100">
         <div class="input-group input-group-sm border border-1 border-grey rounded-pill mb-3">
           <input
@@ -399,79 +397,88 @@ img.product-image {
             <th style="width: 25%;">Actions</th>
           </tr>
         </thead>
-        <tbody>
-          <% if (orders && orders.length > 0) { %>
-            <% orders.forEach((order, index) => { %>
-              <tr>
-                <td class="text-center"><%= (page - 1) * perPage + index + 1 %></td>
-                <td><%= order._id.toString().slice(-8).toUpperCase() %></td>
-                <td><%= order.userId?.name || 'Unknown' %></td>
-                <td><%= order.orderDate ? order.orderDate.toISOString().split('T')[0] : '' %></td>
-                <td>₹<%= order.finalTotal.toLocaleString() %></td>
-                <td>
-                  <span><%= order.paymentMethod %></span>
-                  <span class="badge <%= order.paymentStatus === 'Completed' ? 'alert-success' : order.paymentStatus === 'Pending' ? 'alert-warning' : 'alert-danger' %>">
-                    <%= order.paymentStatus %>
-                  </span>
-                </td>
-                <td>
-                  <% if (order.deliveryStatus === 'ReturnRequested' || order.items.some(i => i.status === 'ReturnRequested')) { %>
-                    <span class="badge status-return-requested">Return Requested</span>
-                  <% } else if (order.deliveryStatus === 'Cancelled') { %>
-                    <span class="badge status-cancelled">Cancelled</span>
-                  <% } else if (order.deliveryStatus === 'Returned') { %>
-                    <span class="badge status-returned">All Returned</span>
-                  <% } else { %>
-                    <% 
-                      const returnedItems = order.items.filter(i => i.status === 'Returned');
-                      const totalItems = order.items.length;
-                    %>
-                    <% if (returnedItems.length > 0 && returnedItems.length < totalItems) { %>
-                      <div class="delivery-status-container">
-                        <select class="form-select status-select mb-1" data-order-id="<%= order._id %>" data-current-status="<%= order.deliveryStatus %>">
-                          <% const statuses = ['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered']; %>
-                          <% const currentIndex = statuses.indexOf(order.deliveryStatus); %>
-                          <% statuses.forEach((status, index) => { %>
-                            <option value="<%= status %>" <%= status === order.deliveryStatus ? 'selected' : '' %> <%= index < currentIndex ? 'disabled' : '' %>><%= status %></option>
-                          <% }) %>
-                        </select>
-                        <div class="return-info">
-                          <small class="text-warning fw-bold">
-                            <i class="fas fa-undo-alt"></i> <%= returnedItems.length %> of <%= totalItems %> items returned
-                          </small>
-                        </div>
-                      </div>
-                    <% } else { %>
-                      <select class="form-select status-select" data-order-id="<%= order._id %>" data-current-status="<%= order.deliveryStatus %>">
-                        <% const statuses = ['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered']; %>
-                        <% const currentIndex = statuses.indexOf(order.deliveryStatus); %>
-                        <% statuses.forEach((status, index) => { %>
-                          <option value="<%= status %>" <%= status === order.deliveryStatus ? 'selected' : '' %> <%= index < currentIndex ? 'disabled' : '' %>><%= status %></option>
-                        <% }) %>
-                      </select>
-                    <% } %>
-                  <% } %>
-                </td>
-                <td>
-                  <div class="modal-buttons">
-                    <a href="/admin/view-order/<%= order._id %>" class="btn btn-info">View Details</a>
-                    <% if (order.items.some(i => i.status === 'ReturnRequested')) { %>
-                      <a href="/admin/manage-returns/<%= order._id %>" class="btn btn-warning">Manage Returns</a>
-                    <% } %>
-                    <% if (['Placed', 'Processing', 'Shipped', 'Out for Delivery'].includes(order.deliveryStatus)) { %>
-                      <button class="btn btn-danger cancel-btn" data-order-id="<%= order._id %>">Cancel Order</button>
-                    <% } %>
-                    <a href="/admin/update-tracking/<%= order._id %>" class="btn btn-track">Update Tracking</a>
-                  </div>
-                </td>
-              </tr>
-            <% }) %>
+<tbody>
+  <% if (orders && orders.length > 0) { %>
+    <% orders.forEach(function(order, index) { %>
+      <tr>
+        <td class="text-center"><%= (page - 1) * perPage + index + 1 %></td>
+        <td><%= order._id.toString().slice(-8).toUpperCase() %></td>
+        <td><%= order.userId ? order.userId.name : 'Unknown' %></td>
+        <td><%= order.orderDate ? order.orderDate.toISOString().split('T')[0] : '' %></td>
+        <td>₹<%= order.finalTotal.toLocaleString() %></td>
+        <td>
+          <span><%= order.paymentMethod %></span>
+          <span class="badge <%= order.paymentStatus === 'Completed' ? 'alert-success' : order.paymentStatus === 'Pending' ? 'alert-warning' : 'alert-danger' %>">
+            <%= order.paymentStatus %>
+          </span>
+        </td>
+        <td>
+          <% if (order.status === 'Failed' || order.deliveryStatus === 'Failed' || order.paymentStatus === 'Failed') { %>
+            <span class="badge status-failed">Failed</span>
           <% } else { %>
-            <tr>
-              <td colspan="8" class="text-center">No orders found.</td>
-            </tr>
+            <% if (order.deliveryStatus === 'ReturnRequested' || order.items.some(function(i) { return i.status === 'ReturnRequested'; })) { %>
+              <span class="badge status-return-requested">Return Requested</span>
+            <% } else if (order.deliveryStatus === 'Cancelled') { %>
+              <span class="badge status-cancelled">Cancelled</span>
+            <% } else if (order.deliveryStatus === 'Returned') { %>
+              <span class="badge status-returned">All Returned</span>
+            <% } else { %>
+              <% 
+                const returnedItems = order.items.filter(function(i) { return i.status === 'Returned'; });
+                const totalItems = order.items.length;
+              %>
+              <% if (returnedItems.length > 0 && returnedItems.length < totalItems) { %>
+                <div class="delivery-status-container">
+                  <select class="form-select status-select mb-1" data-order-id="<%= order._id %>" data-current-status="<%= order.deliveryStatus %>">
+                    <% const statuses = ['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered']; %>
+                    <% const currentIndex = statuses.indexOf(order.deliveryStatus); %>
+                    <% statuses.forEach(function(status, index) { %>
+                      <option value="<%= status %>" <%= status === order.deliveryStatus ? 'selected' : '' %> <%= index < currentIndex ? 'disabled' : '' %>><%= status %></option>
+                    <% }) %>
+                  </select>
+                  <div class="return-info">
+                    <small class="text-warning fw-bold">
+                      <i class="fas fa-undo-alt"></i> <%= returnedItems.length %> of <%= totalItems %> items returned
+                    </small>
+                  </div>
+                </div>
+              <% } else { %>
+                <select class="form-select status-select" data-order-id="<%= order._id %>" data-current-status="<%= order.deliveryStatus %>">
+                  <% const statuses = ['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered']; %>
+                  <% const currentIndex = statuses.indexOf(order.deliveryStatus); %>
+                  <% statuses.forEach(function(status, index) { %>
+                    <option value="<%= status %>" <%= status === order.deliveryStatus ? 'selected' : '' %> <%= index < currentIndex ? 'disabled' : '' %>><%= status %></option>
+                  <% }) %>
+                </select>
+              <% } %>
+            <% } %>
           <% } %>
-        </tbody>
+        </td>
+        <td>
+          <div class="modal-buttons">
+            <a href="/admin/view-order/<%= order._id %>" class="btn btn-info">View Details</a>
+            <% if (order.status !== 'Failed' && order.deliveryStatus !== 'Failed' && order.paymentStatus !== 'Failed') { %>
+              <% if (order.items.some(function(i) { return i.status === 'ReturnRequested'; })) { %>
+                <a href="/admin/manage-returns/<%= order._id %>" class="btn btn-warning">Manage Returns</a>
+              <% } %>
+              <% if (['Placed', 'Processing', 'Shipped', 'Out for Delivery'].includes(order.deliveryStatus)) { %>
+                <button class="btn btn-danger cancel-btn" data-order-id="<%= order._id %>">Cancel Order</button>
+              <% } %>
+            <% } %>
+            <% if (order.deliveryStatus !== 'Cancelled' && order.deliveryStatus !== 'Returned' && order.deliveryStatus !== 'Failed') { %>
+
+        <a href="/admin/update-tracking/<%= order._id %>" class="btn btn-track">Update Tracking</a>
+      <% } %>
+          </div>
+        </td>
+      </tr>
+    <% }) %>
+  <% } else { %>
+    <tr>
+      <td colspan="8" class="text-center">No orders found.</td>
+    </tr>
+  <% } %>
+</tbody>
       </table>
     </div>
     <nav>
@@ -571,14 +578,12 @@ img.product-image {
               e.target.value = e.target.dataset.currentStatus;
             }
           } else {
-            // Revert if cancelled
             e.target.value = e.target.dataset.currentStatus;
           }
         });
       });
     });
 
-    // ❌ Cancel Order with Reason
     document.querySelectorAll('.cancel-btn').forEach(button => {
       button.addEventListener('click', () => {
         const orderId = button.dataset.orderId;

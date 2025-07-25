@@ -2,7 +2,6 @@
 <div class="content-placeholder">
     <div class="container-fluid">
         <div class="row">
-            <!-- Form Side -->
             <div class="col-md-6">
                 <div class="form-container">
                     <h1 class="mb-4">Log In</h1>
@@ -46,9 +45,7 @@
                     </form>
                 </div>
             </div>
-            <!-- Image Side -->
             <div class="col-md-6 image-side d-none d-md-block">
-                <!-- Image will be displayed via CSS -->
             </div>
         </div>
     </div>
@@ -56,28 +53,26 @@
 
 <style>
     html, body {
-    height: 100%;  /* Ensure both take up the full viewport height */
-    margin: 0;     /* Remove default margin */
-    padding: 0;    /* Remove default padding */
-    overflow: hidden; /* Remove scrolling */
+    height: 100%;  
+    margin: 0;     
+    padding: 0;    
+    overflow: hidden; 
     font-family: Arial, sans-serif;
     background-color: var(--white);
     color: var(--dark-grey);
 }
 
 * {
-    box-sizing: border-box;  /* Ensure padding and margin don't affect the layout */
+    box-sizing: border-box;  
 }
 
     :root {
-        /* Color palette from the perfume bottles image */
         --dark-brown: #473d47;
         --pink: #53412e;
         --lavender: #5b4e43;
         --champagne: #DCCCB2;
         --amber: #D4A76A;
         
-        /* Neutral colors */
         --dark-grey: #2A2A2A;
         --medium-grey: #666666;
         --light-grey: #fdf9f5;
@@ -90,8 +85,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh; /* fill screen vertically */
-        padding-top: 80px; /* to offset navbar height */
+        height: 100vh;
+        padding-top: 80px; 
         box-sizing: border-box;
     }
 
@@ -184,7 +179,6 @@
         margin-top: 5px;
     }
 
-    /* For medium to large screens */
     @media (min-width: 768px) {
         body {
             overflow-x: hidden;
@@ -202,7 +196,6 @@
             max-width: none;
         }
         
-        /* Image side */
         .image-side {
             background-image: url('/images/pg9.jpg');
             background-size: cover;
@@ -211,7 +204,6 @@
         }
     }
 
-    /* For smaller screens - full width form */
     @media (max-width: 767px) {
         .form-container {
             padding: 20px;
@@ -220,7 +212,6 @@
 </style>
    
 <script>
-    // Password toggle
     document.addEventListener("DOMContentLoaded", () => {
         const password = document.getElementById('password');
         const toggle = document.getElementById("togglePassword");
@@ -240,14 +231,12 @@
         const emailError = document.getElementById("emailError");
         const passwordError = document.getElementById("passwordError");
 
-        // Clear errors on typing
         form.addEventListener("input", () => {
             topError.textContent = "";
             emailError.textContent = "";
             passwordError.textContent = "";
         });
 
-        // Submit form
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             topError.textContent = "";
@@ -268,9 +257,8 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    window.location.href = "/profile";
+                    window.location.href = "/";
                 } else {
-                    // Show specific error
                     if (data.errorType === "top") {
                         topError.textContent = data.error || "Unknown error";
                     } else if (data.errorType === "email") {

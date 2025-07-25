@@ -15,17 +15,15 @@ const otpSchema = new mongoose.Schema({
         type: Date,
         required: true,
         default: function() {
-            return new Date(Date.now() + 1 * 60 * 1000); // 1 minute from now
+            return new Date(Date.now() + 1 * 60 * 1000); 
         }
     }
 }, {
     timestamps: true
 });
 
-// Auto-delete expired OTPs
 otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-// Index for user lookup
 otpSchema.index({ userId: 1 });
 
 const OTP = mongoose.model('OTP', otpSchema);

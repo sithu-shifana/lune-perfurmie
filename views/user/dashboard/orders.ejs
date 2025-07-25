@@ -358,7 +358,6 @@
     color: #28a745 !important;
   }
   
-  /* Responsive Design */
   @media (max-width: 768px) {
     .main-content {
       padding: 15px;
@@ -425,7 +424,6 @@
     }
   }
 
-  /* Enhanced Modal Styles */
   .custom-modal {
     display: none;
     position: fixed;
@@ -676,6 +674,77 @@
       height: 12px;
     }
   }
+
+  /* Styles for payment method modal */
+  .payment-method-modal .modal-content {
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+  .payment-method-modal .modal-header {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .payment-method-modal .modal-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  .payment-method-modal .modal-body {
+    padding: 20px;
+  }
+  .payment-method-option {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .payment-method-option:hover {
+    background-color: #f8f9fa;
+    border-color: #d00879;
+  }
+  .payment-method-option input[type="radio"] {
+    margin-right: 10px;
+  }
+  .payment-method-option label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2c3e50;
+    margin: 0;
+    cursor: pointer;
+  }
+  .payment-method-option.disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .payment-method-option.disabled label {
+    cursor: not-allowed;
+  }
+  .modal-footer .btn-primary {
+    background: linear-gradient(135deg, #d00879 0%, #b8065f 100%);
+    border: none;
+    padding: 10px 20px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .modal-footer .btn-primary:hover {
+    background: linear-gradient(135deg, #b8065f 0%, #9f0552 100%);
+  }
+  .modal-footer .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border: none;
+    padding: 10px 20px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .modal-footer .btn-secondary:hover {
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+  }
 </style>
 
 <div class="content-placeholder">
@@ -752,7 +821,6 @@
                       </p>
                     <% } %>
                   
-                    <!-- Display refund message for cancelled or returned items with refunds -->
                     <% if ((item.status === 'Cancelled' || item.status === 'Returned') && (item.isRefunded || (order.refundDetails && order.refundDetails.amount > 0))) { %>
                       <div class="refund-item">
                         <strong>💰 Refund:</strong> ₹<%= Math.max(0, (item.offerPrice * (item.quantity || 1)) - item.couponDiscount).toLocaleString('en-IN') %> refunded to wallet for <%= item.status === 'Cancelled' ? 'cancelled' : 'returned' %> item
@@ -790,15 +858,6 @@
                       </span>
                     <% } else if (item.status === 'ReturnRequested') { %>
                       <span class="text-return">Return Requested</span>
-                    <% } %>
-                    <% if (order.deliveryStatus === 'Failed' && order.paymentMethod === 'ONLINE') { %>
-                      <button class="btn btn-retry btn-sm retry-payment-btn" 
-                              data-order-id="<%= order._id %>"
-                              data-coupon-code="<%= order.couponCode || '' %>"
-                              data-address-id="<%= order.address?._id || order.addressId || '' %>"
-                              title="Retry payment for this order">
-                        Retry Payment
-                      </button>
                     <% } %>
                   </div>
                 </div>
@@ -863,15 +922,20 @@
                           title="View delivery address">
                     Track Order
                   </button>
-                  <% if (order.deliveryStatus === 'Failed' && order.paymentMethod === 'ONLINE') { %>
+                  <% if (order.status === 'Failed' || order.paymentStatus === 'Failed') { %>
                     <button class="btn btn-retry btn-sm retry-payment-btn" 
                             data-order-id="<%= order._id %>"
                             data-coupon-code="<%= order.couponCode || '' %>"
-                            data-address-id="<%= order.address?._id || order.addressId || '' %>"
+                            data-address-id="<%= order.addressId?._id || order.addressId || '' %>"
+                            data-final-total="<%= order.finalTotal %>"
+                            data-address-name="<%= order.addressId?.name || 'N/A' %>"
+                            data-address-phone="<%= order.addressId?.phone || 'N/A' %>"
+                            data-bs-toggle="modal"
+                            data-bs-target="#paymentMethodModal-<%= order._id %>"
                             title="Retry payment for this order">
-                      Pay
+                      Retry Payment
                     </button>
-                  <% } else if (['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Return Requested', 'Returned'].includes(order.deliveryStatus) && ['Completed', 'Refunded','Pending'].includes(order.paymentStatus)) { %>
+                  <% } else if (['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Return Requested', 'Returned'].includes(order.deliveryStatus) && ['Completed', 'Refunded', 'Pending'].includes(order.paymentStatus)) { %>
                     <a href="/user/order/<%= order._id %>/pdf" class="btn btn-primary btn-sm" target="_blank">
                       Download Invoice
                     </a>
@@ -881,6 +945,44 @@
             </div>
           </div>
           
+          <!-- Payment Method Selection Modal -->
+          <div class="modal fade payment-method-modal" id="paymentMethodModal-<%= order._id %>" tabindex="-1" aria-labelledby="paymentMethodModalLabel-<%= order._id %>" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="paymentMethodModalLabel-<%= order._id %>">Select Payment Method</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form id="paymentMethodForm-<%= order._id %>">
+                    <div class="payment-method-option <%= order.finalTotal > 10000 ? 'disabled' : '' %>">
+                      <input type="radio" name="paymentMethod" value="COD" id="cod-<%= order._id %>" <%= order.finalTotal > 10000 ? 'disabled' : '' %>>
+                      <label for="cod-<%= order._id %>">Cash on Delivery (COD)</label>
+                    </div>
+                    <div class="payment-method-option <%= walletBalance < order.finalTotal ? 'disabled' : '' %>">
+                      <input type="radio" name="paymentMethod" value="WALLET" id="wallet-<%= order._id %>" <%= walletBalance < order.finalTotal ? 'disabled' : '' %>>
+                      <label for="wallet-<%= order._id %>">Wallet (Balance: ₹<%= walletBalance.toLocaleString('en-IN') %>)</label>
+                    </div>
+                    <div class="payment-method-option">
+                      <input type="radio" name="paymentMethod" value="RAZORPAY" id="razorpay-<%= order._id %>">
+                      <label for="razorpay-<%= order._id %>">GPay/Online Payment</label>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary proceed-payment-btn" 
+                          data-order-id="<%= order._id %>"
+                          data-coupon-code="<%= order.couponCode || '' %>"
+                          data-address-id="<%= order.addressId?._id || order.addressId || '' %>"
+                          data-final-total="<%= order.finalTotal %>"
+                          data-address-name="<%= order.addressId?.name || 'N/A' %>"
+                          data-address-phone="<%= order.addressId?.phone || 'N/A' %>">Proceed to Pay</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div id="trackModal-<%= order._id %>" class="custom-modal">
             <div class="custom-modal-content">
               <span class="custom-close">×</span>
@@ -918,8 +1020,10 @@
                 <% } %>
                 <h5>Delivery Date</h5>
                 <p>
-                  <% if (order.deliveryDate) { %>
+                  <% if (order.deliveryDate ) { %>
                     <strong>Delivered on:</strong> <%= new Date(order.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                  <% } else if (order.status === 'Failed') { %>
+                    <strong>Order Failed</strong>
                   <% } else { %>
                     <strong>Approx. Delivery:</strong> <%= new Date(new Date(order.orderDate || order.createdAt).getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
                   <% } %>
@@ -943,21 +1047,18 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // Track Order Modal Handling
     const trackButtons = document.querySelectorAll('.track-order-btn');
     const modals = document.querySelectorAll('.custom-modal');
 
-    // Function to close all modals
     const closeAllModals = () => {
       modals.forEach(modal => {
         modal.style.display = 'none';
       });
     };
 
-    // Handle track order button clicks
     trackButtons.forEach(button => {
       button.addEventListener('click', () => {
-        closeAllModals(); // Close any open modals to prevent overlap
+        closeAllModals(); 
         const modalId = button.dataset.modalId;
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -966,7 +1067,6 @@
       });
     });
 
-    // Handle close button clicks
     document.querySelectorAll('.custom-close').forEach(button => {
       button.addEventListener('click', () => {
         const modal = button.closest('.custom-modal');
@@ -976,14 +1076,12 @@
       });
     });
 
-    // Close modal when clicking outside
     window.addEventListener('click', (e) => {
       if (e.target.classList.contains('custom-modal')) {
         e.target.style.display = 'none';
       }
     });
 
-    // Cancel Item Handling
     const cancelItemButtons = document.querySelectorAll('.cancel-item-btn');
     cancelItemButtons.forEach(button => {
       button.addEventListener('click', async () => {
@@ -1032,7 +1130,6 @@
       });
     });
 
-    // Return Item Handling
     const returnButtons = document.querySelectorAll('.return-item-btn');
     returnButtons.forEach(button => {
       button.addEventListener('click', async () => {
@@ -1088,84 +1185,154 @@
       });
     });
 
-    // Retry Payment Handling
-    const retryPaymentButtons = document.querySelectorAll('.retry-payment-btn');
-    retryPaymentButtons.forEach(button => {
+    // Retry Payment Logic
+    const proceedPaymentButtons = document.querySelectorAll('.proceed-payment-btn');
+    proceedPaymentButtons.forEach(button => {
       button.addEventListener('click', async () => {
         const orderId = button.dataset.orderId;
         const couponCode = button.dataset.couponCode;
         const addressId = button.dataset.addressId;
+        const finalTotal = button.dataset.finalTotal;
+        const addressName = button.dataset.addressName;
+        const addressPhone = button.dataset.addressPhone;
+
+        const form = document.getElementById(`paymentMethodForm-${orderId}`);
+        const selectedPaymentMethod = form.querySelector('input[name="paymentMethod"]:checked')?.value;
+
+        if (!selectedPaymentMethod) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'No Payment Method Selected',
+            text: 'Please select a payment method to proceed.'
+          });
+          return;
+        }
 
         try {
-          const response = await fetch(`/orders/retry-payment/${orderId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ couponCode, addressId }),
-            credentials: 'include'
-          });
-          const data = await response.json();
+          if (selectedPaymentMethod === 'RAZORPAY') {
+            const response = await fetch(`/orders/retry-payment/razorpay/${orderId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ addressId, couponCode }),
+              credentials: 'include'
+            });
 
-          if (data.success && data.razorpayOrder) {
+            const data = await response.json();
+            if (!data.success) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Failed to initiate payment'
+              });
+              return;
+            }
+
             const options = {
               key: '<%= process.env.RAZORPAY_KEY_ID %>',
               amount: data.razorpayOrder.amount,
-              currency: 'INR',
-              name: 'Your Company Name',
-              description: `Payment for Order #${orderId.slice(-8).toUpperCase()}`,
+              currency: data.razorpayOrder.currency,
               order_id: data.razorpayOrder.id,
+              name: 'Lune Perfumie',
+              description: `Retry Payment for Order #${orderId.slice(-8).toUpperCase()}`,
               handler: async function (response) {
                 try {
-                  const verifyResponse = await fetch(`/orders/verify-payment/${orderId}`, {
+                  const verifyResponse = await fetch(`/orders/verify-retry-payment/${orderId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      razorpay_payment_id: response.razorpay_payment_id,
                       razorpay_order_id: response.razorpay_order_id,
+                      razorpay_payment_id: response.razorpay_payment_id,
                       razorpay_signature: response.razorpay_signature
                     }),
                     credentials: 'include'
                   });
+
                   const verifyData = await verifyResponse.json();
                   Swal.fire({
                     icon: verifyData.success ? 'success' : 'error',
                     title: verifyData.success ? 'Payment Successful' : 'Payment Failed',
                     text: verifyData.message
                   }).then(() => {
-                    if (verifyData.success) location.reload();
+                    if (verifyData.success) {
+                      location.href = `/orders`;
+                    } else {
+                      location.href = `/orders`;
+                    }
                   });
                 } catch (error) {
                   Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error verifying payment'
+                    text: 'Failed to verify payment'
                   });
                 }
               },
               prefill: {
-                name: '<%= user ? user.name : '' %>',
-                email: '<%= user ? user.email : '' %>',
-                contact: '<%= user ? user.phone : '' %>'
+                name: addressName,
+                contact: addressPhone
               },
               theme: {
                 color: '#d00879'
               }
             };
+
             const rzp = new Razorpay(options);
+            rzp.on('payment.failed', async function (response) {
+              try {
+                await fetch(`/update-order-failed`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ orderId }),
+                  credentials: 'include'
+                });
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Payment Failed',
+                  text: 'Payment could not be processed. Please try again.'
+                }).then(() => {
+                  location.href = `/orders`;
+                });
+              } catch (error) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'Failed to update order status'
+                });
+              }
+            });
             rzp.open();
           } else {
+            const response = await fetch(`/orders/retry-payment/${orderId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ addressId, couponCode, paymentMethod: selectedPaymentMethod }),
+              credentials: 'include'
+            });
+
+            const data = await response.json();
             Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: data.message || 'Unable to initiate payment'
+              icon: data.success ? 'success' : 'error',
+              title: data.success ? 'Order Placed' : 'Error',
+              text: data.message
+            }).then(() => {
+              if (data.success) {
+                location.href = `/orders`;
+              } else {
+                location.href = `/orders`;
+              }
             });
           }
         } catch (error) {
           Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Server error while initiating payment'
+            text: 'Server error. Please try again later.'
           });
         }
+
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById(`paymentMethodModal-${orderId}`));
+        modal.hide();
       });
     });
   });

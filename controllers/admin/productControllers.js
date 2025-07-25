@@ -28,20 +28,16 @@ exports.getProductManagementPage = async (req, res) => {
       };
     }
 
-    // Get IDs of listed brands and categories
     const listedBrands = await Brand.find({ status: 'listed' }).distinct('_id');
     const listedCategories = await Category.find({ status: 'listed' }).distinct('_id');
 
-    // Count products with listed brand and category
     const totalProducts = await Product.countDocuments({
       ...query,
       brand: { $in: listedBrands },
       category: { $in: listedCategories },
     });
 
-    console.log(`Total products before filtering: ${totalProducts}, page: ${page}, limit: ${limit}`);
 
-    // Validate page number
     if (page < 1 || (totalProducts > 0 && page > Math.ceil(totalProducts / limit))) {
       return res.status(404).render('404', { message: 'Invalid page number' });
     }
@@ -65,25 +61,19 @@ exports.getProductManagementPage = async (req, res) => {
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    // Filter out products where brand or category population failed
     const filteredProducts = products.filter((product) => product.brand && product.category);
 
-    console.log(`Filtered products count: ${filteredProducts.length}`);
 
-    // Fetch products with offers, handling both errors and null returns
     const productsWithOffers = [];
     for (const product of filteredProducts) {
       try {
         const productWithOffer = await getProductPageHelper(product._id);
         if (productWithOffer) {
-          // Only push valid products with offers
           productsWithOffers.push(productWithOffer);
         } else {
           console.warn(`Product ${product._id} skipped (unlisted or invalid)`);
         }
       } catch (error) {
-        console.error(`Error fetching offer for product ${product._id}:`, error.message);
-        // Include product without offers if getProductWithOffers fails
         productsWithOffers.push({
           _id: product._id,
           productName: product.productName,
@@ -107,7 +97,6 @@ exports.getProductManagementPage = async (req, res) => {
       }
     }
 
-    console.log(`Products with offers count: ${productsWithOffers.length}`);
 
     res.render('admin/products/productManagement', {
       totalProducts,
@@ -149,13 +138,11 @@ exports.addProduct = async (req, res) => {
       variants
     } = req.body;
 
-    // Map images from processed images
     const images = req.processedImages.map(img => ({
       url: img.url,
       publicId: img.publicId
     }));
 
-    // Prepare variants for schema
     const formattedVariants = variants.map(variant => ({
       size: variant.size,
       stock: Number(variant.stock) || 0,
@@ -163,7 +150,6 @@ exports.addProduct = async (req, res) => {
       offerPrice: Number(variant.originalPrice) || 0
     }));
 
-    // Create new product
     const newProduct = new Product({
       productName: productName.trim(),
       description: description.trim(),
@@ -176,13 +162,11 @@ exports.addProduct = async (req, res) => {
 
     await newProduct.save();
     
-    // Success response
     res.redirect('/admin/productManagement');
     
   } catch (error) {
     console.error('Product Adding error:', error);
     
-    // Get brands and categories for error rendering
     const Brand = require('../models/Brand');
     const Category = require('../models/Category');
     const brands = await Brand.find({ status: 'listed' });
@@ -214,13 +198,8 @@ exports.showEditProductForm = async (req, res) => {
     const brands = await Brand.find({ status: 'listed' });
     const categories = await Category.find({ status: 'listed' });
 
-    if (!product) {
-      return res.status(404).render('404', {
-        message: 'Product not found'
-      });
-    }
+    
 
-    // Format oldInput for the form
     const oldInput = {
       productName: product.productName,
       description: product.description,
@@ -264,27 +243,14 @@ exports.updateProduct = async (req, res) => {
       variants
     } = req.body;
 
-    // Validate product ID
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).render('admin/pageNotFound', {
-        message: 'Invalid product ID',
-        layout: 'layouts/admin',
-      });
-    }
+    
 
-    // Get existing product
     const existingProduct = await Product.findById(productId)
       .populate('brand', 'name')
       .populate('category', 'name');
     
-    if (!existingProduct) {
-      return res.status(404).render('admin/pageNotFound', {
-        message: 'Product not found',
-        layout: 'layouts/admin'
-      });
-    }
+  
 
-    // Prepare images array - use new images if provided, otherwise keep existing
     let images = existingProduct.images;
     if (req.processedImages && req.processedImages.length > 0) {
       images = req.processedImages.map(img => ({
@@ -293,7 +259,6 @@ exports.updateProduct = async (req, res) => {
       }));
     }
 
-    // Prepare variants for schema
     const formattedVariants = variants.map(variant => ({
       size: variant.size,
       stock: Number(variant.stock) || 0,
@@ -301,7 +266,6 @@ exports.updateProduct = async (req, res) => {
       offerPrice: Number(variant.originalPrice) || 0
     }));
 
-    // Update product
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
       {
@@ -321,17 +285,14 @@ exports.updateProduct = async (req, res) => {
       throw new Error('Failed to update product');
     }
 
-    // Success response
     res.redirect('/admin/productManagement');
 
   } catch (error) {
     console.error('Product update error:', error);
 
-    // Get brands and categories for error rendering
     const brands = await Brand.find({ status: 'listed' });
     const categories = await Category.find({ status: 'listed' });
 
-    // Prepare oldInput for form re-rendering
     const oldInput = {
       productName: req.body.productName,
       description: req.body.description,
@@ -346,7 +307,6 @@ exports.updateProduct = async (req, res) => {
       ]
     };
 
-    // Render edit form with error
     res.status(500).render('admin/products/product-edit', {
       product: existingProduct,
       brands,
@@ -364,21 +324,15 @@ exports.getProductDetails = async (req, res) => {
   try {
     const productId = req.params.id;
     
-    // Get product with offers using the helper function
     const product = await getProductWithOffers(productId);
     
-    if (!product) {
-       console.log(`error no product`)      
-    }
 
     const totalBuyers = await Order.distinct('user', {
       'items.product': productId,
       orderStatus: { $in: ['delivered', 'shipped', 'processing'] }
     }).then(users => users.length);
 
-    if (!totalBuyers) {
-       console.log(`error no total`)      
-    }
+    
     const totalUserWishlist = await Wishlist.countDocuments({
       'items.product': productId
     });
@@ -387,7 +341,6 @@ exports.getProductDetails = async (req, res) => {
       'items.product': productId
     });
 
-    // Calculate total units sold and revenue
     const salesData = await Order.aggregate([
       {
         $match: {

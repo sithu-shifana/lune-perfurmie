@@ -14,9 +14,9 @@ exports.getBrandPage = async (req, res) => {
     }
 
     const page = parseInt(req.query.page) || 1;
-    const limit = 6; // Brands per page
+    const limit = 6; 
 
-    const totalBrands = await Brand.countDocuments(query); // use filtered count
+    const totalBrands = await Brand.countDocuments(query); 
     const totalPages = Math.ceil(totalBrands / limit);
 
     const brands = await Brand.find(query)

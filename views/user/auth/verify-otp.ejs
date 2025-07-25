@@ -2,7 +2,6 @@
 <div class="content-placeholder">
     <div class="container-fluid">
         <div class="row">
-            <!-- Form Side -->
             <div class="col-md-6">
                 <div class="form-container">
                     <h1 class="mb-4">Verify OTP</h1>
@@ -31,9 +30,7 @@
                     </form>
                 </div>
             </div>
-            <!-- Image Side -->
             <div class="col-md-6 image-side d-none d-md-block">
-                <!-- Image will be displayed via CSS -->
             </div>
         </div>
     </div>
@@ -237,42 +234,33 @@
         const countdownSpan = document.getElementById("countdown");
         const otpInputs = document.querySelectorAll('.otp-input');
         
-        // Get server-provided OTP timestamps - Fixed the variable access
         const otpCreatedAt = <%- JSON.stringify(otpCreatedAt || Date.now()) %>;
         const expiresAt = <%- JSON.stringify(expiresAt || (Date.now() + 60000)) %>;
         
-        // OTP Input Handling - Fixed the input logic
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
-                // Only allow digits
                 const value = e.target.value.replace(/[^0-9]/g, '');
                 e.target.value = value;
                 
                 updateOtpValue();
                 
-                // Move to next input if current is filled
                 if (value.length === 1 && index < otpInputs.length - 1) {
                     otpInputs[index + 1].focus();
                 } else if (value.length === 1 && index === otpInputs.length - 1) {
-                    // Last input, blur to show completion
                     input.blur();
                 }
             });
             
             input.addEventListener('keydown', (e) => {
-                // Handle backspace
                 if (e.key === 'Backspace') {
                     if (e.target.value === '' && index > 0) {
-                        // If current input is empty, move to previous
                         otpInputs[index - 1].focus();
                     } else {
-                        // Clear current input
                         e.target.value = '';
                         updateOtpValue();
                     }
                 }
                 
-                // Handle arrow keys
                 if (e.key === 'ArrowLeft' && index > 0) {
                     otpInputs[index - 1].focus();
                 } else if (e.key === 'ArrowRight' && index < otpInputs.length - 1) {
@@ -285,15 +273,12 @@
                 const pasteData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
                 
                 if (pasteData.length > 0) {
-                    // Clear all inputs first
                     otpInputs.forEach(inp => inp.value = '');
                     
-                    // Fill inputs with pasted data
                     for (let i = 0; i < Math.min(pasteData.length, otpInputs.length); i++) {
                         otpInputs[i].value = pasteData[i];
                     }
                     
-                    // Focus on the next empty input or the last filled one
                     const nextIndex = Math.min(pasteData.length, otpInputs.length - 1);
                     otpInputs[nextIndex].focus();
                     
@@ -310,25 +295,20 @@
             otpInput.value = otpValue;
         }
 
-        // Fixed timer logic
         const otpExpirySeconds = 60;
         let timeLeft = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
         let timerInterval;
 
         function startTimer() {
-            // Clear any existing timer
             clearInterval(timerInterval);
             
-            // Initialize UI elements
             resendBtn.disabled = true;
             countdownSpan.textContent = timeLeft + "s";
             
-            // Clear previous error if it's not an expiry error
             if (topError.textContent !== "OTP has expired. Please resend.") {
                 topError.textContent = "";
             }
             
-            // Check if already expired
             if (timeLeft <= 0) {
                 countdownSpan.textContent = "0s";
                 topError.textContent = "OTP has expired. Please resend.";
@@ -337,10 +317,8 @@
                 return;
             }
             
-            // Remove expired flag
             localStorage.removeItem('otpExpired');
             
-            // Start countdown
             timerInterval = setInterval(() => {
                 timeLeft--;
                 countdownSpan.textContent = timeLeft + "s";
@@ -355,10 +333,8 @@
             }, 1000);
         }
 
-        // Start timer with server-provided timestamps
         startTimer();
 
-        // Clear errors on input (except expiry errors)
         form.addEventListener("input", () => {
             if (topError.textContent !== "OTP has expired. Please resend.") {
                 topError.textContent = "";
@@ -421,11 +397,9 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    // Reset timer with new duration
                     timeLeft = otpExpirySeconds;
                     localStorage.removeItem('otpExpired');
                     
-                    // Clear all inputs
                     otpInputs.forEach(input => {
                         input.value = '';
                     });

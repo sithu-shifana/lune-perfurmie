@@ -38,7 +38,7 @@ const uploadDataUrlToCloudinary = async (dataUrl, folder, namePrefix, index) => 
                 folder: folder,
                 public_id: `${namePrefix}_image${index + 1}_${Date.now()}`,
                 transformation: [
-                    { width: 500, height: 500, crop: 'fill' }, // 6:9 ratio for products
+                    { width: 500, height: 500, crop: 'fill' }, 
                     { quality: 'auto' },
                     { fetch_format: 'auto' }
                 ]
@@ -61,7 +61,7 @@ const uploadToCloudinary = async (buffer, folder, namePrefix, index) => {
                 folder: folder,
                 public_id: `${namePrefix}_image${index + 1}_${Date.now()}`,
                 transformation: [
-                    { width: 500, height: 500, crop: 'fill' }, // 6:9 ratio for products
+                    { width: 500, height: 500, crop: 'fill' }, 
                     { quality: 'auto' },
                     { fetch_format: 'auto' }
                 ]
@@ -82,7 +82,7 @@ const uploadToCloudinary = async (buffer, folder, namePrefix, index) => {
 const uploadCategory = multer({
     storage: createCloudinaryStorage('categories'),
     fileFilter: imageFileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+    limits: { fileSize: 5 * 1024 * 1024 } 
 });
 
 // Brand upload 
@@ -108,7 +108,6 @@ const uploadProduct = [
     ]),
     async (req, res, next) => {
         try {
-            // Extract the product name for file naming
             const { productName } = req.body;
             if (!productName) {
                 return res.status(400).json({ error: 'Product name is required' });
@@ -116,14 +115,12 @@ const uploadProduct = [
 
             req.processedImages = [];
             
-            // Check for cropped images first (from the data URLs)
             const imageKeys = ['image1', 'image2', 'image3'];
             
             for (let i = 0; i < imageKeys.length; i++) {
                 const key = imageKeys[i];
                 const croppedDataUrl = req.body[`cropped_${key}`];
                 
-                // If we have a cropped version, upload that instead of the file
                 if (croppedDataUrl) {
                     try {
                         const result = await uploadDataUrlToCloudinary(
@@ -135,7 +132,6 @@ const uploadProduct = [
                         req.processedImages.push(result);
                     } catch (error) {
                         console.error(`Error uploading cropped image ${key}:`, error);
-                        // If cropped upload fails, try original file as fallback
                         if (req.files[key] && req.files[key][0]) {
                             const result = await uploadToCloudinary(
                                 req.files[key][0].buffer, 
@@ -147,7 +143,6 @@ const uploadProduct = [
                         }
                     }
                 } 
-                // If no cropped version but we have the file, upload the original
                 else if (req.files[key] && req.files[key][0]) {
                     const result = await uploadToCloudinary(
                         req.files[key][0].buffer, 
@@ -157,7 +152,6 @@ const uploadProduct = [
                     );
                     req.processedImages.push(result);
                 }
-                // For edit forms, we might not have all three images
             }
 
             next();

@@ -57,16 +57,12 @@
         <% newlyArrivedProducts.forEach((product, index) => { %>
           <div class="product-card" data-index="<%= index %>">
             <a href="/product-show/<%= product._id %>" style="text-decoration: none; color: inherit;">
-              <!-- New Badge -->
               <div class="new-badge">New</div>
               
-              <!-- Product Image -->
               <img src="<%= product.images.length ? product.images[0].url : '/images/placeholder.png' %>" alt="<%= product.productName %>">
               
-              <!-- Product Name -->
               <h3><%= product.productName %></h3>
               
-              <!-- Brand Name -->
               <p class="brand-name">Brand: <%= product.brand.name %></p>
 
   <% if (product.variant) { %>
@@ -92,7 +88,6 @@
                 <% } %>
               </a>
             
-            <!-- Wishlist Icon -->
             <i id="wishlist-icon-<%= product._id %>" 
          class="fas fa-heart wishlist-icon <%= product.isInWishlist ? 'active' : '' %>" 
          data-product-id="<%= product._id %>" 
@@ -109,7 +104,6 @@
   </div>
 </section>
 
-<!--vedio-->
    <section class="video-carousel">
         <div class="video-container">
             <video src="/video/8228f729451468a730f2df2cc8d630f8.mp4" muted loop></video>
@@ -281,7 +275,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Intersection Observer for scroll animations
         const observerOptions = {
             threshold: 0.15,
             rootMargin: '0px 0px -100px 0px'
@@ -297,15 +290,12 @@
             });
         }, observerOptions);
 
-        // Observe all brand items
         document.querySelectorAll('.brand-item').forEach(item => {
             observer.observe(item);
         });
 
-        // Smooth scroll behavior
         document.documentElement.style.scrollBehavior = 'smooth';
 
-        // Enhanced image interactions
         document.querySelectorAll('.brand-images img').forEach(img => {
             img.addEventListener('mouseenter', function() {
                 this.style.transform = 'scale(1.05)';
@@ -318,7 +308,6 @@
             });
         });
 
-        // Subtle parallax effect
         let ticking = false;
         
         function updateParallax() {
@@ -350,14 +339,13 @@ class VideoCarousel {
                 this.currentIndex = 0;
                 this.isTransitioning = false;
                 this.autoSlideInterval = null;
-                this.slideDuration = 6000; // 6 seconds per slide
+                this.slideDuration = 6000; 
                 this.progressInterval = null;
                 
                 this.init();
             }
             
             init() {
-                // Set up video event listeners
                 this.videos.forEach((video, index) => {
                     video.addEventListener('loadeddata', () => {
                         if (index === 0) {
@@ -367,7 +355,6 @@ class VideoCarousel {
                     });
                 });
                 
-                // Set up indicator click listeners
                 this.indicators.forEach((indicator, index) => {
                     indicator.addEventListener('click', () => {
                         if (index !== this.currentIndex && !this.isTransitioning) {
@@ -377,7 +364,6 @@ class VideoCarousel {
                     });
                 });
                 
-                // Pause auto-slide on hover
                 const container = document.querySelector('.video-carousel');
                 container.addEventListener('mouseenter', () => {
                     this.pauseAutoSlide();
@@ -387,7 +373,6 @@ class VideoCarousel {
                     this.startAutoSlide();
                 });
                 
-                // Start with first video
                 this.showSlide(0);
                 this.startAutoSlide();
             }
@@ -397,7 +382,6 @@ class VideoCarousel {
                 
                 this.isTransitioning = true;
                 
-                // Update videos
                 this.videos.forEach((video, i) => {
                     video.classList.remove('active');
                     video.pause();
@@ -411,7 +395,6 @@ class VideoCarousel {
                     }
                 });
                 
-                // Update texts
                 this.texts.forEach((text, i) => {
                     text.classList.remove('active');
                     if (i === index) {
@@ -419,7 +402,6 @@ class VideoCarousel {
                     }
                 });
                 
-                // Update indicators
                 this.indicators.forEach((indicator, i) => {
                     indicator.classList.toggle('active', i === index);
                 });
@@ -427,7 +409,6 @@ class VideoCarousel {
                 this.currentIndex = index;
                 this.startProgressBar();
                 
-                // Allow transitions after animation completes
                 setTimeout(() => {
                     this.isTransitioning = false;
                 }, 800);
@@ -498,7 +479,7 @@ function hideLoginAlert() {
   const btn = document.getElementById(`wishlist-icon-${productId}`);
   if (!btn) return console.error('Wishlist icon not found');
 
-  btn.style.pointerEvents = 'none'; // Prevent double-clicks
+  btn.style.pointerEvents = 'none'; 
 
   const headers = {};
   const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -511,7 +492,7 @@ function hideLoginAlert() {
   })
     .then(res => {
       if (res.status === 401) {
-        showLoginAlert(); // Custom alert
+        showLoginAlert();
         return;
       }
       return res.json();
@@ -530,7 +511,6 @@ function hideLoginAlert() {
 }
 
         
-        // Initialize carousel when page loads
         let carousel;
         window.addEventListener('DOMContentLoaded', () => {
             carousel = new VideoCarousel();
@@ -780,17 +760,14 @@ function hideLoginAlert() {
     max-width: 190px;
   }
 
-  /* Alternating layouts */
-  /* Odd items: image left, text right */
+  
   .brand-item.odd {
     flex-direction: row;
   }
-  /* Even items: text left, image right */
   .brand-item.even {
     flex-direction: row-reverse;
   }
 
-  /* Responsive tweaks */
   @media (max-width: 900px) {
     .brand-item {
       flex-direction: column !important;
@@ -905,7 +882,6 @@ function hideLoginAlert() {
             filter: brightness(1) contrast(1.1);
         }
 
-        /* Double image layout */
         .brand-images.double {
             position: relative;
         }
@@ -967,14 +943,12 @@ function hideLoginAlert() {
             margin-top: 30px;
         }
 
-        /* Brand specific subtle accents */
         .brand-item:nth-child(1) .brand-text h3::after { background: #2c2c2c; }
         .brand-item:nth-child(2) .brand-text h3::after { background: #1a1a2e; }
         .brand-item:nth-child(3) .brand-text h3::after { background: #8b4513; }
         .brand-item:nth-child(4) .brand-text h3::after { background: #654321; }
         .brand-item:nth-child(5) .brand-text h3::after { background: #2d5a3d; }
 
-        /* Subtle brand card variations */
         .brand-item:nth-child(even) .brand-card {
             background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
         }
@@ -983,7 +957,6 @@ function hideLoginAlert() {
             background: var(--primary-bg);
         }
 
-        /* Image overlay effects */
         .brand-images::before {
             content: '';
             position: absolute;
@@ -1001,7 +974,6 @@ function hideLoginAlert() {
             opacity: 1;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             .section-header h2 {
                 font-size: 2.5rem;
@@ -1039,14 +1011,12 @@ function hideLoginAlert() {
             }
         }
 
-        /* Smooth entrance animations */
         .brand-item:nth-child(1) { animation-delay: 0.1s; }
         .brand-item:nth-child(2) { animation-delay: 0.2s; }
         .brand-item:nth-child(3) { animation-delay: 0.3s; }
         .brand-item:nth-child(4) { animation-delay: 0.4s; }
         .brand-item:nth-child(5) { animation-delay: 0.5s; }
 
-        /* Subtle floating animation */
         @keyframes gentleFloat {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-8px); }
@@ -1059,8 +1029,7 @@ function hideLoginAlert() {
 
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600&display=swap');
 
-/* Newly Arrived Products Section */
-/* Newly Arrived Products Section */
+
 .newly-arrived-section {
   padding: 60px 20px;
   background-color: #f8f9fa;
@@ -1111,32 +1080,29 @@ function hideLoginAlert() {
   color: #000;
 }
 
-/* Responsive Grid for Newly Arrived Products */
 .newly-arrived-grid {
   display: grid;
   gap: 20px;
-  grid-auto-rows: minmax(300px, auto); /* Ensure consistent row height */
-  width: 100%; /* Ensure the grid takes the full container width */
+  grid-auto-rows: minmax(300px, auto); 
+  width: 100%; 
   box-sizing: border-box;
 }
 
-/* Large devices: 2 rows of 5 columns (total 10 items) */
 @media (min-width: 1200px) {
   .newly-arrived-grid {
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: repeat(2, minmax(300px, auto));
   }
   .newly-arrived-grid .product-card:nth-child(n+11) {
-    display: none; /* Ensure only 10 products are shown */
+    display: none; 
   }
 }
 
-/* Medium devices: 3 rows of 3 columns (total 9 items) */
 @media (min-width: 668px) and (max-width: 1199px) {
   .newly-arrived-grid {
-    grid-template-columns: repeat(3, minmax(200px, 1fr)); /* Constrain column width */
+    grid-template-columns: repeat(3, minmax(200px, 1fr)); 
     grid-template-rows: repeat(3, minmax(300px, auto));
-    justify-items: center; /* Center the cards in their grid cells */
+    justify-items: center; 
   }
   .newly-arrived-grid .product-card {
     width: 100%;

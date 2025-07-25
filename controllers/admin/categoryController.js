@@ -40,6 +40,8 @@ exports.getCategoryPage=async(req,res)=>{
 }
 
 
+
+
 exports.getaddcategorypage=async(req,res)=>{
     try{
         res.render('admin/category/category-add');
@@ -48,6 +50,8 @@ exports.getaddcategorypage=async(req,res)=>{
         res.status(500).send('Server error');
     }
 }
+
+
 
 
 exports.addCategory=async(req,res)=>{
@@ -82,6 +86,8 @@ exports.addCategory=async(req,res)=>{
     }
 }
 
+
+
 exports.getCategoryEditPage=async(req,res)=>{
     try{
         const category=await Category.findById(req.params.id)
@@ -93,6 +99,8 @@ exports.getCategoryEditPage=async(req,res)=>{
 
     }
   }
+
+
 
 exports.EditCategory=async(req,res)=>{
     try{
@@ -130,6 +138,8 @@ exports.EditCategory=async(req,res)=>{
     }
   
 }
+
+
 
 exports.toggleStatus = async (req, res) => {
   try {

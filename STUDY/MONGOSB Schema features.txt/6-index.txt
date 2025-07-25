@@ -1,3 +1,0 @@
-userSchema.index({ email: 1 });
-
-improve query operation

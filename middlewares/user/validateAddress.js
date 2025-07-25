@@ -3,8 +3,10 @@ const validateAddress = (req, res, next) => {
   const { name, phone, street, city, state, pinCode, country } = req.body;
   const errors = {};
 
-  // Required fields validation
   if (!name?.trim()) errors.name = "Name is required";
+  if (name?.trim() && name.trim()[0] !== name.trim()[0].toUpperCase()) {
+  errors.name = "First letter of name should be capital";
+}
   if (!phone?.trim()) errors.phone = "Phone number is required";
   if (!street?.trim()) errors.street = "Street is required";
   if (!city?.trim()) errors.city = "City is required";
@@ -12,13 +14,12 @@ const validateAddress = (req, res, next) => {
   if (!pinCode?.trim()) errors.pinCode = "Pin Code is required";
   if (!country?.trim()) errors.country = "Country is required";
 
-  // Extra validation (optional)
 if (phone) {
-    const cleanedPhone = phone.replace(/\s+/g, "").replace(/^(\+91)/, ""); // remove spaces and +91
+    const cleanedPhone = phone.replace(/\s+/g, "").replace(/^(\+91)/, ""); 
     if (!/^\d{10}$/.test(cleanedPhone)) {
       errors.phone = "Phone must be exactly 10 digits (with or without +91 or spaces)";
     } else {
-      req.body.phone = cleanedPhone; // cleaned value back into request
+      req.body.phone = cleanedPhone;
     }
   }  
   if (pinCode && !/^\d{6}$/.test(pinCode)) errors.pinCode = "Pin Code must be 6 digits";

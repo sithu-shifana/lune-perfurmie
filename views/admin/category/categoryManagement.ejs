@@ -2,13 +2,11 @@
 <main class="dashboard-content">
   <div class="container">
     <section class="content-main">
-      <!-- Header -->
-      <div class="content-header">
+            <div class="content-header">
         <h1 class="content-body">Category Management</h1>
       </div>
 
-      <!-- Stats Card -->
-      <div class="customer-stats-card">
+            <div class="customer-stats-card">
         <div class="stats-icon"><i class="fas fa-tags"></i></div>
         <div class="stats-content">
           <h3><%= totalCategory %></h3>
@@ -16,15 +14,13 @@
         </div>
       </div>
 
-      <!-- Add Category Button -->
-      <div class="add-category-btn-container">
+            <div class="add-category-btn-container">
         <a href="/admin/category-add" class="btn btn-primary">
           <i class="fas fa-plus"></i> Add New Category
         </a>
       </div>
 
-      <!-- Search Bar -->
-      <div class="card-header">
+            <div class="card-header">
         <form action="/admin/categoryManagement" method="get">
           <div class="input-group">
             <input type="text" class="form-control" placeholder="Search categories..." name="search" id="searchInput"
@@ -35,8 +31,7 @@
         </form>
       </div>
 
-      <!-- Main Content Table -->
-      <div class="right">
+            <div class="right">
         <div class="table-responsive">
           <table class="table">
             <thead>

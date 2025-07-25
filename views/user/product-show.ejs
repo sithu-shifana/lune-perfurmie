@@ -1,10 +1,8 @@
 <%- include('../partials/user/header') %>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<!-- Include Font Awesome for the heart icon -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <style>
-/* Import Google Font */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap');
 
 body {
@@ -109,11 +107,11 @@ body {
 }
 
 .variant-selector .low-stock {
-  color: #28a745; /* Green for low stock */
+  color: #28a745; 
 }
 
 .variant-selector .out-of-stock {
-  color: #e91e63; /* Red for out of stock */
+  color: #e91e63; 
 }
 
 .error-message {
@@ -156,7 +154,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Zoom Container Styles */
 .zoom-container {
   overflow: hidden;
   position: relative;
@@ -176,14 +173,12 @@ body {
   cursor: zoom-in;
 }
 
-/* Similar Products Section Styles */
 .similar-products-section {
   margin-top: 60px;
   padding: 40px 0;
   background-color: #f9f9fa;
 }
 
-/* Enhanced Section Title Styling */
 .section-title {
   font-family: 'Paytone One', sans-serif;
   font-weight: 400;
@@ -208,7 +203,6 @@ body {
   border-radius: 2px;
 }
 
-/* Products Grid Layout */
 .products-grid {
   display: grid;
   gap: 20px;
@@ -228,7 +222,6 @@ body {
   }
 }
 
-/* Product Card Styling */
 .product-card {
   position: relative;
   background: #fff;
@@ -357,14 +350,12 @@ body {
 }
 </style>
 
-<!-- CSRF Token -->
 <% if (typeof csrfToken !== 'undefined') { %>
   <meta name="csrf-token" content="<%= csrfToken %>">
 <% } %>
 
 
 
-<!-- Breadcrumbs -->
 <nav class="breadcrumbs container">
   <a href="/">Home</a> >
   <a href="/category/<%= product.category?._id || '#' %>">
@@ -383,14 +374,11 @@ body {
   <span onclick="hideLoginAlert()" style="position:absolute; top:8px; right:12px; cursor:pointer; color:#888;">×</span>
 </div>
 
-<!-- Product Section -->
 <section class="product-container container">
   <div class="row">
-    <!-- Thumbnails and Main Image -->
-    <div class="col-md-6">
+        <div class="col-md-6">
       <div class="row">
-        <!-- Thumbnails -->
-        <div class="col-3">
+                <div class="col-3">
           <% if (product.images && product.images.length > 0) { %>
             <% product.images.slice(0, 3).forEach((image, index) => { %>
               <img src="<%= image.url || '/default-image.jpg' %>"
@@ -402,8 +390,7 @@ body {
             <img src="/default-image.jpg" alt="Thumbnail" class="thumbnail-img active">
           <% } %>
         </div>
-        <!-- Main Image with Zoom -->
-        <div class="col-9">
+                <div class="col-9">
           <div class="zoom-container">
             <img src="<%= product.images?.[0]?.url || '/default-image.jpg' %>"
                  alt="<%= product.productName || 'Product' %>"
@@ -413,11 +400,9 @@ body {
       </div>
     </div>
 
-    <!-- Product Details -->
-    <div class="col-md-6 product-details">
+        <div class="col-md-6 product-details">
       <h1 class="product-title"><%= product.productName || 'Unnamed Product' %></h1>
-      <!-- Price Display -->
-<% if (product.variants && product.variants.length > 0) { %>
+      <% if (product.variants && product.variants.length > 0) { %>
   <% const variant = product.variants[0]; %>
   <div class="product-price">
     <% if (variant.hasOffer && variant.discountValue > 0) { %>
@@ -440,8 +425,7 @@ body {
       
       <p class="product-description"><%= product.description || 'No description available' %></p>
       
-      <!-- Variant Selector -->
-      <% if (product.variants && product.variants.length > 0) { %>
+            <% if (product.variants && product.variants.length > 0) { %>
         <% 
           const outOfStockSizes = product.variants
             .filter(v => v.stock === 0)
@@ -467,10 +451,8 @@ body {
         </div>
       <% } %>
       
-      <!-- Action Buttons -->
-      <div class="d-flex align-items-center gap-3 mb-3">
-       <!-- Action Buttons -->
-<div class="d-flex align-items-center gap-3 mb-3">
+            <div class="d-flex align-items-center gap-3 mb-3">
+       <div class="d-flex align-items-center gap-3 mb-3">
   <button id="cartButton" 
           class="btn <%= product.variants[0].isInCart ? 'btn-remove' : 'btn-add-to-cart' %>"
           data-product-id="<%= product._id %>"
@@ -487,7 +469,6 @@ body {
   </div>
 </section>
 
-<!-- Similar Products Section -->
 <% if (similarProducts && similarProducts.length > 0) { %>
 <section class="similar-products-section">
   <div class="container">
@@ -545,7 +526,6 @@ document.querySelectorAll('.thumbnail-img').forEach(thumb => {
   });
 });
 
-// Variant Price and Stock Update
 const variantSelect = document.getElementById('variant');
 const variants = <%- JSON.stringify(product.variants || []) %>;
 const cartButton = document.getElementById('cartButton');
@@ -564,7 +544,6 @@ function updateVariantInfo() {
     return;
   }
 
-  // Update price
   const priceElement = document.querySelector('.product-price');
   if (priceElement) {
     const offerPrice = variant.offerPrice || variant.originalPrice || 'N/A';
@@ -585,7 +564,6 @@ function updateVariantInfo() {
     priceElement.innerHTML = priceHTML;
   }
 
-  // Update stock info
   const lowStockInfo = document.querySelector('.stock-info.low-stock');
   const outOfStockInfo = document.querySelector('.stock-info.out-of-stock');
   const wishlistIcon = document.getElementById(`wishlist-icon-<%= product._id %>`);
@@ -607,12 +585,11 @@ function updateVariantInfo() {
       cartButton.textContent = variant.isInCart ? 'Remove from Cart' : 'Add to Cart';
       cartButton.classList.toggle('btn-add-to-cart', !variant.isInCart);
       cartButton.classList.toggle('btn-remove', variant.isInCart);
-      cartButton.dataset.variant = selectedSize; // Update variant in button dataset
+      cartButton.dataset.variant = selectedSize; 
     }
     if (wishlistIcon) wishlistIcon.classList.remove('disabled');
   }
 
-  // Check cart status for the selected size
   if (cartButton && productId) {
     checkCartStatus(productId, selectedSize);
   }
@@ -622,7 +599,6 @@ if (variantSelect) {
   variantSelect.addEventListener('change', updateVariantInfo);
 }
 
-// Image Zoom
 const zoomContainer = document.querySelector('.zoom-container');
 const mainImage = document.getElementById('mainImage');
 if (zoomContainer && mainImage) {
@@ -639,7 +615,6 @@ if (zoomContainer && mainImage) {
   });
 }
 
-// Show Error/Success Message
 function showError(message, isSuccess = false) {
   const errorMessage = document.querySelector('.error-message');
   if (errorMessage) {
@@ -688,7 +663,6 @@ function toggleWishlist(productId) {
     });
 }
 
-// Cart Toggle
 document.addEventListener('DOMContentLoaded', () => {
   if (!cartButton || !productId || !variantSelect) {
     console.warn('Cart button, product ID, or variant select missing');
@@ -782,10 +756,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
       if (data.success) {
-        variant.isInCart = data.isInCart; // Update variant's cart status
+        variant.isInCart = data.isInCart; 
         updateCartButton(data.isInCart, selectedSize);
         updateCartCount(data.cartCount);
-        if (data.removedFromWishlist) {
+        if (data.isInCart) {
           const wishlistIcon = document.getElementById(`wishlist-icon-${productId}`);
           if (wishlistIcon) wishlistIcon.classList.remove('active');
         }
@@ -798,13 +772,12 @@ document.addEventListener('DOMContentLoaded', () => {
       showError(err.message || 'Error updating cart', false);
     } finally {
       cartButton.disabled = false;
-      updateCartButton(variant.isInCart, selectedSize); // Ensure button state is consistent
+      updateCartButton(variant.isInCart, selectedSize); 
     }
   };
 
   cartButton.addEventListener('click', toggleCart);
 
-  // Initial setup
   if (variantSelect.value && productId) {
     updateVariantInfo();
     checkCartStatus(productId, variantSelect.value);

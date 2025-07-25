@@ -9,10 +9,10 @@ const orderSchema = new mongoose.Schema({
     productName: { type: String, required: true },
     variantSize: { type: String, enum: ['50ml', '100ml', '150ml', '200ml'], required: true },
     quantity: { type: Number, required: true, min: 1, default: 1 },
-    originalPrice: { type: Number, required: true, min: 0 }, // Per unit
-    offerPrice: { type: Number, required: true, min: 0 }, // Per unit
-    finalItemTotal: { type: Number, required: true, min: 0 }, // offerPrice * quantity
-    couponDiscount: { type: Number, default: 0, min: 0 }, // Per-item coupon discount
+    originalPrice: { type: Number, required: true, min: 0 }, 
+    offerPrice: { type: Number, required: true, min: 0 }, 
+    finalItemTotal: { type: Number, required: true, min: 0 }, 
+    couponDiscount: { type: Number, default: 0, min: 0 },
     status: { type: String, enum: ['Active', 'Cancelled', 'Returned', 'ReturnRequested'], default: 'Active' },
     cancellationReason: { type: String, default: '' },
     returnReason: { type: String, default: '' },
@@ -44,7 +44,7 @@ const orderSchema = new mongoose.Schema({
   },
   deliveryStatus: { 
     type: String, 
-    enum: ['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'ReturnRequested', 'Returned'], 
+    enum: ['Failed','Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'ReturnRequested', 'Returned'], 
     default: 'Placed' 
   },
   trackingInfo: {
@@ -55,6 +55,8 @@ const orderSchema = new mongoose.Schema({
   },
   orderDate: { type: Date, default: Date.now },
   deliveryDate: { type: Date },
+  razorpayOrderId: { type: String }, 
+  razorpayPaymentId: { type: String },
   refundDetails: {
     amount: { type: Number, default: 0 },
     method: { type: String, enum: ['wallet', 'original_payment'], default: 'wallet' },
@@ -75,7 +77,7 @@ orderSchema.virtual('totalSavings').get(function () {
 
   const totalSavings = originalTotal - this.subtotal + this.totalCouponDiscount;
 
-  return Math.max(0, totalSavings); // prevent negative values
+  return Math.max(0, totalSavings);
 });
 
 

@@ -916,7 +916,7 @@ h2.mb-4 {
         <input type="radio" id="paymentCODInput" name="paymentMethod" value="COD" <%= codAvailable ? 'checked' : 'disabled' %>>
         <label for="paymentCODInput">Cash on Delivery (COD)</label>
         <% if (!codAvailable) { %>
-          <span class="insufficient-funds">COD available only for orders ≥ ₹10,000</span>
+          <span class="insufficient-funds">COD available only for orders <= ₹10,000</span>
         <% } %>
       </div>
       <div class="payment-option <%= walletEnabled ? '' : 'disabled' %>" data-method="WALLET" id="paymentWallet">
@@ -1084,6 +1084,10 @@ function validateForm(formData) {
     document.getElementById('name-error').textContent = 'Full name is required';
     isValid = false;
   }
+  if (formData.name && formData.name[0] !== formData.name[0].toUpperCase()) {
+  document.getElementById('name-error').textContent = 'First letter of name should be capital';
+  isValid = false;
+}
   if (!formData.phone || !/^\d{10}$/.test(formData.phone)) {
     document.getElementById('phone-error').textContent = 'Valid 10-digit phone number is required';
     isValid = false;
@@ -1140,7 +1144,6 @@ document.getElementById('addAddressForm').addEventListener('submit', async (e) =
     if (result.success) {
       showMessage('Success', result.message);
       closeAddAddressModal();
-      // Reload page to reflect new address
       window.location.reload();
     } else {
       showMessage('Error', result.message, 'error');
@@ -1209,7 +1212,7 @@ async function applyCoupon() {
       removeCouponBtn.style.display = 'inline-block';
 
       // Update COD and wallet status
-      const codAvailable = finalTotal >= 10000;
+      const codAvailable = finalTotal <= 10000;
       const walletBalance = parseFloat('<%= walletBalance %>');
       const walletEnabled = walletBalance >= finalTotal;
 
@@ -1224,7 +1227,7 @@ async function applyCoupon() {
         if (!paymentCOD.querySelector('.insufficient-funds')) {
           const span = document.createElement('span');
           span.className = 'insufficient-funds';
-          span.textContent = 'COD available only for orders ≥ ₹10,000';
+          span.textContent = 'COD available only for orders <= ₹10,000';
           paymentCOD.appendChild(span);
         }
         // If COD was selected, switch to another available option
@@ -1312,7 +1315,7 @@ function removeCoupon() {
   messageEl.textContent = 'Coupon removed successfully.';
 
   // Update COD and wallet enabled status
-  const codAvailable = originalSubtotal >= 10000;
+  const codAvailable = finalTotalEl <= 10000;
   const walletBalance = parseFloat('<%= walletBalance %>');
   const walletEnabled = walletBalance >= originalSubtotal;
 
@@ -1327,7 +1330,7 @@ function removeCoupon() {
     if (!paymentCOD.querySelector('.insufficient-funds')) {
       const span = document.createElement('span');
       span.className = 'insufficient-funds';
-      span.textContent = 'COD available only for orders ≥ ₹10,000';
+      span.textContent = 'COD available only for orders <= ₹10,000';
       paymentCOD.appendChild(span);
     }
     // If COD was selected, switch to another available option
@@ -1391,20 +1394,24 @@ async function placeOrder() {
         return;
       }
 
-      // Validate Razorpay order response
       if (!result.razorpayOrder || !result.razorpayOrder.id || !result.razorpayOrder.amount || !result.razorpayOrder.currency) {
         showMessage('Error', 'Invalid Razorpay order response', 'error');
         hideLoading();
         return;
       }
 
+      // Store orderId for use in failure cases
+      const orderId = result.orderId;
+
       const options = {
-        key: '<%= RAZORPAY_KEY_ID %>', // Use the variable passed from the server
+        key: '<%= RAZORPAY_KEY_ID %>',
         amount: result.razorpayOrder.amount,
         currency: result.razorpayOrder.currency,
         name: 'Your Store Name',
         description: 'Order Payment',
         order_id: result.razorpayOrder.id,
+        name: 'Lune Perfumie',
+        description: ` Payment for Order #${orderId.slice(-8).toUpperCase()}`,
         handler: async function (response) {
           try {
             const verifyResponse = await fetch('/verify-razorpay-payment', {
@@ -1414,19 +1421,23 @@ async function placeOrder() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
+                orderId: orderId // Pass orderId for verification
               }),
             });
             const verifyResult = await verifyResponse.json();
 
             if (verifyResult.success) {
               showMessage('Success', verifyResult.message);
-              window.location.href = `/order-confirmation/${verifyResult.orderId}`;
+              window.location.href = `/order-confirmation/${verifyResult.orderId || orderId}`;
             } else {
+              console.log('Verify result orderId:', verifyResult.orderId);
               showMessage('Error', verifyResult.message, 'error');
+              window.location.href = `/order-failed/${verifyResult.orderId || orderId}`;
             }
           } catch (error) {
             console.error('Error verifying payment:', error);
             showMessage('Error', 'Payment verification failed', 'error');
+            window.location.href = `/order-failed/${orderId}`;
           } finally {
             hideLoading();
           }
@@ -1442,9 +1453,28 @@ async function placeOrder() {
       };
 
       const rzp = new Razorpay(options);
-      rzp.on('payment.failed', function (response) {
+      rzp.on('payment.failed', async function (response) {
         showMessage('Error', `Payment failed: ${response.error.description}`, 'error');
-        hideLoading();
+        try {
+          const updateResponse = await fetch('/update-order-failed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: orderId }),
+          });
+          const updateResult = await updateResponse.json();
+          if (updateResult.success) {
+            window.location.href = `/order-failed/${orderId}`;
+          } else {
+            showMessage('Error', 'Failed to update order status', 'error');
+            window.location.href = `/order-failed/${orderId}`;
+          }
+        } catch (error) {
+          console.error('Error updating order status:', error);
+          showMessage('Error', 'Failed to update order status', 'error');
+          window.location.href = `/order-failed/${orderId}`;
+        } finally {
+          hideLoading();
+        }
       });
       rzp.open();
     } else {

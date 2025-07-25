@@ -2,18 +2,18 @@ const User = require('../../models/userSchema');
 const bcrypt = require('bcrypt');
 const sendOtpEmail = require('../../utils/sendOtp');
 const Wallet = require('../../models/walletSchema');
+const passport = require('passport');
+ 
 
+//get sign up page
 exports.getSignUp = async (req, res) => {
     try {
-
     if (req.session.user) {
         return res.redirect('/profile');
     }
-
     if(req.session.tempUser){
         return res.redirect('/verify-otp')
     }
-
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         res.set('Pragma', 'no-cache');
         res.set('Expires', '-1');
@@ -33,6 +33,8 @@ exports.getSignUp = async (req, res) => {
     }
 };
 
+
+//get login page
 exports.getLogin = async (req, res) => {
     try {
         if (req.session.user) {
@@ -49,12 +51,13 @@ exports.getLogin = async (req, res) => {
     }
 };
 
+//submit login
 exports.login=async(req,res)=>{
     try{
         const {email,password}=req.body;
         const user = await User.findOne({ email });
-
-        if (!user) {
+        
+         if (!user) {
             return res.status(400).json({ errorType: "top", error: "Email not registered" });
         }
 
@@ -65,8 +68,8 @@ exports.login=async(req,res)=>{
          if (!user.password) {
             return res.status(400).json({ errorType: "top", error: "This account was created using Google. Please login with Google." });
         }
+        const isMatch = await bcrypt.compare(password.trim(), user.password);
 
-        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ errorType: "top", error: "Incorrect password" });
         }
@@ -87,6 +90,7 @@ exports.login=async(req,res)=>{
     }
 }
 
+//submit signup
 exports.submitSignup = async (req, res) => {
     try {
         const { name, email, password, Cpassword, referralCode } = req.body;
@@ -96,16 +100,17 @@ exports.submitSignup = async (req, res) => {
             return res.status(400).json({ errorType: "top", error: "Email already registered" });
         }
 
-        //validate refrel code
         let referredByUser=null;
+
         if(referralCode){
-            referredByUser=await User.findOne({referralCode:referralCode})
+            referredByUser=await User.findOne({referralCode:referralCode.trim()})
              if (!referredByUser) {
                 return res.status(400).json({ errorType: "top", error: "Invalid referral code" });
             }
         }
         const otp = Math.floor(100000 + Math.random() * 900000);
         const hashedPassword = await bcrypt.hash(password, 10);
+
         const otpCreatedAt = Date.now();
         const otpExpireAt = otpCreatedAt + 60000;
 
@@ -133,6 +138,8 @@ exports.submitSignup = async (req, res) => {
     }
 };
 
+
+//get otp page for signup
 exports.getVerifyotpPage = (req, res) => {
     try {
         const tempUser = req.session.tempUser;
@@ -152,19 +159,19 @@ exports.getVerifyotpPage = (req, res) => {
     }
 };
 
+
+//submit otp for signup
 exports.submitOtp = async (req, res) => {
     try {
         const { otp } = req.body;
         const tempUser = req.session.tempUser;
         
         if (!tempUser) {
-            console.log('No temp user found in session');
             return res.status(400).json({ errorType: "top", error: "Session expired. Please register again." });
         }
 
         const currentTime = Date.now();
         if (currentTime > tempUser.otpExpireAt) {
-            console.log(`OTP expired for email:`, tempUser.email);
             req.session.tempUser = null;
             return res.status(400).json({ errorType: "top", error: "OTP expired. Please register again." });
         }
@@ -181,7 +188,6 @@ exports.submitOtp = async (req, res) => {
         });
 
         await newUser.save();
-        console.log(`New user created ${newUser.name}`);
 
         if(tempUser.referredByUser){
             const newUserWallet=await Wallet.getOrCreate(newUser._id);
@@ -190,9 +196,8 @@ exports.submitOtp = async (req, res) => {
             const referrerWallet = await Wallet.getOrCreate(tempUser.referredByUser);
             await referrerWallet.addMoney(100, 'Referral bonus - Thank you for sharing!');
 
-            console.log(`Referral wallet rewards given: ₹50 to ${newUser.name} and ₹100 to referrer`);
-
         }
+
         req.session.tempUser = null;
         return res.status(200).json({
             message: "OTP verified",
@@ -204,11 +209,11 @@ exports.submitOtp = async (req, res) => {
     }
 };
 
+//resend otp for singup
 exports.resendOtp = async (req, res) => {
     try {
         const tempUser = req.session.tempUser;
         if (!tempUser) {
-            console.log('No temp user found in session for OTP resend');
             return res.status(400).json({ errorType: "top", error: "Session expired. Please register again." });
         }
 
@@ -234,6 +239,7 @@ exports.resendOtp = async (req, res) => {
     }
 };
 
+//login forgot password
 exports.getForgotPassword = (req, res) => {
     try {
        
@@ -244,9 +250,9 @@ exports.getForgotPassword = (req, res) => {
     }
 };
 
+//login submit forgot password
 exports.submitForgotPassword = async (req, res) => {
     try {
-
         
         const { email } = req.body;
         const user = await User.findOne({ email });
@@ -287,12 +293,12 @@ exports.submitForgotPassword = async (req, res) => {
     }
 };
 
+//resnd otp for forgot password
 exports.resendForgotPasswordOtp = async (req, res) => {
     try {
         const forgotPasswordUser = req.session.forgotPasswordUser;
         
         if (!forgotPasswordUser) {
-            console.log('No forgot password session found for resend');
             return res.status(400).json({ 
                 errorType: "top", 
                 error: "Session expired. Please try again." 
@@ -303,7 +309,6 @@ exports.resendForgotPasswordOtp = async (req, res) => {
         const user = await User.findOne({ email });
         
         if (!user) {
-            console.log('User not found for resend OTP:', email);
             return res.status(404).json({ 
                 errorType: "top", 
                 error: "No account found with this email" 
@@ -312,7 +317,7 @@ exports.resendForgotPasswordOtp = async (req, res) => {
 
         const otp = Math.floor(100000 + Math.random() * 900000);
         const otpCreatedAt = Date.now();
-        const expiresAt = otpCreatedAt + 60000; // Changed to 60 seconds
+        const expiresAt = otpCreatedAt + 60000; 
 
         req.session.forgotPasswordUser = {
             email,
@@ -338,11 +343,11 @@ exports.resendForgotPasswordOtp = async (req, res) => {
     }
 };
 
+//get new password verification otp
 exports.getPasswordOtpVerifyPage = (req, res) => {
     try {
         const forgotPasswordUser = req.session.forgotPasswordUser;
         if (!forgotPasswordUser) {
-            console.log('No forgot password user found in session');
             return res.redirect('/forgot-password');
         }
         
@@ -357,6 +362,8 @@ exports.getPasswordOtpVerifyPage = (req, res) => {
     }
 };
 
+
+//verify otp for new password
 exports.verifyForgotPasswordOtp = async (req, res) => {
     try {
         
@@ -364,7 +371,6 @@ exports.verifyForgotPasswordOtp = async (req, res) => {
         const forgotPasswordUser = req.session.forgotPasswordUser;
 
         if (!forgotPasswordUser) {
-            console.log('No forgot password session found');
             return res.status(400).json({ 
                 errorType: "top", 
                 error: "Session expired. Please try again." 
@@ -372,10 +378,8 @@ exports.verifyForgotPasswordOtp = async (req, res) => {
         }
 
         const currentTime = Date.now();
-        console.log(`OTP verification - Current: ${currentTime}, Expires: ${forgotPasswordUser.expiresAt}`);
 
         if (currentTime > forgotPasswordUser.expiresAt) {
-            console.log('Forgot password OTP expired for email:', forgotPasswordUser.email);
             req.session.forgotPasswordUser = null;
             return res.status(400).json({ 
                 errorType: "top", 
@@ -384,19 +388,16 @@ exports.verifyForgotPasswordOtp = async (req, res) => {
         }
 
         if (parseInt(otp) !== forgotPasswordUser.otp) {
-            console.log('Invalid OTP attempt for email:', forgotPasswordUser.email);
             return res.status(400).json({ 
                 errorType: "top", 
                 error: "Invalid OTP" 
             });
         }
 
-        // Set verification flag and preserve email
         req.session.otpVerified = true;
         req.session.forgotPasswordEmail = forgotPasswordUser.email;
-        req.session.forgotPasswordUser = null; // Clear the temp data
+        req.session.forgotPasswordUser = null; 
 
-        console.log(`OTP verified for email: ${forgotPasswordUser.email}`);
 
         return res.status(200).json({ 
             message: "OTP verified successfully", 
@@ -412,7 +413,7 @@ exports.verifyForgotPasswordOtp = async (req, res) => {
 };
 
 
-
+//get reset password
 exports.getResetPassword = (req, res) => {
     try {
         if (!req.session.otpVerified || !req.session.forgotPasswordEmail) {
@@ -429,10 +430,12 @@ exports.getResetPassword = (req, res) => {
     }
 };
 
+
+//submit reset password
 exports.resetPassword = async (req, res) => {
     try {
+
         if (!req.session.otpVerified || !req.session.forgotPasswordEmail) {
-            console.log('Unauthorized password reset attempt');
             return res.status(403).json({ 
                 errorType: "top", 
                 error: "Unauthorized access. Please verify OTP first." 
@@ -450,7 +453,6 @@ exports.resetPassword = async (req, res) => {
         }
 
         if (password !== confirmPassword) {
-            console.log('Password mismatch during reset for email:', email);
             return res.status(400).json({ 
                 errorType: "confirmPassword", 
                 error: "Passwords do not match" 
@@ -466,7 +468,6 @@ exports.resetPassword = async (req, res) => {
 
         const user = await User.findOne({ email });
         if (!user) {
-            console.log('User not found during password reset:', email);
             return res.status(404).json({ 
                 errorType: "top", 
                 error: "User not found" 
@@ -481,7 +482,6 @@ exports.resetPassword = async (req, res) => {
         req.session.forgotPasswordEmail = null;
         req.session.forgotPasswordUser = null;
 
-        console.log(`Password reset successfully for email: ${email}`);
 
         return res.status(200).json({ 
             message: "Password reset successfully", 
@@ -497,6 +497,7 @@ exports.resetPassword = async (req, res) => {
 };
 
 
+//logout
 exports.logout = async (req, res) => {
     try {
         if (req.session && req.session.user) {
@@ -521,23 +522,19 @@ exports.logout = async (req, res) => {
     }
 };
 
-
-const passport = require('passport');
-
+//google authentication
 exports.googleAuthentication = [
   (req, res, next) => {
-    console.log('Starting Google authentication flow');
     next();
   },
   passport.authenticate('google', { 
     scope: ['profile', 'email'],
-    prompt: 'select_account' // Always show account selection
+    prompt: 'select_account' 
   })
 ];
 
 exports.googleCallback = [
   (req, res, next) => {
-    console.log('Google callback received');
     next();
   },
   passport.authenticate('google', {
@@ -548,7 +545,6 @@ exports.googleCallback = [
     try {
       const user = req.user;
 
-      // Check if user is blocked
       if (user.isBlocked) {
         req.logout((err) => {
           if (err) console.error('Logout error:', err);
@@ -557,7 +553,6 @@ exports.googleCallback = [
         return;
       }
 
-      // Set session data to match login function
       req.session.user = {
         id: user._id,
         name: user.name,
@@ -565,13 +560,9 @@ exports.googleCallback = [
         profilePicture: user.profilePicture,
       };
 
-      // Update session in the database
       await user.createSession(req.sessionID);
 
-      // Redirect to profile page
-      console.log('Session user set:', req.session.user);
-      console.log('Session ID:', req.sessionID);
-      res.redirect('/profile');
+     res.redirect('/profile');
     } catch (error) {
       console.error('Google callback error:', error);
       res.redirect('/login?topError=' + encodeURIComponent('Server error'));

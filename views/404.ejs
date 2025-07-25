@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - Page Not Found</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -204,12 +202,9 @@
         </div>
     </div>
 
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JS for stars -->
-    <script>
-        // Create random stars
+        <script>
         document.addEventListener('DOMContentLoaded', function() {
             const starsContainer = document.getElementById('stars');
             const starCount = 50;
@@ -218,14 +213,11 @@
                 const star = document.createElement('div');
                 star.classList.add('star');
                 
-                // Random position
                 const left = Math.random() * 100;
                 const top = Math.random() * 100;
                 
-                // Random size
                 const size = Math.random() * 3 + 1;
                 
-                // Random animation delay
                 const delay = Math.random() * 2;
                 
                 star.style.left = `${left}%`;

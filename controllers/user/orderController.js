@@ -9,7 +9,14 @@ const { prepareOrderForSave } = require('../../helper/orderHelper');
 const PDFDocument = require('pdfkit');
 const mongoose = require('mongoose');
 const path = require('path');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
+//get order page
 exports.getOrderPage = async (req, res) => {
     try {
         const user = req.session.user?.id;
@@ -18,12 +25,15 @@ exports.getOrderPage = async (req, res) => {
             .populate('items.productId').sort({ createdAt: -1 });
 
         if (!orders || orders.length === 0) {
-            console.log(`No orders found for user`);
-            return res.render('dashboard/orders', { orders: [] }); // Send empty array to EJS
+            return res.render('dashboard/orders', { orders: [] }); 
         }
 
+        const wallet= Wallet.findOne({userId:user});
+        const walletBalance=wallet?.balance??0;
+
         res.render('dashboard/orders', {
-            orders
+            orders,
+            walletBalance
         });
     } catch (error) {
         console.error('Error loading order page:', error);
@@ -31,6 +41,8 @@ exports.getOrderPage = async (req, res) => {
     }
 };
 
+
+//cancel individual item before shipping
 exports.cancelItem = async (req, res) => {
     try {
         const userId = req.session.user?.id;
@@ -45,8 +57,6 @@ exports.cancelItem = async (req, res) => {
         }
 
         const productBefore = await Product.findById(item.productId);
-        const variantBefore = productBefore.variants.find(v => v.size === item.variantSize);
-        console.log('Stock before cancellation:', variantBefore?.stock);
 
         const updatedProduct = await Product.findOneAndUpdate(
             { _id: item.productId },
@@ -63,11 +73,8 @@ exports.cancelItem = async (req, res) => {
             return res.status(500).json({ success: false, message: 'Failed to update product stock' });
         }
 
-        const updatedVariant = updatedProduct.variants.find(v => v.size === item.variantSize);
-        console.log('Updated stock:', updatedVariant?.stock);
 
         const refundAmount = item.finalItemTotal - (item.couponDiscount * item.quantity);
-        let description = `Money added to wallet by cancellation on ${itemId}`;
 
         const wallet = await Wallet.getOrCreate(userId);
    
@@ -114,6 +121,8 @@ exports.cancelItem = async (req, res) => {
     }
 };
 
+
+//return request 
 exports.requestReturn = async (req, res) => {
     try {
         const userId = req.session.user?.id;
@@ -123,11 +132,7 @@ exports.requestReturn = async (req, res) => {
         const order = await Order.findById(orderId);
         
         const item = order.items.id(itemId);
-        if (!item) {
-            return res.status(404).json({ message: 'Item not found in order' });
-        }
-        console.log(item)
-   
+          
         item.status = 'ReturnRequested';
         item.returnReason = reason;
 
@@ -145,55 +150,36 @@ exports.generateInvoicePDF = async (req, res) => {
         const orderId = req.params.orderId;
         const userId = req.session.user?.id;
 
-        // Validate orderId
-        if (!mongoose.isValidObjectId(orderId)) {
-            return res.status(400).json({ success: false, message: 'Invalid order ID' });
-        }
-
-        // Fetch order with populated fields
         const order = await Order.findById(orderId)
             .populate('userId', 'name email phone')
             .populate('addressId', 'name phone street city state pinCode country')
             .populate('items.productId', 'name images');
 
-        if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
-        }
-
-        // Ensure the order belongs to the authenticated user
-        if (order.userId._id.toString() !== userId.toString()) {
+                if (order.userId._id.toString() !== userId.toString()) {
             return res.status(403).json({ success: false, message: 'Unauthorized access to this order' });
         }
 
-        // Create PDF document
         const doc = new PDFDocument({
             size: 'A4',
             margin: 50,
             bufferPages: true,
         });
 
-        // Register NotoSans-Regular font
         doc.registerFont('NotoSans', path.join(__dirname, '../../fonts/NotoSans-Regular.ttf'));
 
-        // Set response headers for PDF download
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${order._id.toString().slice(-8).toUpperCase()}.pdf`);
 
-        // Pipe PDF to response
         doc.pipe(res);
 
-        // --- PDF Styling and Content ---
 
-        // Header
         doc.font('NotoSans').fontSize(20).fillColor('#2c3e50').text('Invoice', 50, 50);
         doc.fontSize(12).fillColor('#6c757d').text('Lune Perfurmie', 50, 80);
         doc.text('123 kinfra, Calicut, India', 50, 95);
         doc.text('Email: luneperfumie@company.com | Phone: +1234567890', 50, 110);
 
-        // Line separator
         doc.moveTo(50, 130).lineTo(550, 130).strokeColor('#e9ecef').lineWidth(1).stroke();
 
-        // Order Details
         doc.font('NotoSans').fontSize(14).fillColor('#2c3e50').text('Order Details', 50, 150);
         doc.fontSize(10).fillColor('#495057');
         doc.text(`Order ID: #${order._id.toString().slice(-8).toUpperCase()}`, 50, 170);
@@ -203,14 +189,12 @@ exports.generateInvoicePDF = async (req, res) => {
         }
         doc.text(`Delivery Status: ${order.deliveryStatus}`, 50, 215);
 
-        // Customer Details
         doc.font('NotoSans').fontSize(12).fillColor('#2c3e50').text('Customer Details', 300, 150);
         doc.fontSize(10).fillColor('#495057');
         doc.text(`Name: ${order.userId.name || 'N/A'}`, 300, 170);
         doc.text(`Email: ${order.userId.email || 'N/A'}`, 300, 185);
         doc.text(`Phone: ${order.userId.phone || 'N/A'}`, 300, 200);
 
-        // Delivery Address
         doc.font('NotoSans').fontSize(12).fillColor('#2c3e50').text('Delivery Address', 300, 230);
         doc.fontSize(10).fillColor('#495057');
         doc.text(`${order.addressId.name || 'N/A'}`, 300, 250);
@@ -218,10 +202,8 @@ exports.generateInvoicePDF = async (req, res) => {
         doc.text(`${order.addressId.state || 'N/A'}, ${order.addressId.pinCode || 'N/A'}`, 300, 280);
         doc.text(`${order.addressId.country || 'N/A'}`, 300, 295);
 
-        // Line separator
         doc.moveTo(50, 315).lineTo(550, 315).strokeColor('#e9ecef').lineWidth(1).stroke();
 
-        // Items Table Header
         doc.font('NotoSans').fontSize(12).fillColor('#2c3e50').text('Items Ordered', 50, 330);
         const tableTop = 350;
         doc.fontSize(10).fillColor('#2c3e50');
@@ -233,7 +215,6 @@ exports.generateInvoicePDF = async (req, res) => {
         doc.text('Status', 400, tableTop);
         doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).strokeColor('#e9ecef').lineWidth(1).stroke();
 
-        // Items Table Rows
         let y = tableTop + 25;
         order.items.forEach((item, index) => {
             doc.font('NotoSans').fontSize(10).fillColor('#495057');
@@ -289,4 +270,201 @@ exports.generateInvoicePDF = async (req, res) => {
         console.error('Error generating invoice PDF:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
+};
+
+
+
+
+//retry payemnt for payment failure
+exports.retryPayment = async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    const { orderId } = req.params;
+   
+    const { addressId, couponCode, paymentMethod } = req.body;
+
+    const order = await Order.findOne({ _id: orderId, userId });
+   
+    const address = await Address.findById(addressId);
+    if (!address) {
+      return res.status(400).json({ success: false, message: 'Invalid address' });
+    }
+
+    let coupon = null;
+    if (couponCode) {
+      coupon = await Coupon.findOne({ code: couponCode, isActive: true });
+      if (!coupon) {
+        return res.status(400).json({ success: false, message: 'Invalid or inactive coupon' });
+      }
+      if (coupon.expiryDate < new Date()) {
+        return res.status(400).json({ success: false, message: 'Coupon expired' });
+      }
+      if (coupon.usedUsers.includes(userId)) {
+        return res.status(400).json({ success: false, message: 'Coupon already used' });
+      }
+    }
+
+    order.paymentMethod = paymentMethod;
+    order.addressId = addressId;
+    order.couponCode = coupon ? coupon.code : null;
+    order.totalCouponDiscount = coupon ? coupon.discountValue : 0;
+    order.finalTotal = order.subtotal - (coupon ? coupon.discountValue : 0);
+    order.paymentStatus = 'Completed';
+    order.status = 'Paid';
+    order.deliveryStatus = 'Placed';
+    order.failureReason = null;
+
+    if (paymentMethod === 'WALLET') {
+      const wallet = await Wallet.findOne({ user: userId });
+      if (!wallet || wallet.balance < order.finalTotal) {
+        return res.status(400).json({ success: false, message: 'Insufficient wallet balance' });
+      }
+      await wallet.deductMoney(
+        order.finalTotal,
+        `Retry payment for Order ID: #${order._id.toString().slice(-8).toUpperCase()}`
+      );
+      order.paymentStatus = 'Completed';
+      order.status = 'Paid';
+    } else if (paymentMethod === 'COD') {
+      if (order.finalTotal > 10000) {
+        return res.status(400).json({ success: false, message: 'COD not available for orders above ₹10,000' });
+      }
+      order.paymentStatus = 'Pending';
+      order.status = 'Pending';
+    }
+   
+    if (coupon) {
+      coupon.usedUsers.push(userId);
+      await coupon.save();
+    }
+  
+    await order.save();
+    console.log(order);
+
+    res.status(200).json({ success: true, message: 'Order updated successfully', orderId: order._id });
+  } catch (error) {
+    console.error('Error in retry payment:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+//create razorpay for payemnt retry
+exports.createRazorpayRetryOrder = async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    const { orderId } = req.params;
+    const { addressId, couponCode } = req.body;
+
+    const order = await Order.findOne({ _id: orderId, userId });
+    
+
+    if (order.paymentStatus !== 'Failed' && order.status !== 'Failed') {
+      return res.status(400).json({ success: false, message: 'Order is not eligible for retry payment' });
+    }
+
+    const address = await Address.findById(addressId);
+    if (!address) {
+      return res.status(400).json({ success: false, message: 'Invalid address' });
+    }
+
+    let coupon = null;
+    if (couponCode) {
+      coupon = await Coupon.findOne({ code: couponCode, isActive: true });
+      if (!coupon) {
+        return res.status(400).json({ success: false, message: 'Invalid or inactive coupon' });
+      }
+      if (coupon.expiryDate < new Date()) {
+        return res.status(400).json({ success: false, message: 'Coupon expired' });
+      }
+      if (coupon.usedUsers.includes(userId)) {
+        return res.status(400).json({ success: false, message: 'Coupon already used' });
+      }
+    }
+
+    order.paymentMethod = 'RAZORPAY';
+    order.addressId = addressId;
+    order.couponCode = coupon ? coupon.code : null;
+    order.totalCouponDiscount = coupon ? coupon.discountValue : 0;
+    order.finalTotal = order.subtotal - (coupon ? coupon.discountValue : 0);
+    order.paymentStatus = 'Completed';
+    order.status = 'Paid';
+    order.deliveryStatus = 'Placed';
+    order.failureReason = null;
+
+    const options = {
+      amount: Math.round(order.finalTotal * 100),
+      currency: 'INR',
+      receipt: order._id.toString(),
+    };
+
+    const razorpayOrder = await razorpay.orders.create(options);
+    order.razorpayOrderId = razorpayOrder.id;
+    await order.save();
+
+    if (coupon) {
+      coupon.usedUsers.push(userId);
+      await coupon.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      razorpayOrder: {
+        id: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+      },
+      orderId: order._id,
+    });
+  } catch (error) {
+    console.error('Error creating Razorpay retry order:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+//veyrfy razorpay for payment retry
+exports.verifyRazorpayRetryPayment = async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    const { orderId } = req.params;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    const order = await Order.findOne({ _id: orderId, userId });
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    const generatedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+
+    if (generatedSignature !== razorpay_signature) {
+      order.paymentStatus = 'Failed';
+      order.status = 'Failed';
+      order.failureReason = 'Invalid payment signature';
+      await order.save();
+      return res.status(400).json({ success: false, message: 'Invalid payment signature', orderId });
+    }
+
+    const payment = await razorpay.payments.fetch(razorpay_payment_id);
+    if (payment.status !== 'captured') {
+      order.paymentStatus = 'Failed';
+      order.status = 'Failed';
+      order.failureReason = 'Payment not captured';
+      await order.save();
+      return res.status(400).json({ success: false, message: 'Payment not captured', orderId });
+    }
+
+    order.paymentStatus = 'Completed';
+    order.status = 'Paid';
+    order.razorpayPaymentId = razorpay_payment_id;
+    await order.save();
+
+    res.status(200).json({ success: true, message: 'Payment verified successfully', orderId });
+  } catch (error) {
+    console.error('Error verifying Razorpay retry payment:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 };

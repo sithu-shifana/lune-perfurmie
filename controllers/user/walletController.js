@@ -1,5 +1,7 @@
 const User = require('../../models/userSchema');
 const Wallet = require('../../models/walletSchema');
+
+//get wallet page
 exports.getWalletPage = async (req, res) => {
   try {
     const userId = req.session.user?.id;
@@ -32,7 +34,7 @@ exports.getWalletPage = async (req, res) => {
 };
 
 
-
+//add money to wallet
 exports.addMoney=async(req,res)=>{
 
   try{
@@ -76,6 +78,7 @@ exports.addMoney=async(req,res)=>{
  
 }
 
+//withdraw money from wallet
 exports.withdrawMoney = async (req, res) => {
   try {
     const userId = req.session.user?.id;

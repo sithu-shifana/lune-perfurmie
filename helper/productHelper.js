@@ -19,10 +19,9 @@ const getProductWithOffers = async (productId, userId = null) => {
       .lean();
 
     if (!product || product.status !== 'listed' || !product.brand || !product.category) {
-      return null; // Return null instead of throwing error to handle gracefully
+      return null;
     }
 
-    // Calculate offers for each variant
     const variantsWithOffers = await Promise.all(
       product.variants.map(async (variant) => {
         const offerDetails = await calculateBestOffer(product._id, variant.originalPrice);
@@ -73,7 +72,6 @@ const getProductWithOffers = async (productId, userId = null) => {
       }
     }
 
-    // Determine if the product has an active offer
     const hasOffer = variantsWithOffers.some(v => v.hasOffer);
     const bestVariantWithOffer = variantsWithOffers.find(v => v.hasOffer) || variantsWithOffers[0];
 

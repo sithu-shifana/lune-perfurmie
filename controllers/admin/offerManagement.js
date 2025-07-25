@@ -12,13 +12,9 @@ exports.getOfferPage = async (req, res) => {
     const search = (req.query.search || '').trim();
     const discountType = req.query.discountType || '';
 
-    // Validate discountType
     const validDiscountTypes = ['', 'percentage', 'flat'];
-    if (discountType && !validDiscountTypes.includes(discountType)) {
-      throw new Error('Invalid discount type');
-    }
+    
 
-    // Build query
     let query = {};
     if (search) {
       query.title = { $regex: search, $options: 'i' };
@@ -27,7 +23,6 @@ exports.getOfferPage = async (req, res) => {
       query.discountType = discountType;
     }
 
-    // Fetch offers
     const offers = await Offer.find(query)
       .populate('product', 'productName')
       .populate('category', 'name')
@@ -36,14 +31,12 @@ exports.getOfferPage = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    // Add isCurrentlyActive based on isActive and date range
     const now = new Date();
     const offersWithStatus = offers.map(offer => ({
       ...offer.toObject(),
       isCurrentlyActive: offer.isActive && offer.startDate <= now && offer.endDate >= now
     }));
 
-    // Count total offers for pagination
     const totalOffers = await Offer.countDocuments(query);
     const totalPages = Math.ceil(totalOffers / limit);
 
@@ -94,7 +87,6 @@ exports.addOffer = async (req, res) => {
       brand
     } = req.body;
 
-    // Basic validation
     if (!title) {
       return res.status(400).json({ errorType: 'title', error: 'Title is required' });
     }
@@ -119,13 +111,11 @@ exports.addOffer = async (req, res) => {
       return res.status(400).json({ errorType: 'endDate', error: 'Expiry date must be after start date' });
     }
 
-    // Check if offer title already exists
     const existingOffer = await Offer.findOne({ title });
     if (existingOffer) {
       return res.status(400).json({ errorType: 'title', error: 'This offer title is already taken' });
     }
 
-    // Base offer data
     let offerData = {
       title,
       description: description || '',
@@ -136,7 +126,6 @@ exports.addOffer = async (req, res) => {
       isActive: true
     };
 
-    // Determine offer type based on which field is provided
     let offerType = '';
     if (product) {
       offerType = 'product';
@@ -146,7 +135,6 @@ exports.addOffer = async (req, res) => {
       offerType = 'brand';
     }
 
-    // Validate based on determined offer type
     if (offerType === 'product') {
       if (!product || !mongoose.isValidObjectId(product)) {
         return res.status(400).json({ errorType: 'product', error: 'Please select a valid product' });
@@ -187,7 +175,6 @@ exports.addOffer = async (req, res) => {
       return res.status(400).json({ errorType: 'top', error: 'Please select a product, category, or brand for this offer' });
     }
 
-    // Save the offer
     const offer = new Offer(offerData);
     await offer.save();
 
@@ -204,11 +191,8 @@ exports.addOffer = async (req, res) => {
 
 exports.getEditOffer = async (req, res) => {
   try {
+
     const offer = await Offer.findById(req.params.id);
-    if (!offer) {
-      return res.redirect('/admin/offerManagement');
-    }
-    // Format numeric fields to ensure proper rendering
     offer.discountValue = offer.discountValue ? Number(offer.discountValue).toFixed(2) : '';
     const products = await Product.find({ status: 'listed' }).populate('brand').lean();
     const categories = await Category.find({ status: 'listed' }).lean();
@@ -228,6 +212,8 @@ exports.getEditOffer = async (req, res) => {
   }
 };
 
+
+
 exports.editOffer = async (req, res) => {
   try {
     const offerId = req.params.id;
@@ -243,7 +229,6 @@ exports.editOffer = async (req, res) => {
       brand
     } = req.body;
 
-    // Basic validation
     if (!title) {
       return res.status(400).json({ errorType: 'title', error: 'Title is required' });
     }
@@ -268,13 +253,11 @@ exports.editOffer = async (req, res) => {
       return res.status(400).json({ errorType: 'endDate', error: 'Expiry date must be after start date' });
     }
 
-    // Check if offer title already exists (excluding current offer)
     const existingOffer = await Offer.findOne({ title, _id: { $ne: offerId } });
     if (existingOffer) {
       return res.status(400).json({ errorType: 'title', error: 'This offer title is already taken' });
     }
 
-    // Base offer data
     let offerData = {
       title,
       description: description || '',
@@ -285,7 +268,6 @@ exports.editOffer = async (req, res) => {
       isActive: true
     };
 
-    // Determine offer type based on which field is provided
     let offerType = '';
     if (product) {
       offerType = 'product';
@@ -295,7 +277,6 @@ exports.editOffer = async (req, res) => {
       offerType = 'brand';
     }
 
-    // Validate based on determined offer type
     if (offerType === 'product') {
       if (!product || !mongoose.isValidObjectId(product)) {
         return res.status(400).json({ errorType: 'product', error: 'Please select a valid product' });
@@ -342,15 +323,11 @@ exports.editOffer = async (req, res) => {
       return res.status(400).json({ errorType: 'top', error: 'Please select a product, category, or brand for this offer' });
     }
 
-    // Update the offer
     const offer = await Offer.findByIdAndUpdate(offerId, offerData, { new: true });
-    if (!offer) {
-      return res.status(404).json({ errorType: 'top', error: 'Offer not found' });
-    }
+   
 
     return res.status(200).json({ message: 'Offer updated successfully' });
   } catch (error) {
-    console.error('Error updating offer:', error);
     if (error.name === 'ValidationError') {
       const firstError = Object.values(error.errors)[0];
       return res.status(400).json({ errorType: firstError.path, error: firstError.message });
@@ -362,9 +339,7 @@ exports.editOffer = async (req, res) => {
 exports.toggleOffer = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
-    if (!offer) {
-      return res.status(404).json({ error: 'Offer not found' });
-    }
+  
     offer.isActive = !offer.isActive;
     await offer.save();
     res.json({
@@ -380,9 +355,7 @@ exports.toggleOffer = async (req, res) => {
 exports.deleteOffer = async (req, res) => {
   try {
     const offer = await Offer.findByIdAndDelete(req.params.id);
-    if (!offer) {
-      return res.status(404).json({ error: 'Offer not found' });
-    }
+   
     res.status(200).json({ message: 'Offer deleted successfully' });
   } catch (error) {
     console.error('Error deleting offer:', error);

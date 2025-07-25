@@ -1,4 +1,0 @@
-const sortField = req.query.sort || 'createdAt';
-const products = await Product.find().sort({ [sortField]: 1 });
-
-

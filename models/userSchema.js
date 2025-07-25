@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
     googleId: {
         type: String,
         unique: true,
-        sparse: true // Allows multiple null values but unique non-null values
+        sparse: true 
     },
     
     profilePicture: {
@@ -81,7 +81,7 @@ const userSchema = new mongoose.Schema({
         default: 0
     },
 }, {
-    timestamps: true // Automatically adds createdAt and updatedAt
+    timestamps: true 
 });
 
 
@@ -103,14 +103,8 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-userSchema.pre('save', async function(next) {
-    if (!this.isModified('password') || !this.password) return next();
-    
-    this.password = await bcrypt.hash(this.password, 12);
-    next();
-});
 
-// Method to handle login session
+
 userSchema.methods.createSession = async function(sessionID) {
     this.sessionID = sessionID;
     this.lastLogin = new Date();
@@ -118,14 +112,12 @@ userSchema.methods.createSession = async function(sessionID) {
     await this.save();
 };
 
-// Method to handle logout
 userSchema.methods.clearSession = async function() {
     this.sessionID = null;
     this.isOnline = false;
     await this.save();
 };
 
-// Static method to find user by session ID
 userSchema.statics.findBySessionID = function(sessionID) {
     return this.findOne({ sessionID, isOnline: true });
 };

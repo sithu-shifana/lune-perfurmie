@@ -20,7 +20,6 @@ const productSchema = new mongoose.Schema({
   status: { type: String, enum: ['listed', 'unlisted'], default: 'listed' }
 }, { timestamps: true });
 
-// Static method that uses the helper function
 productSchema.statics.getProductWithOffers = async function(productId) {
   return await getProductWithOffers(productId);
 };

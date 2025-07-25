@@ -278,7 +278,6 @@
   }
 </style>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
 </div>
@@ -295,18 +294,15 @@
     <div class="wishlist-container" id="wishlistContainer">
       <% wishlist.items.forEach(item => { %>
         <div class="wishlist-item" data-product-id="<%= item.product._id %>">
-          <!-- Remove Icon -->
-          <button class="remove-icon" data-product-id="<%= item.product._id %>" aria-label="Remove from wishlist">
+                    <button class="remove-icon" data-product-id="<%= item.product._id %>" aria-label="Remove from wishlist">
             <i class="bi bi-x-lg"></i>
           </button>
 
-          <!-- Product Image -->
-          <a href="/product/<%= item.product._id %>">
+                    <a href="/product/<%= item.product._id %>">
             <img src="<%= item.product.images[0]?.url || '/default-image.jpg' %>" alt="<%= item.product.productName %>" loading="lazy">
           </a>
 
-          <!-- Product Name -->
-          <h3>
+                    <h3>
             <a href="/product/<%= item.product._id %>"><%= item.product.productName %></a>
           </h3>
 
@@ -330,8 +326,7 @@
               </div>
             <% } %>
 
-            <!-- Variant Selection -->
-            <% if (item.product.variants.length > 1) { %>
+                        <% if (item.product.variants.length > 1) { %>
               <select name="variant" class="variant-select" data-product-id="<%= item.product._id %>">
                 <% item.product.variants.forEach((variant, index) => { %>
                   <option value="<%= index %>" 
@@ -348,14 +343,12 @@
               </select>
             <% } %>
             
-            <!-- Hidden data for JavaScript -->
-            <script type="application/json" class="variants-data">
+                        <script type="application/json" class="variants-data">
               <%- JSON.stringify(item.product.variants) %>
             </script>
           <% } %>
 
-          <!-- Cart Button -->
-          <% 
+                    <% 
             const selectedVariant = item.product.variants[0] || {};
             const allOutOfStock = item.product.variants.every(v => v.stock === 0);
           %>
@@ -367,8 +360,7 @@
             <i class="bi bi-cart-plus"></i>
           </button>
 
-          <!-- Stock Status -->
-          <% if (allOutOfStock) { %>
+                    <% if (allOutOfStock) { %>
             <div class="stock-status">Out of Stock</div>
           <% } else if (selectedVariant.stock === 0) { %>
             <div class="stock-status">Selected variant out of stock</div>
@@ -380,7 +372,6 @@
 </div>
 
 <script>
-  // Utility functions
 function showLoading() {
   const overlay = document.getElementById('loadingOverlay');
   if (overlay) overlay.style.display = 'flex';
@@ -448,7 +439,6 @@ function updateCartButton(wishlistItem, variant) {
   const cartButton = wishlistItem.querySelector('.add-to-cart-btn');
   let stockStatus = wishlistItem.querySelector('.stock-status');
   
-  // Reset button to normal state first
   cartButton.innerHTML = '<i class="bi bi-cart-plus"></i>';
   cartButton.style.background = '#495057';
   cartButton.dataset.variantSize = variant.size;
@@ -476,7 +466,6 @@ function updateCartButton(wishlistItem, variant) {
   }
 }
 
-// Remove from wishlist
 document.addEventListener('click', async function(e) {
   if (e.target.closest('.remove-icon')) {
     e.preventDefault();
@@ -520,7 +509,6 @@ document.addEventListener('click', async function(e) {
   }
 });
 
-// Add to cart - Updated version with dynamic wishlist removal
 document.addEventListener('click', async function(e) {
   if (e.target.closest('.add-to-cart-btn')) {
     e.preventDefault();
@@ -560,23 +548,18 @@ document.addEventListener('click', async function(e) {
         button.style.background = '#28a745';
         showMessage('Item added to cart successfully');
 
-        // Check if item was removed from wishlist
         if (result.removedFromWishlist) {
-          // Add a slight delay to show the success state
           setTimeout(() => {
-            // Animate the removal
             wishlistItem.style.transform = 'scale(0.8)';
             wishlistItem.style.opacity = '0';
             wishlistItem.style.transition = 'all 0.3s ease';
             
-            // Remove from DOM after animation
             setTimeout(() => {
               wishlistItem.remove();
               updateWishlistCount();
             }, 300);
-          }, 1000); // Show success state for 1 second before removing
+          }, 1000); 
         } else {
-          // Reset button after delay if item wasn't removed from wishlist
           setTimeout(() => {
             if (button.innerHTML.includes('bi-check')) {
               button.innerHTML = '<i class="bi bi-cart-plus"></i>';
@@ -606,7 +589,6 @@ document.addEventListener('click', async function(e) {
   }
 });
 
-// Update price and availability when variant changes
 document.addEventListener('change', function(e) {
   if (e.target.classList.contains('variant-select')) {
     const select = e.target;

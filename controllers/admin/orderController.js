@@ -13,11 +13,9 @@ exports.getOrderManagement = async (req, res) => {
 
     let query = {};
     
-    // Handle search functionality
     if (search && search.trim()) {
       const searchTerm = search.trim();
       
-      // First, find users that match the search criteria
       const matchingUsers = await User.find({
         $or: [
           { name: { $regex: searchTerm, $options: 'i' } },
@@ -27,21 +25,15 @@ exports.getOrderManagement = async (req, res) => {
       
       const userIds = matchingUsers.map(user => user._id);
       
-      // Build search query
       const searchQueries = [];
       
-      // Search by user IDs
       if (userIds.length > 0) {
         searchQueries.push({ userId: { $in: userIds } });
       }
       
-      // Search by Order ID - both full ObjectId and partial matches
       if (mongoose.Types.ObjectId.isValid(searchTerm)) {
-        // If it's a valid full ObjectId, search by exact match
         searchQueries.push({ _id: new mongoose.Types.ObjectId(searchTerm) });
       } else if (searchTerm.length >= 3) {
-        // For partial Order ID search, find orders where the ObjectId string contains the search term
-        // This will search in the last 8 characters (as displayed in your UI)
         const allOrders = await Order.find({}).select('_id');
         const matchingOrderIds = allOrders.filter(order => {
           const orderIdStr = order._id.toString().slice(-8).toUpperCase();
@@ -53,16 +45,13 @@ exports.getOrderManagement = async (req, res) => {
         }
       }
       
-      // If we have any search queries, add them to the main query
       if (searchQueries.length > 0) {
         query.$or = searchQueries;
       } else {
-        // If no valid search criteria found, return no results
         query._id = null;
       }
     }
 
-    // Handle filters
     if (paymentMethod && ['COD', 'RAZORPAY', 'WALLET'].includes(paymentMethod)) {
       query.paymentMethod = paymentMethod;
     }
@@ -138,26 +127,14 @@ exports.updateDeliveryStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { deliveryStatus } = req.body;
-
-    if (!mongoose.isValidObjectId(orderId)) {
-      console.warn('❌ Invalid Order ID');
-      return res.status(400).json({ success: false, message: 'Invalid Order ID', alertType: 'error' });
-    }
-
+    
     const order = await Order.findById(orderId);
-    if (!order) {
-      console.warn('❌ Order not found');
-      return res.status(404).json({ success: false, message: 'Order not found', alertType: 'error' });
-    }
+   
 
     const statusOrder = ['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
     const currentIndex = statusOrder.indexOf(order.deliveryStatus);
     const newIndex = statusOrder.indexOf(deliveryStatus);
 
-    if (newIndex < currentIndex) {
-      console.warn('❌ Cannot move to previous status');
-      return res.json({ success: false, message: 'Cannot move to previous status', alertType: 'error' });
-    }
 
     order.deliveryStatus = deliveryStatus;
     if (deliveryStatus === 'Shipped' && !order.trackingInfo?.status) {
@@ -172,10 +149,9 @@ exports.updateDeliveryStatus = async (req, res) => {
     }
 
     await order.save();
-    console.log(`✅ Delivery status updated to ${deliveryStatus} for order ${order._id}`);
     res.json({ success: true, message: 'Delivery status updated successfully', alertType: 'success' });
   } catch (error) {
-    console.error('❌ Error updating delivery status:', error);
+    console.error(' Error updating delivery status:', error);
     res.json({ success: false, message: 'Server error', alertType: 'error' });
   }
 };
@@ -187,9 +163,7 @@ exports.cancelOrder = async (req, res) => {
 
     const order = await Order.findById(orderId).populate('items.productId');
     
-    if (!order) {
-      return res.json({ success: false, message: 'Order not found', alertType: 'error' });
-    }
+    
 
     if (!reason) {
       console.warn('Cancellation reason required');
@@ -372,13 +346,13 @@ exports.updateTracking = async (req, res) => {
     if (deliveryDate) {
       const deliveryDateObj = new Date(deliveryDate);
       if (isNaN(deliveryDateObj)) {
-        console.warn('❌ Invalid delivery date');
+        console.warn(' Invalid delivery date');
         return res.json({ success: false, message: 'Invalid delivery date', alertType: 'error' });
       }
       const orderDateOnly = new Date(order.orderDate.toDateString());
       const deliveryDateOnly = new Date(deliveryDateObj.toDateString());
       if (deliveryDateOnly < orderDateOnly) {
-        console.warn('❌ Delivery date cannot be before order date');
+        console.warn(' Delivery date cannot be before order date');
         return res.json({ success: false, message: 'Delivery date cannot be before order date', alertType: 'error' });
       }
       order.deliveryDate = deliveryDateObj;
@@ -393,7 +367,6 @@ exports.updateTracking = async (req, res) => {
     }
 
     await order.save();
-    console.log(` Tracking updated for order ${order._id}`);
     res.json({ success: true, message: 'Tracking information updated successfully', alertType: 'success' });
   } catch (err) {
     console.error(' Error in updateTracking:', err);
@@ -424,25 +397,20 @@ exports.generateInvoicePDF = async (req, res) => {
       bufferPages: true,
     });
 
-    // Register NotoSans-Regular font
     doc.registerFont('NotoSans', path.join(__dirname, '../../fonts/NotoSans-Regular.ttf'));
 
-    // Set response headers for PDF download
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=invoice-${order._id.toString().slice(-8).toUpperCase()}.pdf`);
 
     doc.pipe(res);
 
-    // Header
     doc.font('NotoSans').fontSize(20).fillColor('#2c3e50').text('Invoice', 50, 50);
     doc.fontSize(12).fillColor('#6c757d').text('Lune Perfurmie', 50, 80);
     doc.text('123 kinfra, Calicut, India', 50, 95);
     doc.text('Email: luneperfumie@company.com | Phone: +1234567890', 50, 110);
 
-    // Line separator
     doc.moveTo(50, 130).lineTo(550, 130).strokeColor('#e9ecef').lineWidth(1).stroke();
 
-    // Order Details
     doc.font('NotoSans').fontSize(14).fillColor('#2c3e50').text('Order Details', 50, 150);
     doc.fontSize(10).fillColor('#495057');
     doc.text(`Order ID: #${order._id.toString().slice(-8).toUpperCase()}`, 50, 170);
@@ -452,7 +420,6 @@ exports.generateInvoicePDF = async (req, res) => {
     }
     doc.text(`Delivery Status: ${order.deliveryStatus || 'N/A'}`, 50, 215);
 
-    // Delivery Address
     doc.font('NotoSans').fontSize(12).fillColor('#2c3e50').text('Delivery Address', 300, 230);
     doc.fontSize(10).fillColor('#495057');
     doc.text(`Name: ${order.addressId?.name || 'N/A'}`, 300, 250);
@@ -461,10 +428,8 @@ exports.generateInvoicePDF = async (req, res) => {
     doc.text(`Country: ${order.addressId?.country || 'N/A'}`, 300, 295);
     doc.text(`Phone Number: ${order.addressId?.phone || 'N/A'}`, 300, 310);
 
-    // Line separator
     doc.moveTo(50, 315).lineTo(550, 315).strokeColor('#e9ecef').lineWidth(1).stroke();
 
-    // Items Table Header
     doc.font('NotoSans').fontSize(12).fillColor('#2c3e50').text('Items Ordered', 50, 330);
     const tableTop = 350;
     doc.fontSize(10).fillColor('#2c3e50');
@@ -476,7 +441,6 @@ exports.generateInvoicePDF = async (req, res) => {
     doc.text('Status', 400, tableTop);
     doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).strokeColor('#e9ecef').lineWidth(1).stroke();
 
-    // Items Table Rows
     let y = tableTop + 25;
     order.items.forEach((item, index) => {
       doc.font('NotoSans').fontSize(10).fillColor('#495057');
@@ -506,7 +470,6 @@ exports.generateInvoicePDF = async (req, res) => {
       }
     });
 
-    // Payment Summary
     const summaryTop = y + 20;
     doc.font('NotoSans').fontSize(12).fillColor('#2c3e50').text('Payment Summary', 50, summaryTop);
     doc.fontSize(10).fillColor('#495057');
@@ -521,12 +484,10 @@ exports.generateInvoicePDF = async (req, res) => {
       doc.fillColor('#28a745').text(`Refund: \u20B9${(order.refundDetails.amount || 0).toLocaleString('en-IN')} processed on ${order.refundDetails.processedAt ? new Date(order.refundDetails.processedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}`, 50, summaryTop + 95);
     }
 
-    // Footer
     doc.moveTo(50, summaryTop + 120).lineTo(550, summaryTop + 120).strokeColor('#e9ecef').lineWidth(1).stroke();
     doc.font('NotoSans').fontSize(10).fillColor('#6c757d').text('Thank you for your purchase!', 50, summaryTop + 140, { align: 'center' });
     doc.text('Contact us at luneperfumie@company.com for any queries.', 50, summaryTop + 155, { align: 'center' });
 
-    // Finalize PDF
     doc.end();
   } catch (error) {
     console.error('Error generating admin invoice PDF:', error);

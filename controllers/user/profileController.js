@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const sendOtpEmail = require('../../utils/sendOtp');
 
 
-
+//get profile page
 exports.getProfilePage = async (req, res) => {
     try {
         const userId = req.session.user?.id;
@@ -30,26 +30,26 @@ exports.getProfilePage = async (req, res) => {
 }
 
 
+//edit profile name and phone number
 exports.updateProfile = async (req, res) => {
   try {
     const { name, phone } = req.body;
     const userId = req.session.user?.id;
     const user = await User.findById(userId);
-    console.log('Updating profile with:', { name, phone });
+   
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+  if (phone) {
+  const cleanedPhone = phone.replace(/\s+/g, '').replace(/^(\+91|91)/, '');
 
-    if (phone && !/^\d{10}$/.test(phone)) {
-      return res.status(400).json({ error: 'Invalid phone number. Must be 10 digits.' });
-    }
+  if (!/^\d{10}$/.test(cleanedPhone)) {
+    return res.status(400).json({ error: 'Invalid Indian phone number. Must be 10 digits.' });
+  }
+}
 
-    // Update user fields
+
     user.name = name.trim();
     user.phone = phone ? phone.trim() : user.phone;
     await user.save();
-    console.log(user.phone)
     req.session.user = {
       id: user._id,
       name: user.name,
@@ -57,18 +57,15 @@ exports.updateProfile = async (req, res) => {
       profilePicture: user.profilePicture,
     };
 
-    // Save the session to ensure persistence
     await new Promise((resolve, reject) => {
       req.session.save((err) => {
         if (err) {
-          console.error('Error saving session:', err);
           return reject(err);
         }
         resolve();
       });
     });
 
-    console.log('Updated session user:', req.session.user);
 
     res.json({
       message: 'Profile updated successfully',
@@ -83,26 +80,18 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-
+//uplaod profile photo
 exports.uploadProfilePicture = async (req, res) => {
   try {
-    // Check if a file was uploaded
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Find the user
     const user = await User.findById(req.session.user.id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Save the new profile picture path
     const imageUrl = `/uploads/${req.file.filename}`;
     user.profilePicture = imageUrl;
     await user.save();
 
-    // Return success response with the new image URL
     res.json({
       message: 'Profile picture uploaded successfully',
       imageUrl: imageUrl
@@ -114,9 +103,9 @@ exports.uploadProfilePicture = async (req, res) => {
 };
 
 
+//get referel code
 exports.getReferralCode = async (req, res) => {
     try {
-        console.log('getReferralCode, session:', req.session);
         const userId = req.session.user?.id;
         const user = await User.findById(userId);
         const referralLink = `${req.protocol}://${req.get('host')}/signup?ref=${user.referralCode}`;
@@ -132,16 +121,13 @@ exports.getReferralCode = async (req, res) => {
 };
 
 
-
+//validate current password 
 exports.validatePassword = async (req, res) => {
   try {
     const { currentPassword } = req.body;
     const userId = req.session.user?.id
     const user = await User.findById(userId);
     
-    console.log("Entered password:", JSON.stringify(currentPassword));
-console.log("Stored password:", JSON.stringify(user.password));
-
 
     if (!currentPassword) {
       return res.status(400).json({ error: 'Current password is required' });
@@ -167,6 +153,8 @@ console.log("Stored password:", JSON.stringify(user.password));
   }
 };
 
+
+//chnage to new password
 exports.changePassword = async (req, res) => {
   try {
     const { newPassword, confirmPassword } = req.body;
@@ -208,7 +196,7 @@ exports.changePassword = async (req, res) => {
 };
 
 
-const otpCooldown = 60 * 1000; // 60 seconds
+const otpCooldown = 60 * 1000; 
 
 exports.sendCurrentEmailOtp = async (req, res) => {
   const userEmail = req.session.user?.email;
@@ -219,7 +207,6 @@ exports.sendCurrentEmailOtp = async (req, res) => {
 
   const now = Date.now();
 
-  // Check cooldown
   if (req.session.currentEmailOtpTime && now - req.session.currentEmailOtpTime < otpCooldown) {
     return res.status(429).json({
       success: false,
@@ -227,7 +214,6 @@ exports.sendCurrentEmailOtp = async (req, res) => {
     });
   }
 
-  // Prevent multiple rapid sends
   if (req.session.otpLockUntil && now < req.session.otpLockUntil) {
     return res.status(429).json({
       success: false,
@@ -235,7 +221,6 @@ exports.sendCurrentEmailOtp = async (req, res) => {
     });
   }
 
-  // Lock for a short window (e.g., 3 seconds)
   req.session.otpLockUntil = now + 3000;
 
   try {

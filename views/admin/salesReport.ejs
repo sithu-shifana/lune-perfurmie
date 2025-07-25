@@ -532,8 +532,7 @@ body {
 <div class="dashboard-content">
     <h1 class="report-title">📊 Sales Analytics Dashboard</h1>
 
-    <!-- Enhanced Filter Section -->
-    <div class="filter-section">
+        <div class="filter-section">
         <div class="filter-group">
             <label class="filter-label">Time Period</label>
             <select name="timePeriod" onchange="updateDates()">
@@ -563,8 +562,7 @@ body {
         </div>
     </div>
 
-    <!-- Enhanced Summary Cards -->
-    <div class="summary-container">
+        <div class="summary-container">
         <div class="summary-card">
             <div class="summary-label">Total Orders</div>
             <div class="summary-value"><%= totalOrders %></div>
@@ -604,8 +602,7 @@ body {
         </div>
     </div>
 
-    <!-- Download Section -->
-    <div class="download-section">
+        <div class="download-section">
         <div class="download-header">📥 Export Reports</div>
         <div class="download-buttons">
             <a href="/admin/sales-report/download-pdf?startDate=<%= startDate %>&endDate=<%= endDate %>&timePeriod=<%= timePeriod %>" 
@@ -623,15 +620,13 @@ body {
         </div>
     </div>
 
-    <!-- Enhanced Table -->
-    <div class="table-container">
+        <div class="table-container">
         <div class="table-header">
             <div>Order ID</div>
             <div>Date</div>
             <div>Customer</div>
             <div>Items</div>
             <div>Subtotal</div>
-            <div>Shipping</div>
             <div>Savings</div>
             <div>Coupon</div>
             <div>Final Total</div>
@@ -672,9 +667,7 @@ body {
                         <td data-label="Subtotal" class="currency">
                             ₹<%= (order.subtotal || 0).toFixed(2) %>
                         </td>
-                        <td data-label="Shipping" class="currency">
-                            ₹<%= (order.shippingCost || 0).toFixed(2) %>
-                        </td>
+                        
                         <td data-label="Savings" class="discount">
                             ₹<%= (order.totalSavings || 0).toFixed(2) %>
                         </td>
@@ -697,7 +690,6 @@ body {
     </div>
 </div>
 
-<!-- Pagination -->
 <nav aria-label="Page navigation">
   <ul class="pagination justify-content-center mt-4">
     <% for (let i = 1; i <= totalPages; i++) { %>
@@ -711,7 +703,6 @@ body {
 </nav>
 
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay" style="display: none;">
     <div class="loading-spinner"></div>
 </div>

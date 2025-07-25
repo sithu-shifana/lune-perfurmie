@@ -5,7 +5,6 @@ exports.validateSignIn = (req, res, next) => {
     const { name, email ,password,Cpassword} = req.body;
 
    
-    // Check if name and email are provided
     if (!name && !email&&!password&&!Cpassword) {
       return res.status(400).json({ errorType: "top", error: "Fill all credentials" });
     }
@@ -21,9 +20,11 @@ exports.validateSignIn = (req, res, next) => {
     if (!Cpassword) {
       return res.status(400).json({ errorType: "Cpassword", error: "Confirm Password is required" });
     }
+    if (name[0] !== name[0].toUpperCase()) {
+    return res.status(400).json({ errorType: "name", error: "First letter of name should be capital" });
+    }
 
 
-    // Validate name field (stop at first error)
     if (name.length < 5) {
       return res.status(400).json({ errorType: "name", error: "Name must be at least 5 characters" });
     }
@@ -39,7 +40,6 @@ exports.validateSignIn = (req, res, next) => {
 
     
       
-      // Validate password strength
       const validatePassword = (password) => {
         const minLength = 6;
         const upperCase = /[A-Z]/;
@@ -62,19 +62,17 @@ exports.validateSignIn = (req, res, next) => {
         if (!specialChar.test(password)) {
           return "Password must contain at least one special character.";
         }
-        return null; // Valid password
+        return null; 
       };
   
       const passwordError = validatePassword(password);
       if (passwordError) {
         return res.status(400).json({ errorType: "password", error: passwordError });
       }
-      // Check if password and confirm password match
       if (password !== Cpassword) {
         return res.status(400).json({ errorType: "Cpassword", error: "Passwords do not match" });
       }
 
-    // Proceed to the next middleware/controller
     next();
   } catch (err) {
     console.error("Validation error:", err);

@@ -479,8 +479,7 @@
             <div class="mb-3">
               <label class="form-label">Product Images (1:1 Ratio, 600x600px)</label>
               
-              <!-- Current Images -->
-              <div class="current-images">
+                            <div class="current-images">
                 <% product.images.forEach((image, index) => { %>
                   <div class="current-image-wrapper">
                     <img src="<%= image.url %>" alt="Current Image <%= index + 1 %>" class="current-image">
@@ -489,8 +488,7 @@
                 <% }) %>
               </div>
 
-              <!-- New Image Upload -->
-              <div class="row">
+                            <div class="row">
                 <div class="col-md-4">
                   <label for="image1" class="form-label">Replace Image 1 (Optional)</label>
                   <input type="file" 

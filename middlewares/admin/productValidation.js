@@ -15,7 +15,6 @@ exports.productValidate = async (req, res, next) => {
 
     const errors = {};
 
-    // 1. Basic field validation
     if (!productName || productName.trim() === '') {
       errors.productName = 'Perfume name is required';
     }
@@ -32,12 +31,10 @@ exports.productValidate = async (req, res, next) => {
       errors.category = 'Category is required';
     }
 
-    // 2. Image validation - exactly 3 images required
     if (!req.processedImages || req.processedImages.length !== 3) {
       errors.images = 'Please upload exactly 3 images with 1:1 ratio (600x600px recommended)';
     }
 
-    // 3. Variants validation
     if (!variants || !Array.isArray(variants) || variants.length !== 4) {
       errors.variants = 'All variant fields (50ml, 100ml, 150ml, 200ml) are required';
     } else {
@@ -50,40 +47,33 @@ exports.productValidate = async (req, res, next) => {
         const originalPrice = Number(variant.originalPrice) || 0;
         const size = variant.size;
 
-        // Check if size is valid
         if (!allowedSizes.includes(size)) {
           variantErrors.push(`Invalid size for variant ${index + 1}`);
           return;
         }
 
-        // If stock is provided, price must be provided
         if (stock > 0 && originalPrice <= 0) {
           variantErrors.push(`Price for ${size} must be greater than 0 when stock is provided`);
         }
 
-        // If price is provided, stock must be provided
         if (originalPrice > 0 && stock <= 0) {
           variantErrors.push(`Stock for ${size} must be greater than 0 when price is provided`);
         }
 
-        // Check if we have at least one valid variant
         if (stock > 0 && originalPrice > 0) {
           hasValidVariant = true;
         }
       });
 
-      // If there are variant-specific errors, add them
       if (variantErrors.length > 0) {
-        errors.variants = variantErrors[0]; // Show first error
+        errors.variants = variantErrors[0]; 
       }
 
-      // Check if at least one variant is valid
       if (!hasValidVariant && !errors.variants) {
         errors.variants = 'At least one variant must have both stock and price greater than 0';
       }
     }
 
-    // 4. Check for duplicate product name
     if (productName && productName.trim() !== '') {
       const existingProduct = await Product.findOne({
         productName: { $regex: new RegExp(`^${productName.trim()}$`, 'i') }
@@ -94,7 +84,6 @@ exports.productValidate = async (req, res, next) => {
       }
     }
 
-    // 5. Validate brand and category exist
     if (brand && brand.trim() !== '') {
       const brandExists = await Brand.findOne({ 
         _id: brand, 
@@ -117,9 +106,7 @@ exports.productValidate = async (req, res, next) => {
       }
     }
 
-    // If there are errors, return them
     if (Object.keys(errors).length > 0) {
-      // Get brands and categories for re-rendering the form
       const brands = await Brand.find({ status: 'listed' });
       const categories = await Category.find({ status: 'listed' });
       
@@ -139,13 +126,11 @@ exports.productValidate = async (req, res, next) => {
       });
     }
 
-    // If validation passes, continue to next middleware
     next();
 
   } catch (error) {
     console.error('Validation error:', error);
     
-    // Get brands and categories for error rendering
     const brands = await Brand.find({ status: 'listed' });
     const categories = await Category.find({ status: 'listed' });
     

@@ -6,13 +6,11 @@
   </head>
   <body>
     <section class="content-main">
-      <!-- Header -->
-      <div class="content-header">
+            <div class="content-header">
         <h2 class="content-body">Brand Management</h2>
       </div>
 
-      <!-- Search Bar -->
-      <header class="card-header">
+            <header class="card-header">
         <div class="row align-items-center">
           <div class="col-md-8">
             <div class="customer-stats-card">
@@ -39,12 +37,10 @@
         </div>
       </header>
 
-      <!-- Main Content -->
-      <div class="right">
+            <div class="right">
         <div class="card-body">
           <div class="row">
-            <!-- Brand Table -->
-            <div class="col-md-12">
+                        <div class="col-md-12">
               <div class="table-responsive">
                 <table class="table">
                   <thead>
@@ -95,8 +91,7 @@
       </div>
     </section>
 
-    <!-- Pagination -->
-<nav aria-label="Page navigation">
+    <nav aria-label="Page navigation">
   <ul class="pagination justify-content-center mt-4">
     <% for (let i = 1; i <= totalPages; i++) { %>
       <li class="page-item <%= i === currentPage ? 'active' : '' %>">
@@ -108,8 +103,7 @@
   </ul>
 </nav>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
       document.getElementById('reset').addEventListener('click', function() {

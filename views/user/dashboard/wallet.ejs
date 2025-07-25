@@ -357,8 +357,7 @@
 
   <div class="main-content">
     <div class="container-fluid">
-      <!-- Wallet Header -->
-      <div class="row mb-4 page-header">
+            <div class="row mb-4 page-header">
         <div class="col-12">
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h2 class="mb-0">My Wallet</h2>
@@ -374,8 +373,7 @@
         </div>
       </div>
 
-      <!-- Wallet Balance and Quick Stats -->
-      <div class="row mb-4">
+            <div class="row mb-4">
         <div class="col-md-6 mb-3 mb-md-0">
           <div class="card wallet-balance-card">
             <div class="card-body text-center">
@@ -408,8 +406,7 @@
         </div>
       </div>
 
-      <!-- Transaction History -->
-      <div class="row">
+            <div class="row">
         <div class="col-12">
           <div class="card transaction-card">
             <div class="card-header">
@@ -463,8 +460,7 @@
                   </table>
                 </div>
 
-                <!-- Pagination -->
-                <% if (totalPages > 1) { %>
+                                <% if (totalPages > 1) { %>
                   <nav aria-label="Transaction pagination">
                     <ul class="pagination">
                       <% if (currentPage > 3) { %>
@@ -515,7 +511,6 @@
   <%- include('../partials/user/sidebarFooter') %>
 </div>
 
-<!-- Add Money Modal -->
 <div class="modal fade" id="addMoneyModal" tabindex="-1" aria-labelledby="addMoneyModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -527,7 +522,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="amount" class="form-label">Amount (₹)</label>
-            <input type="number" class="form-control" id="amount" name="amount" min="1" max="50000" step="0.01" required>
+            <input type="number" class="form-control" id="amount" name="amount" min="1" max="50000" step="0.01" >
             <div class="form-text">Minimum: ₹1, Maximum: ₹50,000</div>
             <p class="error-text" id="add-amount-error"></p>
           </div>
@@ -554,7 +549,6 @@
   </div>
 </div>
 
-<!-- Withdraw Money Modal -->
 <div class="modal fade" id="withdrawMoneyModal" tabindex="-1" aria-labelledby="withdrawMoneyModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -566,7 +560,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="withdrawAmount" class="form-label">Amount (₹)</label>
-            <input type="number" class="form-control" id="withdrawAmount" name="amount" min="1" max="<%= wallet ? wallet.balance : 0 %>" step="0.01" required>
+            <input type="number" class="form-control" id="withdrawAmount" name="amount" min="1" max="<%= wallet ? wallet.balance : 0 %>" step="0.01" >
             <div class="form-text">Minimum: ₹1, Maximum: ₹<%= wallet ? wallet.balance.toFixed(2) : '0.00' %></div>
             <p class="error-text" id="withdraw-amount-error"></p>
           </div>
@@ -587,7 +581,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    // Quick amount buttons for add money
     document.querySelectorAll('.quick-amount').forEach(button => {
       button.addEventListener('click', function () {
         const amount = this.getAttribute('data-amount');
@@ -597,7 +590,6 @@
       });
     });
 
-    // Add money form submission
     document.getElementById('addMoneyForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       const submitBtn = this.querySelector('#addMoneySubmit');
@@ -610,7 +602,6 @@
       const data = Object.fromEntries(formData);
       data.amount = parseFloat(data.amount);
 
-      // Client-side validation
       if (!data.amount || isNaN(data.amount) || data.amount <= 0) {
         errorText.textContent = 'Please enter a valid amount';
         submitBtn.disabled = false;
@@ -671,7 +662,6 @@
       }
     });
 
-    // Withdraw money form submission
     document.getElementById('withdrawMoneyForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       const submitBtn = this.querySelector('button[type="submit"]');
@@ -684,7 +674,6 @@
       const data = Object.fromEntries(formData);
       data.amount = parseFloat(data.amount);
 
-      // Client-side validation
       const maxBalance = parseFloat('<%= wallet ? wallet.balance : 0 %>');
       if (!data.amount || isNaN(data.amount) || data.amount <= 0) {
         errorText.textContent = 'Please enter a valid amount';

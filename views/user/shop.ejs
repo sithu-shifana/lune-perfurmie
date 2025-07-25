@@ -466,6 +466,9 @@ select:hover, input:focus {
     width: 250px;
   }
 }
+.discount-badge{
+  color:red
+}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -544,8 +547,7 @@ select:hover, input:focus {
     </div>
   </div>
 
-  <!-- Products container -->
-  <div class="products-container">
+    <div class="products-container">
 
 
 <form action="/products" method="GET" class="search-form" id="searchContainer">
@@ -565,16 +567,14 @@ select:hover, input:focus {
 </form>
 
 
-    <!-- Products Grid -->
-    <div class="products-grid">
+        <div class="products-grid">
     <% if (products.length === 0) { %>
   <p>No products found.</p>
    <% } else { %>  
         <% products.forEach(product => { %>
     <div class="product-card">
       <a href="/product-show/<%= product._id %>" style="text-decoration: none; color: inherit;">
-        <!-- Show first image from images array -->
-        <img src="<%= product.images.length ? product.images[0].url : '/images/placeholder.png' %>" alt="<%= product.productName %>" style="width: 100%; height: 180px; object-fit: cover; border-radius: 4px;">
+                <img src="<%= product.images.length ? product.images[0].url : '/images/placeholder.png' %>" alt="<%= product.productName %>" style="width: 100%; height: 180px; object-fit: cover; border-radius: 4px;">
         <h3 style="margin: 10px 0 5px; font-size: 17px;"><%= product.productName %></h3>
         <p style="color: #666; font-size: 14px; margin-bottom: 2px;">Brand: <%= product.brand.brandName || product.brand.name %></p>
           <div class="price-container">
@@ -598,8 +598,7 @@ select:hover, input:focus {
           <% } %>
         </div>
       </a>
-      <!-- Heart icon for wishlist -->
-      <i id="wishlist-icon-<%= product._id %>" 
+            <i id="wishlist-icon-<%= product._id %>" 
          class="fas fa-heart wishlist-icon <%= product.isInWishlist ? 'active' : '' %>" 
          data-product-id="<%= product._id %>" 
          onclick="toggleWishlist('<%= product._id %>')">
@@ -644,7 +643,6 @@ select:hover, input:focus {
 
 
 <script>
-  // Filter sidebar toggle
   const toggleBtn = document.getElementById('filterToggle');
   const sidebar = document.getElementById('filterSidebar');
 
@@ -653,7 +651,6 @@ select:hover, input:focus {
     sidebar.classList.toggle('active');
   });
 
-  // Close sidebar on outside click only for mobile
   document.addEventListener('click', function (e) {
     if (
       !sidebar.contains(e.target) &&
@@ -664,17 +661,15 @@ select:hover, input:focus {
     }
   });
 
-  // Close sidebar on window resize from desktop to mobile
   window.addEventListener('resize', () => {
     if (window.innerWidth >= 992) {
       sidebar.classList.remove('active');
     }
   });
 
-  // Retain form values on sidebar reopen
   const filterForm = document.querySelector('.filter-form');
   filterForm.addEventListener('submit', function (e) {
-    sidebar.classList.remove('active'); // Close sidebar on mobile after apply
+    sidebar.classList.remove('active'); 
   });
 
   function showLoginAlert() {
@@ -724,3 +719,4 @@ function toggleWishlist(productId) {
 
 </script>
 
+<%- include('../partials/user/footer2') %>

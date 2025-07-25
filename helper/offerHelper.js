@@ -1,12 +1,6 @@
-// helpers/offerHelper.js
 const mongoose = require('mongoose');
 
-/**
- * Calculate the best offer for a product variant
- * @param {String} productId - Product ID
- * @param {Number} originalPrice - Original price of the variant
- * @returns {Object} - Calculated offer details
- */
+
 const calculateBestOffer = async (productId, originalPrice) => {
   try {
     const Product = mongoose.model('Product');
@@ -54,7 +48,6 @@ const calculateBestOffer = async (productId, originalPrice) => {
       if (offer.discountType === 'percentage') {
         discountAmount = (originalPrice * offer.discountValue) / 100;
       } else if (offer.discountType === 'flat' || offer.discountType === 'fixed') {
-        // Ensure discountValue is a valid number; default to 0 if undefined or invalid
         discountAmount = isNaN(offer.discountValue) || offer.discountValue == null ? 0 : Number(offer.discountValue);
       }
 

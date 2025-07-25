@@ -1,6 +1,5 @@
 <%- include('../partials/user/header') %>
 <style>
-  /* [All existing styles remain unchanged] */
   .profile-container {
     background: #fff;
     padding: 2rem;
@@ -168,7 +167,6 @@
     padding: 2rem;
   }
 
-  /* Enhanced Button Styles */
   .btn {
     padding: 0.8rem 1.5rem;
     border: none;
@@ -288,7 +286,6 @@
     color: #6c757d;
   }
 
-  /* Enhanced Form Styles */
   .form-group {
     margin-bottom: 1.5rem;
   }
@@ -369,7 +366,6 @@
     border: 3px solid #e9ecef;
   }
 
-  /* Message Styles */
   .message {
     padding: 1rem;
     border-radius: 8px;
@@ -390,7 +386,6 @@
     border: 1px solid #c3e6cb;
   }
 
-  /* Enhanced Referral Modal Styles */
   .referral-modal {
     position: fixed;
     z-index: 1000;
@@ -462,7 +457,6 @@
     line-height: 1.5;
   }
 
-  /* Responsive Design */
   @media (max-width: 768px) {
     .profile-container {
       padding: 1.5rem;
@@ -527,7 +521,6 @@
     cursor: pointer;
   }
 
-  /* Modal base */
   .modal {
     display: none;
     position: fixed;
@@ -540,7 +533,6 @@
     background-color: rgba(0, 0, 0, 0.4);
   }
 
-  /* Modal box */
   .modal-content {
     background-color: #fff;
     margin: auto;
@@ -553,7 +545,6 @@
     animation: fadeIn 0.3s ease-in-out;
   }
 
-  /* OTP Input Group */
   .otp-container {
     margin-top: 20px;
   }
@@ -580,7 +571,6 @@
     outline: none;
   }
 
-  /* Utility classes */
   .mt-2 {
     margin-top: 12px;
   }
@@ -611,7 +601,6 @@
     cursor: pointer;
   }
 
-  /* Animation */
   @keyframes fadeIn {
     from { transform: scale(0.95); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
@@ -626,7 +615,6 @@
       <div class="row">
         <div class="col-12">
           <div class="profile-container">
-            <!-- Profile Header -->
             <div class="profile-header">
               <div class="profile-picture-container">
                 <div class="profile-picture">
@@ -668,9 +656,7 @@
             </div>
           </div>
 
-          <!-- Profile Content -->
           <div class="profile-content">
-            <!-- Personal Information -->
             <div class="profile-card">
               <h3><span class="card-icon"><img src="/icons/information-button.png" class="icon-small white-icon"> </span> Personal Information</h3>
               <div class="info-item">
@@ -691,7 +677,6 @@
               </div>
             </div>
 
-            <!-- Address Information -->
             <div class="profile-card">
               <h3><span class="card-icon"><img src="/icons/location.png" class="icon-small white-icon"></span> Default Address</h3>
               <% if (defaultAddress) { %>
@@ -724,7 +709,6 @@
             </div>
           </div>
 
-          <!-- Edit Profile Modal -->
           <div id="editModal" class="modal" style="display:none;">
             <div class="modal-content">
               <div class="modal-header">
@@ -759,7 +743,6 @@
             </div>
           </div>
 
-          <!-- Profile Picture Modal -->
           <div id="pictureModal" class="modal" style="display:none;">
             <div class="modal-content">
               <div class="modal-header">
@@ -797,7 +780,6 @@
             </div>
           </div>
           
-          <!-- Verify Current Email Modal -->
           <div id="verifyCurrentEmailModal" class="modal">
             <div class="modal-content">
               <div class="modal-header">
@@ -830,7 +812,6 @@
             </div>
           </div>
 
-          <!-- Enter New Email Modal -->
           <div id="verifyNewEmailModal" class="modal">
             <div class="modal-content">
               <div class="modal-header">
@@ -863,7 +844,6 @@
             </div>
           </div>
 
-          <!-- Change Password Modal -->
           <div id="passwordModal" class="modal" style="display:none;">
             <div class="modal-content">
               <div class="modal-header">
@@ -889,7 +869,6 @@
             </div>
           </div>
 
-          <!-- New Password Modal -->
           <div id="newPasswordModal" class="modal" style="display:none;">
             <div class="modal-content">
               <div class="modal-header">
@@ -925,7 +904,6 @@
 </div>
 
 <script>
-  // Modal Management
   const editModal = document.getElementById('editModal');
   const pictureModal = document.getElementById('pictureModal');
   const passwordModal = document.getElementById('passwordModal');
@@ -944,7 +922,6 @@
   const newPasswordSuccessMessage = document.getElementById('newPasswordSuccessMessage');
   const newPasswordFields = document.getElementById('newPasswordFields');
 
-  // Edit Profile Functions
   document.getElementById('editProfileBtn').onclick = () => {
     editModal.style.display = 'block';
     clearMessages();
@@ -968,7 +945,7 @@
 
   function closeCurrentEmailModal() {
     document.getElementById('verifyCurrentEmailModal').style.display = 'none';
-    clearMessages(); // Assuming this should clear related messages
+    clearMessages(); 
   }
 
   function openPasswordModal() {
@@ -1021,7 +998,6 @@
     document.getElementById('previewContainer').style.display = 'none';
   }
 
-  // Close modals on outside click
   window.onclick = (event) => {
     if (event.target === editModal) closeEditModal();
     if (event.target === pictureModal) closePictureModal();
@@ -1051,7 +1027,6 @@
     });
   }
 
-  // File Upload Preview
   document.getElementById('profilePicInput').onchange = function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -1078,7 +1053,6 @@
     }
   };
 
-  // Edit Profile Form Submission
   editForm.onsubmit = async (e) => {
     e.preventDefault();
     clearMessages();
@@ -1091,11 +1065,7 @@
       errorMessage.style.display = 'block';
       return;
     }
-    if (phone && !/^\d{10}$/.test(phone)) {
-      errorMessage.textContent = 'Phone number must be 10 digits';
-      errorMessage.style.display = 'block';
-      return;
-    }
+   
 
     try {
       const response = await fetch('/profile-Update', {
@@ -1121,7 +1091,6 @@
     }
   };
 
-  // Picture Upload Form Submission
   pictureForm.onsubmit = async (e) => {
     e.preventDefault();
     clearPictureMessages();
@@ -1150,16 +1119,14 @@
         pictureSuccessMessage.textContent = data.message;
         pictureSuccessMessage.style.display = 'block';
 
-        // Update the profile picture dynamically
         const img = document.getElementById('currentProfilePic');
         const profileInitial = document.getElementById('profileInitial');
         if (img && data.imageUrl) {
-          img.src = `${data.imageUrl}?t=${new Date().getTime()}`; // Cache-busting
-          img.style.display = 'block'; // Ensure image is visible
-          if (profileInitial) profileInitial.style.display = 'none'; // Hide initial
+          img.src = `${data.imageUrl}?t=${new Date().getTime()}`; 
+          img.style.display = 'block'; 
+          if (profileInitial) profileInitial.style.display = 'none';
         }
 
-        // Close modal after a short delay
         setTimeout(() => {
           closePictureModal();
         }, 2000);
@@ -1174,7 +1141,6 @@
     }
   };
 
-  // Validate Password and Open New Password Modal
   document.getElementById('validatePasswordBtn').onclick = async () => {
     clearPasswordMessages();
     const currentPassword = document.getElementById('currentPassword').value.trim();
@@ -1210,7 +1176,6 @@
     }
   };
 
-  // New Password Form Submission
   newPasswordForm.onsubmit = async (e) => {
     e.preventDefault();
     clearNewPasswordMessages();
@@ -1267,7 +1232,6 @@
 
 
 
-  // Referral Code Functionality
   const getReferralBtn = document.getElementById('getReferralBtn');
   getReferralBtn.onclick = async () => {
     console.log('Get Referral Code button clicked');
@@ -1346,19 +1310,16 @@
     }
   }
 
-  // Close referral modal on outside click
   document.addEventListener('click', (e) => {
     if (e.target.classList.contains('referral-modal')) {
       closeReferralModal();
     }
   });
 
-  // Helper to collect OTP from 6 inputs
   function getOTPFromInputs(inputs) {
     return Array.from(inputs).map(input => input.value.trim()).join('');
   }
 
-  // Countdown timer function
   function startCountdown(duration, countdownEl, resendBtn) {
     let timeLeft = duration;
     countdownEl.textContent = `${timeLeft}s`;
@@ -1376,9 +1337,7 @@
     }, 1000);
   }
 
-  // ===========================
-  // 1. Modal 1 - Current Email
-  // ===========================
+ 
   document.getElementById('sendOtpCurrentBtn').addEventListener('click', async () => {
     const button = document.getElementById('sendOtpCurrentBtn');
     const msg = document.getElementById('otpSentMsg');
@@ -1393,7 +1352,7 @@
     try {
       const res = await fetch('/send-otp/current', {
         method: 'POST',
-        credentials: 'include' // Added for session support
+        credentials: 'include' 
       });
       const data = await res.json();
 
@@ -1415,7 +1374,6 @@
     }
   });
 
-  // Verify OTP for current email
   document.getElementById('verifyCurrentOtpBtn').addEventListener('click', async () => {
     const otpInputs = document.querySelectorAll('#otpSection .otp-input');
     const otp = getOTPFromInputs(otpInputs);
@@ -1489,12 +1447,11 @@ document.getElementById('sendOtpNewBtn').addEventListener('click', async () => {
     const data = await res.json();
 
     if (res.ok) {
-      // Hide email input and send button, set state
       emailInput.style.display = 'none';
       sendOtpBtn.style.display = 'none';
       msg.textContent = `OTP sent to ${newEmail}!`;
       otpSection.style.display = 'block';
-      isOtpSent = true; // Mark OTP as sent
+      isOtpSent = true;
 
       otpInputs.forEach(input => input.value = '');
       otpError.style.display = 'none';
@@ -1511,13 +1468,11 @@ document.getElementById('sendOtpNewBtn').addEventListener('click', async () => {
   }
 });
 
-// Verify OTP for new email
 document.getElementById('verifyNewOtpBtn').addEventListener('click', async () => {
   const otpInputs = document.querySelectorAll('#otpSectionNew .otp-input');
   const otp = getOTPFromInputs(otpInputs);
   const otpError = document.getElementById('otpErrorMsgNew');
 
-  // Clear old error message
   otpError.style.display = 'none';
 
   try {
@@ -1567,9 +1522,7 @@ document.getElementById('resendNewOtpBtn').addEventListener('click', () => {
     document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
   }
 
-  // ===========================
-  // OTP Input Smart Behavior
-  // ===========================
+  
   function setupOtpInputs(sectionSelector) {
     const inputs = document.querySelectorAll(`${sectionSelector} .otp-input`);
 
@@ -1609,7 +1562,6 @@ document.getElementById('resendNewOtpBtn').addEventListener('click', () => {
     });
   }
 
-  // Activate for both sections
   setupOtpInputs('#otpSection');
   setupOtpInputs('#otpSectionNew');
 </script>

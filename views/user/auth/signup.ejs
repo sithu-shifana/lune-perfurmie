@@ -2,7 +2,6 @@
 <div class="content-placeholder">
     <div class="container-fluid">
         <div class="row">
-            <!-- Form Side -->
             <div class="col-md-6">
                 <div class="form-container">
                     <h1 class="mb-4">Sign Up</h1>
@@ -43,7 +42,6 @@
                             <p id="CpasswordError" class="field-error"></p>
                         </div>
 
-                        <!-- Referral Code Field -->
                         <div class="mb-3" style="display:none ;">
                             <label for="referralCode" class="form-label">Referral Code (optional):</label>
                             <input type="text" class="form-control" id="referralCode" name="referralCode" placeholder="Enter referral code" value="<%= referralCode %>" />
@@ -79,9 +77,7 @@
                     </form>
                 </div>
             </div>
-            <!-- Image Side -->
             <div class="col-md-6 image-side d-none d-md-block">
-                <!-- Image will be displayed via CSS -->
             </div>
         </div>
     </div>
@@ -103,7 +99,6 @@
     }
 
     :root {
-        /* Color palette from the perfume bottles image */
         --dark-brown: #473d47;
         --pink: #53412e;
         --lavender: #5b4e43;
@@ -280,7 +275,6 @@
         const CpasswordError = document.getElementById("CpasswordError");
         const referralCodeError = document.getElementById("referralCodeError");
 
-        // Clear errors on typing
         form.addEventListener("input", () => {
             topError.textContent = "";
             nameError.textContent = "";
@@ -290,7 +284,6 @@
             referralCodeError.textContent = "";
         });
 
-        // Submit form
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             topError.textContent = "";
@@ -302,8 +295,8 @@
 
             const name = nameField.value.trim();
             const email = emailField.value.trim();
-            const password = passwordField.value.trim();
-            const Cpassword = CpasswordField.value.trim();
+            const password = passwordField.value;
+            const Cpassword = CpasswordField.value;
             const referralCode = referralCodeField.value.trim();
 
             try {
@@ -321,7 +314,6 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    localStorage.setItem('otpCreatedAt', data.otpCreatedAt);
                     window.location.href = data.redirect;
                 } else {
                     if (data.errorType === "top") {

@@ -1,14 +1,11 @@
 const Category = require('../../models/categorySchema');
 const Product = require('../../models/productSchema');
 const Wishlist = require('../../models/wishlistSchema');
-const {
-  getProductsWithOffersAndWishlist,
-  getFilterOptions
-} = require('../../helper/filterProducts');
-const {
-  getProductWithOffers 
-} = require('../../helper/productHelper');
+const {  getProductsWithOffersAndWishlist, getFilterOptions } = require('../../helper/filterProducts');
+const { getProductWithOffers } = require('../../helper/productHelper');
 
+
+//get home page
 exports.getHomePage = async (req, res) => {
   try {
     const categories = await Category.find({ status: 'listed' })
@@ -37,6 +34,7 @@ exports.getHomePage = async (req, res) => {
   }
 };
 
+
 // Get Shop Page
 exports.getShopPage = async (req, res) => {
   try {
@@ -51,8 +49,8 @@ exports.getShopPage = async (req, res) => {
     };
     const userId = req.session.user?.id;
 
-    const productResult = await getProductsWithOffersAndWishlist(queryParams, userId);
-    const { categories, brands } = await getFilterOptions();
+    const productResult = await getProductsWithOffersAndWishlist(queryParams, userId);//product accessing with offer and wishlist
+    const { categories, brands } = await getFilterOptions(); //shop page filtering
 
     const products = productResult.products.map(product => ({
       ...product,
@@ -61,17 +59,7 @@ exports.getShopPage = async (req, res) => {
       discountValue: Number(product.variants[0].discountValue) || 0
     }));
 
-    if (req.headers['x-requested-with'] === 'XMLHttpRequest' || 
-        req.headers.accept?.includes('application/json')) {
-      return res.json({
-        products,
-        currentPage: productResult.currentPage,
-        totalPages: productResult.totalPages,
-        totalProducts: productResult.totalProducts,
-        query: req.query
-      });
-    }
-
+  
     res.render('shop', {
       products,
       categories,
@@ -98,23 +86,20 @@ exports.getShopPage = async (req, res) => {
   }
 };
 
-// Get Product Show Page
+
+
 exports.getproductshowpage = async (req, res) => {
   try {
     const userId = req.session.user?.id;
     let productId=req.params.id;
-    if (!productId) {
-      return res.status(400).render('404', { message: 'Product ID is missing' });
+
+    const product = await getProductWithOffers(productId, userId);
+       
+    if (!product) {
+      return res.status(400).render('/products', { message: 'Product ID is missing' });
     }
    
-    // Fetch main product with offers and wishlist status using single function
-    const product = await getProductWithOffers(productId, userId);
-
-    if (!product) {
-      return res.status(404).render('404', { message: 'Product not found' });
-    }
-
-     if (
+    if (
        product.status === 'Unlisted' ||
        product.category?.status === 'unlisted' ||
        product.brand?.status === 'unlisted'
@@ -122,12 +107,10 @@ exports.getproductshowpage = async (req, res) => {
       return res.redirect('/products');
     }
 
-    // Set variant and top-level offer fields for consistency
     product.variant = product.variants[0];
     product.discountType = product.variants[0].discountType || 'none';
     product.discountValue = Number(product.variants[0].discountValue) || 0;
 
-    // Fetch similar products
     const similarQuery = {
       $or: [
         { category: product.category?._id },
@@ -139,7 +122,6 @@ exports.getproductshowpage = async (req, res) => {
     };
     const similarResult = await getProductsWithOffersAndWishlist(similarQuery, userId);
 
-    // Filter out main product and limit to 4
     const similarProducts = similarResult.products
       .filter(p => p._id.toString() !== productId)
       .slice(0, 4)

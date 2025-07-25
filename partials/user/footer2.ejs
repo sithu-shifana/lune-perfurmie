@@ -1,0 +1,62 @@
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.lune-navbar .navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('sticky');
+        } else {
+            navbar.classList.remove('sticky');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const navbarToggler = document.querySelector('.lune-navbar .navbar-toggler');
+        const navbarCollapse = document.querySelector('.lune-navbar .navbar-collapse');
+
+        if (!navbarCollapse.classList.contains('show')) {
+            navbarToggler.classList.add('collapsed');
+        }
+
+        navbarToggler.addEventListener('click', function() {
+            if (navbarCollapse.classList.contains('show')) {
+                navbarToggler.classList.add('collapsed');
+            } else {
+                navbarToggler.classList.remove('collapsed');
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            const isClickInside = navbarToggler.contains(event.target) || navbarCollapse.contains(event.target);
+            if (!isClickInside && navbarCollapse.classList.contains('show')) {
+                navbarToggler.click();
+            }
+        });
+    });
+
+    const currentPath = window.location.pathname;
+
+    const navLinks = document.querySelectorAll('.lune-navbar .nav-link');
+
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
+    });
+</script>
+<style>
+    footer a:hover {
+  text-decoration: underline;
+  color: #ffc107 !important; 
+}
+
+footer i {
+  font-size: 18px;
+}
+
+</style>
+</body>
+</html>

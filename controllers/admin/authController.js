@@ -52,7 +52,6 @@ exports.getDashboardPage= async (req,res)=>{
         const categorySales=await (await getCategorySoldCount()).sort((a, b) => b.totalSold - a.totalSold);
         const brandSales = (await getBrandSoldCount()).sort((a, b) => b.totalSold - a.totalSold);
 
-        console.log("Category Sales:", categorySales);
 
         res.render('admin/auth/dashboard', { topSoldProducts ,categorySales,brandSales})
     }catch(error){

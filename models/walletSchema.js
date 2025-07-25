@@ -66,7 +66,6 @@ walletSchema.statics.getOrCreate = async function(userId) {
     }
 };
 
-//method to add Money to wallet
 walletSchema.methods.addMoney=async function(amount,description=''){
     this.balance+=amount;
     this.transactions.push({
@@ -78,10 +77,8 @@ walletSchema.methods.addMoney=async function(amount,description=''){
     return this;
 }
 
-//await wallet.addMoney(500, "Added from bank");
 
 
-//deduct money
 walletSchema.methods.deductMoney=async function(amount,description=''){
     this.balance-=amount;
     this.transactions.push({

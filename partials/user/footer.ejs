@@ -2,14 +2,12 @@
   <div class="container">
     <div class="row">
 
-      <!-- Brand & Tagline -->
-      <div class="col-md-3 mb-4">
+            <div class="col-md-3 mb-4">
         <h5 class="text-uppercase fw-bold">Lune Perfume</h5>
         <p class="small">Elevate your essence, define your presence.</p>
       </div>
 
-      <!-- Quick Links -->
-      <div class="col-md-2 mb-4">
+            <div class="col-md-2 mb-4">
         <h6 class="fw-semibold mb-3">Quick Links</h6>
         <ul class="list-unstyled">
           <li><a href="#" class="text-light text-decoration-none">Home</a></li>
@@ -19,8 +17,7 @@
         </ul>
       </div>
 
-      <!-- Support -->
-      <div class="col-md-3 mb-4">
+            <div class="col-md-3 mb-4">
         <h6 class="fw-semibold mb-3">Customer Support</h6>
         <ul class="list-unstyled">
           <li><a href="#" class="text-light text-decoration-none">FAQ</a></li>
@@ -30,8 +27,7 @@
         </ul>
       </div>
 
-     <!-- Newsletter & Social -->
-<div class="col-md-4 mb-4">
+     <div class="col-md-4 mb-4">
   <h6 class="fw-semibold mb-3">Stay Connected</h6>
   
   <p class="small mb-3">Login to unlock exclusive offers, wishlist & faster checkout.</p>
@@ -47,8 +43,7 @@
 </div>
 
 
-    <!-- Bottom Line -->
-    <div class="text-center pt-3 border-top border-secondary mt-4">
+        <div class="text-center pt-3 border-top border-secondary mt-4">
       <p class="mb-0 small">&copy; 2025 Lune Perfume. All Rights Reserved.</p>
       
     </div>
@@ -59,7 +54,6 @@
 <script>
 
     
-    // Sticky navbar on scroll
     window.addEventListener('scroll', function() {
         const navbar = document.querySelector('.lune-navbar .navbar');
         if (window.scrollY > 50) {
@@ -69,17 +63,14 @@
         }
     });
 
-    // Fix toggler issue by ensuring proper collapsed state
     document.addEventListener('DOMContentLoaded', function() {
         const navbarToggler = document.querySelector('.lune-navbar .navbar-toggler');
         const navbarCollapse = document.querySelector('.lune-navbar .navbar-collapse');
 
-        // Make sure toggler has correct class initially
         if (!navbarCollapse.classList.contains('show')) {
             navbarToggler.classList.add('collapsed');
         }
 
-        // Handle toggle events
         navbarToggler.addEventListener('click', function() {
             if (navbarCollapse.classList.contains('show')) {
                 navbarToggler.classList.add('collapsed');
@@ -88,7 +79,6 @@
             }
         });
 
-        // Close navbar when clicking outside
         document.addEventListener('click', function(event) {
             const isClickInside = navbarToggler.contains(event.target) || navbarCollapse.contains(event.target);
             if (!isClickInside && navbarCollapse.classList.contains('show')) {
@@ -97,10 +87,8 @@
         });
     });
 
-    // Get current path (e.g., "/", "/shop", etc.)
     const currentPath = window.location.pathname;
 
-    // Get all nav links
     const navLinks = document.querySelectorAll('.lune-navbar .nav-link');
 
     navLinks.forEach(link => {
@@ -112,7 +100,7 @@
 <style>
     footer a:hover {
   text-decoration: underline;
-  color: #ffc107 !important; /* Elegant gold hover */
+  color: #ffc107 !important; 
 }
 
 footer i {

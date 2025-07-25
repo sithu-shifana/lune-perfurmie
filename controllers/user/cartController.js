@@ -151,9 +151,7 @@ exports.updateQuantity = async (req, res) => {
     const userId = req.session.user?.id;
     const { itemId, quantity } = req.body;
 
-    console.log('updateQuantity called with:', { itemId, quantity, userId });
 
-    // Validate input
     if (!itemId || !mongoose.Types.ObjectId.isValid(itemId)) {
       console.log('Invalid itemId:', itemId);
       return res.status(400).json({ success: false, message: 'Invalid item ID' });
@@ -164,13 +162,11 @@ exports.updateQuantity = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid quantity' });
     }
 
-    // Find the cart of the user
     const cart = await Cart.findOne({ user: userId });
     if (!cart) {
       return res.status(404).json({ success: false, message: 'Cart not found' });
     }
 
-    // Find the specific item in the cart using itemId (MongoDB ObjectId)
     const item = cart.items.find(i => i._id.toString() === itemId);
     if (!item) {
       console.log('Item not found. Available items:', cart.items.map(i => ({ 
@@ -181,7 +177,6 @@ exports.updateQuantity = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Item not found in cart' });
     }
 
-    // Get product with offers
     const productWithOffers = await getProductWithOffers(item.product, userId);
     const selectedVariant = productWithOffers.variants.find(v => v.size === item.variant);
 
@@ -189,7 +184,6 @@ exports.updateQuantity = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Size not available' });
     }
 
-    // Check stock
     if (selectedVariant.stock < parsedQuantity) {
       return res.status(400).json({
         success: false,
@@ -197,11 +191,9 @@ exports.updateQuantity = async (req, res) => {
       });
     }
 
-    // Update the quantity in the cart
     item.quantity = parsedQuantity;
     await cart.save();
 
-    // Calculate totals
     const itemTotal = selectedVariant.offerPrice * parsedQuantity;
     const itemSavings = (selectedVariant.originalPrice - selectedVariant.offerPrice) * parsedQuantity;
 
@@ -223,7 +215,6 @@ exports.removeItem = async (req, res) => {
     const userId = req.session.user?.id;
     const { itemId } = req.params;
     
-    console.log('removeItem called with:', { itemId, userId });
     
     if (!itemId || !mongoose.Types.ObjectId.isValid(itemId)) {
       return res.status(400).json({ success: false, message: 'Invalid item ID' });
@@ -236,12 +227,7 @@ exports.removeItem = async (req, res) => {
     
     const itemIndex = cart.items.findIndex(item => item._id.toString() === itemId);
     if (itemIndex === -1) {
-      console.log('Item not found for removal. Available items:', cart.items.map(i => ({ 
-        id: i._id.toString(), 
-        product: i.product, 
-        variant: i.variant 
-      })));
-      return res.status(404).json({ success: false, message: 'Item not found in cart' });
+          return res.status(404).json({ success: false, message: 'Item not found in cart' });
     }
 
     cart.items.splice(itemIndex, 1);
@@ -269,7 +255,6 @@ exports.clearCart = async (req, res) => {
 
     res.json({ success: true, message: 'Cart cleared successfully' });
   } catch (error) {
-    console.error('clearCart - Error:', error);
     res.status(500).json({ success: false, message: 'Error clearing cart' });
   }
 };
@@ -283,7 +268,6 @@ exports.toggleCart = async (req, res) => {
     const product = await Product.findById(productId).populate(['brand', 'category']);
     const selectedVariant = product.variants.find(v => v.size === size);
     
-    // Check stock availability
     if (selectedVariant.stock < quantity) {
       return res.status(400).json({ 
         success: false, 
@@ -291,7 +275,6 @@ exports.toggleCart = async (req, res) => {
       });
     }
 
-    // Find or create cart
     let cart = await Cart.findOne({ user: userId });
     if (!cart) {
       cart = new Cart({ user: userId, items: [] });
@@ -311,6 +294,11 @@ exports.toggleCart = async (req, res) => {
         quantity,
         price: selectedVariant.offerPrice || selectedVariant.originalPrice,
       });
+
+      await Wishlist.findOneAndUpdate(
+        { user: userId },
+        { $pull: { items: { product: productId } } }
+      );
     }
 
     await cart.save();
@@ -321,7 +309,7 @@ exports.toggleCart = async (req, res) => {
       success: true,
       isInCart: !isInCart,
       cartCount,
-      message: isInCart ? 'Removed from cart' : 'Added to cart'
+      message: isInCart ? 'Removed from cart' : 'Added to cart',
     });
   } catch (err) {
     console.error('Toggle cart error:', err);
@@ -335,13 +323,6 @@ exports.checkCartStatus = async function (req, res) {
     const { productId } = req.params;
     const { size } = req.query;
 
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Please log in' });
-    }
-
-    if (!productId || !size) {
-      return res.status(400).json({ success: false, message: 'Product ID and size are required' });
-    }
 
     const cart = await Cart.findOne({ user: userId });
     const isInCart = cart && cart.items.some(

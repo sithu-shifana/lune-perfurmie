@@ -1,4 +1,7 @@
 const User=require('../../models/userSchema');
+const mongoose = require('mongoose');
+
+
 exports.getCustomerPage=async(req,res)=>{
     try{
         let search = (req.query.search || "").trim();
@@ -36,17 +39,12 @@ exports.getCustomerPage=async(req,res)=>{
     }
 }
 
-const mongoose = require('mongoose');
 
 exports.toggleBlockCustomer = async (req, res) => {
   try {
     const { id, action } = req.query;
 
-    if (!id || !['block', 'unblock'].includes(action)) {
-      return res.status(400).render('error', {
-        message: 'Invalid request for toggle block and unblock',
-      });
-    }
+   
 
     const user = await User.findByIdAndUpdate(
       id,
@@ -56,7 +54,7 @@ exports.toggleBlockCustomer = async (req, res) => {
 
     if (action === 'block') {
       const sessionCollection = mongoose.connection.collection('sessions');
-      await sessionCollection.deleteMany({ "session.user._id": id }); // Note: adjust if your session structure is different
+      await sessionCollection.deleteMany({ "session.user._id": id }); 
     }
 
     return res.redirect('/admin/customerManagement');

@@ -36,7 +36,6 @@ mongoose.connection.on('disconnected',()=>{
 process.on(`SIGINT`, async () => {
   console.log(`shutting down gracefully....`);
   
-  // Clear all sessions
   const mongooseConnection = mongoose.connection;
   try {
     await mongooseConnection.collection('sessions').deleteMany({});

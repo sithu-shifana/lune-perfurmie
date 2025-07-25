@@ -9,18 +9,18 @@ const orderSchema = new mongoose.Schema({
     productName: { type: String, required: true },
     variantSize: { type: String, enum: ['50ml', '100ml', '150ml', '200ml'], required: true },
     quantity: { type: Number, required: true, min: 1, default: 1 },
-    originalPrice: { type: Number, required: true, min: 0 }, // Per unit
-    offerPrice: { type: Number, required: true, min: 0 }, // Per unit
-    finalItemTotal: { type: Number, required: true, min: 0 }, // offerPrice * quantity
-    couponDiscount: { type: Number, default: 0, min: 0 }, // Per-item coupon discount
+    originalPrice: { type: Number, required: true, min: 0 },
+    offerPrice: { type: Number, required: true, min: 0 }, 
+    finalItemTotal: { type: Number, required: true, min: 0 }, 
+    couponDiscount: { type: Number, default: 0, min: 0 },
     status: { type: String, enum: ['Active', 'Cancelled', 'Returned', 'ReturnRequested'], default: 'Active' },
     cancellationReason: { type: String, default: '' },
     returnReason: { type: String, default: '' },
     isRefunded: { type: Boolean, default: false }
   }],
-  subtotal: { type: Number, required: true, min: 0, default: 0 }, // Sum of (finalItemTotal - couponDiscount)
-  couponCode: { type: String, default: null }, // Coupon code applied
-  totalCouponDiscount: { type: Number, default: 0, min: 0 }, // Total coupon discount
+  subtotal: { type: Number, required: true, min: 0, default: 0 }, 
+  couponCode: { type: String, default: null }, 
+  totalCouponDiscount: { type: Number, default: 0, min: 0 }, 
   paymentMethod: { type: String, enum: ['COD', 'ONLINE', 'WALLET'], required: true },
   paymentStatus: { 
     type: String, 

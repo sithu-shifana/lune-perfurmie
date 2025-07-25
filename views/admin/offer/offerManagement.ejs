@@ -143,8 +143,7 @@
                       <% offers.forEach((offer, index) => { %>
                         <tr id="row-<%= offer._id %>">
                           <td class="text-center"><%= index + 1 + (currentPage - 1) * limit %></td>
-                          <td class="text-start"><%= offer.title %></td> <!-- Changed from offer.name -->
-                          <td class="text-start"><%= offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1) %></td>
+                          <td class="text-start"><%= offer.title %></td>                           <td class="text-start"><%= offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1) %></td>
                           <td class="text-start">
                             <%= offer.discountType === 'percentage' ? offer.discountValue + '%' : '₹' + offer.discountValue %>
                           </td>
@@ -163,8 +162,7 @@
                             <% } %>
                           </td>
                           <td class="text-start">
-                            <%= new Date(offer.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %> <!-- Changed from expiryDate -->
-                          </td>
+                            <%= new Date(offer.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>                           </td>
                           <td class="text-start">
                             <span class="badge rounded-pill <%= offer.isCurrentlyActive ? 'alert-success' : 'alert-danger' %>">
                               <%= offer.isCurrentlyActive ? 'Active' : 'Inactive' %>

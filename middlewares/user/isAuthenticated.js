@@ -1,4 +1,4 @@
-const User = require('../../models/userSchema'); // Adjust path to your User model
+const User = require('../../models/userSchema'); 
 
 const isAuthenticated = async (req, res, next) => {
     if (!req.session || !req.sessionID) {

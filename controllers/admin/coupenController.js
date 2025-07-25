@@ -15,6 +15,7 @@ const generateUniqueCode = async () => {
   return code;
 };
 
+
 exports.getCouponManagement = async (req, res) => {
   try {
     const searchQuery = req.query.search || '';
@@ -70,7 +71,6 @@ exports.postAddCoupon = async (req, res) => {
   try {
     const { code, discountType, discountValue, maxDiscount, minPurchase, expiryDate, isReferral } = req.body;
 
-    // Validate inputs
     if (!discountType) {
       return res.status(400).json({ errorType: 'discountType', error: 'Discount type is required' });
     }
@@ -93,7 +93,6 @@ exports.postAddCoupon = async (req, res) => {
       return res.status(400).json({ errorType: 'maxDiscount', error: 'Max discount is required for percentage coupons' });
     }
 
-    // Check for duplicate code
     if (code) {
       const existingCoupon = await Coupon.findOne({ code });
       if (existingCoupon) {
@@ -108,7 +107,7 @@ exports.postAddCoupon = async (req, res) => {
       maxDiscount: discountType === 'percentage' ? parseFloat(maxDiscount) : null,
       minPurchase: isReferral ? 500 : parseFloat(minPurchase),
       expiryDate: isReferral ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : new Date(expiryDate),
-      isActive: true, // Explicitly set to true
+      isActive: true, 
       isReferral: isReferral === true
     };
 
@@ -116,7 +115,6 @@ exports.postAddCoupon = async (req, res) => {
     await coupon.save();
     return res.status(200).json({ message: 'Coupon added successfully' });
   } catch (error) {
-    console.error('Error adding coupon', error);
     if (error.code === 11000 && error.keyPattern.code) {
       return res.status(400).json({ errorType: 'code', error: 'Coupon code already exists' });
     }
@@ -124,12 +122,11 @@ exports.postAddCoupon = async (req, res) => {
   }
 };
 
+
 exports.getEditCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.findById(req.params.id);
-    if (!coupon) {
-      return res.redirect('/admin/couponManagement');
-    }
+   
     res.render('admin/coupon/coupon-edit', { title: 'Edit Coupon', coupon, error: null });
   } catch (error) {
     console.error('Error fetching edit coupon page', error);
@@ -142,7 +139,6 @@ exports.postEditCoupon = async (req, res) => {
     const couponId = req.params.id;
     const { code, discountType, discountValue, maxDiscount, minPurchase, expiryDate, isReferral } = req.body;
 
-    // Validate inputs
     if (!discountType) {
       return res.status(400).json({ errorType: 'discountType', error: 'Discount type is required' });
     }
@@ -165,7 +161,6 @@ exports.postEditCoupon = async (req, res) => {
       return res.status(400).json({ errorType: 'maxDiscount', error: 'Max discount is required for percentage coupons' });
     }
 
-    // Check for duplicate code
     if (code) {
       const existingCoupon = await Coupon.findOne({ code, _id: { $ne: couponId } });
       if (existingCoupon) {
@@ -181,17 +176,13 @@ exports.postEditCoupon = async (req, res) => {
       minPurchase: isReferral ? 500 : parseFloat(minPurchase),
       expiryDate: isReferral ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : new Date(expiryDate),
       isReferral: isReferral === true,
-      isActive: true // Default to true unless toggled
+      isActive: true 
     };
 
     const coupon = await Coupon.findByIdAndUpdate(couponId, couponData, { new: true });
-    if (!coupon) {
-      return res.status(404).json({ errorType: 'top', error: 'Coupon not found' });
-    }
-
+    
     return res.status(200).json({ message: 'Coupon updated successfully' });
   } catch (error) {
-    console.error('Error updating coupon', error);
     if (error.code === 11000 && error.keyPattern.code) {
       return res.status(400).json({ errorType: 'code', error: 'Coupon code already exists' });
     }
@@ -202,19 +193,12 @@ exports.postEditCoupon = async (req, res) => {
 exports.toggleCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;
-    if (!couponId) {
-      return res.status(400).json({ error: 'Coupon ID is required' });
-    }
-
+   
     const coupon = await Coupon.findById(couponId);
-    if (!coupon) {
-      return res.status(404).json({ error: 'Coupon not found' });
-    }
+   
 
     coupon.isActive = !coupon.isActive;
     await coupon.save();
-
-    console.log('Toggled coupon:', coupon); // Debug log
 
     res.json({
       message: `Coupon ${coupon.isActive ? 'activated' : 'deactivated'} successfully`,
