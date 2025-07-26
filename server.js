@@ -22,7 +22,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:8888",
+    origin: process.env.CLIENT_ORIGIN||"http://localhost:8888",
     methods: ["GET", "POST"]
   }
 });
@@ -36,6 +36,7 @@ app.set("views", [
   path.join(__dirname, "views")       
 ]);
 
+app.set('trust proxy', 1); 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'mysecret',
     resave: false,
@@ -43,13 +44,13 @@ app.use(session({
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_URI,
         collectionName: 'sessions',
-        ttl: 24 * 60 * 60, 
-        autoRemove: 'native',
+        ttl: 2 * 60 * 60, 
+        autoRemove: 'native'
     }),
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24, 
-        secure: false,
-        httpOnly: true 
+        maxAge: 1000 * 60 * 60 * 2, 
+        secure: process.env.NODE_ENV === 'production', 
+        httpOnly: true
     }
 }));
 app.use(passport.initialize());

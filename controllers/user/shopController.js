@@ -49,9 +49,12 @@ exports.getShopPage = async (req, res) => {
     };
     const userId = req.session.user?.id;
 
-    const productResult = await getProductsWithOffersAndWishlist(queryParams, userId);//product accessing with offer and wishlist
-    const { categories, brands } = await getFilterOptions(); //shop page filtering
+    const [productResult, filterOptions] = await Promise.all([
+      getProductsWithOffersAndWishlist(queryParams, userId),
+      getFilterOptions()
+    ]);
 
+    const { categories, brands } = filterOptions;
     const products = productResult.products.map(product => ({
       ...product,
       variant: product.variants[0],

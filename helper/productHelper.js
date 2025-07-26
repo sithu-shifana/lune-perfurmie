@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const { calculateBestOffer } = require('./offerHelper');
+const NodeCache = require('node-cache');
+
+const cache = new NodeCache({ stdTTL: 600 }); // Cache for 10 minutes
 
 const getProductWithOffers = async (productId, userId = null) => {
   const Product = mongoose.model('Product');
@@ -7,14 +10,18 @@ const getProductWithOffers = async (productId, userId = null) => {
   const Cart = mongoose.model('Cart');
 
   try {
+    const cacheKey = `product_${productId}_${userId || 'no-user'}`;
+    let productData = cache.get(cacheKey);
+    if (productData) return productData;
+
     const product = await Product.findById(productId)
       .populate({
         path: 'brand',
-        match: { status: 'listed' }, 
+        match: { status: 'listed' },
       })
       .populate({
         path: 'category',
-        match: { status: 'listed' }, 
+        match: { status: 'listed' },
       })
       .lean();
 
@@ -55,15 +62,15 @@ const getProductWithOffers = async (productId, userId = null) => {
         variantsWithOffers.forEach(variant => {
           const foundInCart = cart.items.find(
             item => item.product.toString() === productId.toString() &&
-                    item.size === variant.size 
+                    item.size === variant.size
           );
-            if (foundInCart) {
-                 variant.isInCart = true;
-                 variant.cartQuantity = foundInCart.quantity;
-           } else {
-                  variant.isInCart = false;
-                  variant.cartQuantity = 0;
-           }
+          if (foundInCart) {
+            variant.isInCart = true;
+            variant.cartQuantity = foundInCart.quantity;
+          } else {
+            variant.isInCart = false;
+            variant.cartQuantity = 0;
+          }
         });
       } else {
         variantsWithOffers.forEach(variant => {
@@ -94,6 +101,7 @@ const getProductWithOffers = async (productId, userId = null) => {
       isInWishlist: userId ? isInWishlist : undefined
     };
 
+    cache.set(cacheKey, result);
     return result;
   } catch (error) {
     console.error('Error in getProductWithOffers:', error.message);
