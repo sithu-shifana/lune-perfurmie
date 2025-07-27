@@ -66,6 +66,11 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store'); 
+  next();
+});
+
 
 app.use('/', userRoutes); 
 app.use('/admin', adminRoutes); 
@@ -73,6 +78,7 @@ app.use('/admin', adminRoutes);
 app.use((req, res) => {
   res.status(404).render('404');
 });
+
 
 
 const PORT = process.env.PORT || 8888;
