@@ -231,6 +231,10 @@ exports.showEditProductForm = async (req, res) => {
 
 
 
+const NodeCache = require('node-cache');
+const productCache = new NodeCache({ stdTTL: 600 }); // Match productHelper
+const filterCache = new NodeCache({ stdTTL: 3600 }); // Match filterProducts
+
 exports.updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -243,22 +247,7 @@ exports.updateProduct = async (req, res) => {
       variants
     } = req.body;
 
-    
-
-    const existingProduct = await Product.findById(productId)
-      .populate('brand', 'name')
-      .populate('category', 'name');
-    
-  
-
-    let images = existingProduct.images;
-    if (req.processedImages && req.processedImages.length > 0) {
-      images = req.processedImages.map(img => ({
-        url: img.url,
-        publicId: img.publicId
-      }));
-    }
-
+    // Format variants
     const formattedVariants = variants.map(variant => ({
       size: variant.size,
       stock: Number(variant.stock) || 0,
@@ -266,6 +255,8 @@ exports.updateProduct = async (req, res) => {
       offerPrice: Number(variant.originalPrice) || 0
     }));
 
+    // Update product
+    console.time('updateProduct');
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
       {
@@ -275,14 +266,32 @@ exports.updateProduct = async (req, res) => {
         category: new mongoose.Types.ObjectId(category),
         fragranceType: fragranceType || '',
         variants: formattedVariants,
-        images,
-        updatedAt: new Date()
+        images: req.processedImages?.length > 0
+          ? req.processedImages.map(img => ({
+              url: img.url,
+              publicId: img.publicId
+            }))
+          : undefined
       },
-      { new: true, runValidators: true }
-    );
+      { new: true, runValidators: true, readPreference: 'primary' }
+    ).populate('brand', 'name').populate('category', 'name');
+    console.timeEnd('updateProduct');
 
     if (!updatedProduct) {
       throw new Error('Failed to update product');
+    }
+
+    // Invalidate product cache
+    productCache.keys().forEach(key => {
+      if (key.startsWith(`product_${productId}_`)) {
+        productCache.del(key);
+      }
+    });
+
+    // Invalidate filter cache
+    const existingProduct = await Product.findById(productId).lean();
+    if (existingProduct?.brand.toString() !== brand || existingProduct?.category.toString() !== category) {
+      filterCache.del('filterOptions');
     }
 
     res.redirect('/admin/productManagement');
@@ -290,8 +299,11 @@ exports.updateProduct = async (req, res) => {
   } catch (error) {
     console.error('Product update error:', error);
 
-    const brands = await Brand.find({ status: 'listed' });
-    const categories = await Category.find({ status: 'listed' });
+    const [brands, categories, existingProduct] = await Promise.all([
+      Brand.find({ status: 'listed' }).lean().read('primary'),
+      Category.find({ status: 'listed' }).lean().read('primary'),
+      Product.findById(productId).populate('brand', 'name').populate('category', 'name').lean().read('primary')
+    ]);
 
     const oldInput = {
       productName: req.body.productName,

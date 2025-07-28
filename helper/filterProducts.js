@@ -2,7 +2,7 @@ const Product = require('../models/productSchema');
 const Category = require('../models/categorySchema');
 const Brand = require('../models/brandSchema');
 const Wishlist = require('../models/wishlistSchema');
-const { getProductWithOffers } = require('../helper/productHelper');
+const { getProductWithOffers } = require('./productHelper');
 
 const buildFilterQuery = (queryParams) => {
     const { category, brand, minPrice, maxPrice, search } = queryParams;
@@ -11,14 +11,13 @@ const buildFilterQuery = (queryParams) => {
     if (brand) query.brand = brand;
 
     if (search) {
-      const trimmedSearch = search.trim();
-      const fuzzySearch = trimmedSearch.split(' ').join('.*');
-      const searchRegex = new RegExp(fuzzySearch, 'i');
-
-      query.$or = [
-        { name: searchRegex },
-        { description: searchRegex }
-      ];
+        const trimmedSearch = search.trim();
+        const fuzzySearch = trimmedSearch.split(' ').join('.*');
+        const searchRegex = new RegExp(fuzzySearch, 'i');
+        query.$or = [
+            { productName: searchRegex },
+            { description: searchRegex }
+        ];
     }
     
     return { query, priceFilter: { minPrice, maxPrice } };
@@ -27,9 +26,9 @@ const buildFilterQuery = (queryParams) => {
 const getSortOption = (sort) => {
     switch (sort) {
         case 'priceLowHigh':
-            return { sortBy: 'price', order: 1 };
+            return { 'variants.offerPrice': 1 };
         case 'priceHighLow':
-            return { sortBy: 'price', order: -1 };
+            return { 'variants.offerPrice': -1 };
         case 'nameAZ':
             return { productName: 1 };
         case 'nameZA':
@@ -49,6 +48,7 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
     const skip = (page - 1) * limit;
     
     try {
+        console.time('fetchProducts');
         let products = await Product.find(query)
             .populate({
                 path: 'brand',
@@ -60,13 +60,18 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
                 match: { status: 'listed' },
                 select: 'name _id'
             })
-            .sort({ createdAt: -1 })
-            .lean();
+            .sort(sortOption)
+            .lean()
+            .read('primary');
+        console.timeEnd('fetchProducts');
 
         products = products.filter(product => product.brand && product.category);
 
+        console.time('applyOffers');
         const productsWithOffers = await Promise.all(products.map(async (product) => {
-            const productWithOffers = await Product.getProductWithOffers(product._id);
+            console.time(`getProductWithOffers:${product._id}`);
+            const productWithOffers = await getProductWithOffers(product._id);
+            console.timeEnd(`getProductWithOffers:${product._id}`);
             
             if (productWithOffers) {
                 return {
@@ -80,6 +85,7 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
             }
             return null;
         }));
+        console.timeEnd('applyOffers');
         
         const validProducts = productsWithOffers.filter(p => p !== null);
 
@@ -93,36 +99,18 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
             });
         }
 
-        if (sortOption.sortBy === 'price') {
-            filteredProducts.sort((a, b) => {
-                return sortOption.order === 1 ?
-                    a.minOfferPrice - b.minOfferPrice :
-                    b.minOfferPrice - a.minOfferPrice;
-            });
-        } else {
-            const sortKey = Object.keys(sortOption)[0];
-            const sortOrder = sortOption[sortKey];
-            filteredProducts.sort((a, b) => {
-                const aVal = a[sortKey];
-                const bVal = b[sortKey];
-                if (sortOrder === 1) {
-                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-                } else {
-                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
-                }
-            });
-        }
-
         const totalProducts = filteredProducts.length;
         const paginatedProducts = filteredProducts.slice(skip, skip + limit);
 
+        console.time('fetchWishlist');
         let wishlistedProductIds = [];
         if (userId) {
-            const wishlist = await Wishlist.findOne({ user: userId }).lean();
+            const wishlist = await Wishlist.findOne({ user: userId }).lean().read('primary');
             if (wishlist) {
                 wishlistedProductIds = wishlist.items.map(item => item.product.toString());
             }
         }
+        console.timeEnd('fetchWishlist');
 
         const productsWithWishlist = paginatedProducts.map(product => ({
             ...product,
@@ -142,15 +130,17 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
 
 const getFilterOptions = async () => {
     try {
-        const cacheKey = 'filterOptions';
         const cache = require('node-cache');
-        const filterCache = new cache({ stdTTL: 3600 }); // Cache for 1 hour
+        const filterCache = new cache({ stdTTL: 3600 });
+        const cacheKey = 'filterOptions';
         let filterOptions = filterCache.get(cacheKey);
         if (!filterOptions) {
+            console.time('fetchFilterOptions');
             const [categories, brands] = await Promise.all([
-                Category.find({ status: 'listed' }).select('name _id').lean(),
-                Brand.find({ status: 'listed' }).select('name _id').lean()
+                Category.find({ status: 'listed' }).select('name _id').lean().read('primary'),
+                Brand.find({ status: 'listed' }).select('name _id').lean().read('primary')
             ]);
+            console.timeEnd('fetchFilterOptions');
             filterOptions = { categories, brands };
             filterCache.set(cacheKey, filterOptions);
         }

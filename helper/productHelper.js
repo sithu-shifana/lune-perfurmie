@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { calculateBestOffer } = require('./offerHelper');
 const NodeCache = require('node-cache');
 
-const cache = new NodeCache({ stdTTL: 600 }); // Cache for 10 minutes
+const cache = new NodeCache({ stdTTL: 600 });
 
 const getProductWithOffers = async (productId, userId = null) => {
   const Product = mongoose.model('Product');
@@ -14,6 +14,7 @@ const getProductWithOffers = async (productId, userId = null) => {
     let productData = cache.get(cacheKey);
     if (productData) return productData;
 
+    console.time(`fetchProduct:${productId}`);
     const product = await Product.findById(productId)
       .populate({
         path: 'brand',
@@ -23,12 +24,15 @@ const getProductWithOffers = async (productId, userId = null) => {
         path: 'category',
         match: { status: 'listed' },
       })
-      .lean();
+      .lean()
+      .read('primary');
+    console.timeEnd(`fetchProduct:${productId}`);
 
     if (!product || product.status !== 'listed' || !product.brand || !product.category) {
       return null;
     }
 
+    console.time(`applyOffers:${productId}`);
     const variantsWithOffers = await Promise.all(
       product.variants.map(async (variant) => {
         const offerDetails = await calculateBestOffer(product._id, variant.originalPrice);
@@ -47,17 +51,21 @@ const getProductWithOffers = async (productId, userId = null) => {
         };
       })
     );
+    console.timeEnd(`applyOffers:${productId}`);
 
+    console.time(`fetchWishlist:${productId}`);
     let isInWishlist = false;
     if (userId) {
-      const wishlist = await Wishlist.findOne({ user: userId }).lean();
+      const wishlist = await Wishlist.findOne({ user: userId }).lean().read('primary');
       if (wishlist) {
         isInWishlist = wishlist.items.some(item => item.product.toString() === productId.toString());
       }
     }
+    console.timeEnd(`fetchWishlist:${productId}`);
 
+    console.time(`fetchCart:${productId}`);
     if (userId) {
-      const cart = await Cart.findOne({ user: userId }).lean();
+      const cart = await Cart.findOne({ user: userId }).lean().read('primary');
       if (cart && cart.items.length > 0) {
         variantsWithOffers.forEach(variant => {
           const foundInCart = cart.items.find(
@@ -78,6 +86,7 @@ const getProductWithOffers = async (productId, userId = null) => {
         });
       }
     }
+    console.timeEnd(`fetchCart:${productId}`);
 
     const hasOffer = variantsWithOffers.some(v => v.hasOffer);
     const bestVariantWithOffer = variantsWithOffers.find(v => v.hasOffer) || variantsWithOffers[0];
@@ -109,6 +118,4 @@ const getProductWithOffers = async (productId, userId = null) => {
   }
 };
 
-module.exports = {
-  getProductWithOffers
-};
+module.exports = { getProductWithOffers };
