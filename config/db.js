@@ -21,7 +21,6 @@ const connectDB = async () => {
     }
 };
 
-mongoose.set('debug', true);
 
 mongoose.connection.on('connected', () => {
     console.log('mongoose connected to mongodb');
