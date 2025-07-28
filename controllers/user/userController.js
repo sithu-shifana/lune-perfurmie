@@ -562,7 +562,7 @@ exports.googleCallback = [
 
       await user.createSession(req.sessionID);
 
-     res.redirect('/profile');
+     res.redirect('/');
     } catch (error) {
       console.error('Google callback error:', error);
       res.redirect('/login?topError=' + encodeURIComponent('Server error'));
