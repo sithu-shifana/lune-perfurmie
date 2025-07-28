@@ -73,6 +73,10 @@ app.use((req, res, next) => {
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 797baa020e6f941c7a3b46386e65ffe4f2e0d218
 app.use('/', userRoutes); 
 app.use('/admin', adminRoutes); 
 
