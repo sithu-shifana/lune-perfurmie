@@ -331,7 +331,7 @@
                 <% product.variants.forEach(variant => { %>
                   <div class="variant-item">
                     <span><strong>Size:</strong> <%= variant.size || 'N/A' %></span>
-                    <span><strong>Sold:</strong> <%= variant.soldCount || 0 %></span>
+                    <span><strong>Stock:</strong> <%= variant.stock || 0 %></span>
                     <span>
                       <strong>Price:</strong> 
                       <% if (variant.hasOffer && variant.offerPrice < variant.originalPrice) { %>
