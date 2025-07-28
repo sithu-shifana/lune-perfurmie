@@ -8,10 +8,10 @@ const connectDB = async () => {
         const dbConnection = await mongoose.connect(process.env.MONGO_URI, {
             retryWrites: true,
             w: 'majority',
-            readPreference: 'primary', // Ensure reads go to primary for consistency
+            readPreference: 'primary',
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
-            maxPoolSize: 20, // Increase for higher concurrency
+            maxPoolSize: 20,
             minPoolSize: 2
         });
         console.log('MongoDB connected successfully');
@@ -21,8 +21,7 @@ const connectDB = async () => {
     }
 };
 
-// // Enable debug logging to trace queries
-// mongoose.set('debug', true);
+mongoose.set('debug', true);
 
 mongoose.connection.on('connected', () => {
     console.log('mongoose connected to mongodb');

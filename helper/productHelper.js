@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { calculateBestOffer } = require('./offerHelper');
-const NodeCache = require('node-cache');
-
-const cache = new NodeCache({ stdTTL: 600 });
+const { productCache } = require('./cache'); // Use shared cache
 
 const getProductWithOffers = async (productId, userId = null) => {
   const Product = mongoose.model('Product');
@@ -11,8 +9,11 @@ const getProductWithOffers = async (productId, userId = null) => {
 
   try {
     const cacheKey = `product_${productId}_${userId || 'no-user'}`;
-    let productData = cache.get(cacheKey);
-    if (productData) return productData;
+    let productData = productCache.get(cacheKey);
+    if (productData) {
+      console.log(`Cache hit for product_${productId}`);
+      return productData;
+    }
 
     console.time(`fetchProduct:${productId}`);
     const product = await Product.findById(productId)
@@ -110,7 +111,8 @@ const getProductWithOffers = async (productId, userId = null) => {
       isInWishlist: userId ? isInWishlist : undefined
     };
 
-    cache.set(cacheKey, result);
+    productCache.set(cacheKey, result);
+    console.log(`Cache set for product_${productId}`);
     return result;
   } catch (error) {
     console.error('Error in getProductWithOffers:', error.message);
