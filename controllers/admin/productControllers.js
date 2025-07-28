@@ -13,6 +13,9 @@ const {
 } = require('../../helper/filterProducts');
 const { getProductWithOffers } = require('../../helper/productHelper');
 const { getProductPageHelper } = require('../../helper/productPageHelper');
+const NodeCache = require('node-cache');
+const productCache = new NodeCache({ stdTTL: 600 }); // Match productHelper
+const filterCache = new NodeCache({ stdTTL: 3600 }); // Match filterProducts
 
 exports.getProductManagementPage = async (req, res) => {
   try {
@@ -36,7 +39,6 @@ exports.getProductManagementPage = async (req, res) => {
       brand: { $in: listedBrands },
       category: { $in: listedCategories },
     });
-
 
     if (page < 1 || (totalProducts > 0 && page > Math.ceil(totalProducts / limit))) {
       return res.status(404).render('404', { message: 'Invalid page number' });
@@ -62,7 +64,6 @@ exports.getProductManagementPage = async (req, res) => {
       .sort({ createdAt: -1 });
 
     const filteredProducts = products.filter((product) => product.brand && product.category);
-
 
     const productsWithOffers = [];
     for (const product of filteredProducts) {
@@ -97,7 +98,6 @@ exports.getProductManagementPage = async (req, res) => {
       }
     }
 
-
     res.render('admin/products/productManagement', {
       totalProducts,
       products: productsWithOffers.filter((product) => product !== null), // Ensure no null products
@@ -112,20 +112,19 @@ exports.getProductManagementPage = async (req, res) => {
   }
 };
 
-exports.getaddProductPage=async(req,res)=>{
-    try{
-        const brands = await Brand.find({ status: 'listed' });
-        const categories = await Category.find({ status: 'listed' });
-         
-        res.render('admin/products/product-add', {
-            brands,
-            categories,
-        });
-    }catch(error){
-           console.error('Error fetching brands or categories in product add page:', error.message);
-    }
-}
-
+exports.getaddProductPage = async (req, res) => {
+  try {
+    const brands = await Brand.find({ status: 'listed' });
+    const categories = await Category.find({ status: 'listed' });
+     
+    res.render('admin/products/product-add', {
+      brands,
+      categories,
+    });
+  } catch (error) {
+    console.error('Error fetching brands or categories in product add page:', error.message);
+  }
+};
 
 exports.addProduct = async (req, res) => {
   try {
@@ -167,8 +166,6 @@ exports.addProduct = async (req, res) => {
   } catch (error) {
     console.error('Product Adding error:', error);
     
-    const Brand = require('../models/Brand');
-    const Category = require('../models/Category');
     const brands = await Brand.find({ status: 'listed' });
     const categories = await Category.find({ status: 'listed' });
     
@@ -189,16 +186,13 @@ exports.addProduct = async (req, res) => {
   }
 };
 
-
 exports.showEditProductForm = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate('brand', 'name')
-      .populate('category', 'name')
+      .populate('category', 'name');
     const brands = await Brand.find({ status: 'listed' });
     const categories = await Category.find({ status: 'listed' });
-
-    
 
     const oldInput = {
       productName: product.productName,
@@ -228,12 +222,6 @@ exports.showEditProductForm = async (req, res) => {
     });
   }
 };
-
-
-
-const NodeCache = require('node-cache');
-const productCache = new NodeCache({ stdTTL: 600 }); // Match productHelper
-const filterCache = new NodeCache({ stdTTL: 3600 }); // Match filterProducts
 
 exports.updateProduct = async (req, res) => {
   try {
@@ -281,7 +269,7 @@ exports.updateProduct = async (req, res) => {
       throw new Error('Failed to update product');
     }
 
-    // Invalidate product cache
+    // Invalidate product cache for all user variations
     productCache.keys().forEach(key => {
       if (key.startsWith(`product_${productId}_`)) {
         productCache.del(key);
@@ -294,8 +282,11 @@ exports.updateProduct = async (req, res) => {
       filterCache.del('filterOptions');
     }
 
-    res.redirect('/admin/productManagement');
+    // Explicitly clear cache for anonymous users
+    productCache.del(`product_${productId}_no-user`); // Clear for non-logged-in users
+    // Add more specific user IDs if needed, e.g., productCache.del(`product_${productId}_${userId}`);
 
+    res.redirect('/admin/productManagement');
   } catch (error) {
     console.error('Product update error:', error);
 
@@ -329,8 +320,6 @@ exports.updateProduct = async (req, res) => {
     });
   }
 };
-
-
 
 exports.getProductDetails = async (req, res) => {
   try {
@@ -433,5 +422,3 @@ exports.toggleProducts = async (req, res) => {
     });
   }
 };
-
-
