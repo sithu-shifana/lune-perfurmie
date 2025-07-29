@@ -24,11 +24,12 @@ const buildFilterQuery = (queryParams) => {
 };
 
 const getSortOption = (sort) => {
+    // For price sorting, we'll sort after calculating offers
+    // For other sorting, we can sort in the database query
     switch (sort) {
         case 'priceLowHigh':
-            return { 'variants.offerPrice': 1 };
         case 'priceHighLow':
-            return { 'variants.offerPrice': -1 };
+            return null; // Will sort after offers calculation
         case 'nameAZ':
             return { productName: 1 };
         case 'nameZA':
@@ -38,6 +39,15 @@ const getSortOption = (sort) => {
         default:
             return { createdAt: -1 };
     }
+};
+
+const sortProductsByPrice = (products, sortType) => {
+    if (sortType === 'priceLowHigh') {
+        return products.sort((a, b) => a.minOfferPrice - b.minOfferPrice);
+    } else if (sortType === 'priceHighLow') {
+        return products.sort((a, b) => b.minOfferPrice - a.minOfferPrice);
+    }
+    return products;
 };
 
 const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
@@ -60,9 +70,27 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
                 match: { status: 'listed' },
                 select: 'name _id'
             })
-            .sort(sortOption)
             .lean()
             .read('primary');
+
+        // Only apply database sorting if it's not price-based
+        if (sortOption) {
+            products = await Product.find(query)
+                .populate({
+                    path: 'brand',
+                    match: { status: 'listed' },
+                    select: 'name _id'
+                })
+                .populate({
+                    path: 'category',
+                    match: { status: 'listed' },
+                    select: 'name _id'
+                })
+                .sort(sortOption)
+                .collation({ locale: 'en', strength: 2 })
+                .lean()
+                .read('primary');
+        }
         console.timeEnd('fetchProducts');
 
         products = products.filter(product => product.brand && product.category);
@@ -87,8 +115,14 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
         }));
         console.timeEnd('applyOffers');
         
-        const validProducts = productsWithOffers.filter(p => p !== null);
+        let validProducts = productsWithOffers.filter(p => p !== null);
 
+        // Apply price-based sorting AFTER calculating offers
+        if (queryParams.sort === 'priceLowHigh' || queryParams.sort === 'priceHighLow') {
+            validProducts = sortProductsByPrice(validProducts, queryParams.sort);
+        }
+
+        // Apply price filtering
         let filteredProducts = validProducts;
         if (priceFilter.minPrice || priceFilter.maxPrice) {
             filteredProducts = validProducts.filter(product => {
