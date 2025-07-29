@@ -148,7 +148,7 @@ exports.approveItemReturn = async (req, res) => {
       return res.status(500).json({ success: false, message: 'Invalid refund amount calculated', alertType: 'error' });
     }
 
-    if (['ONLINE', 'WALLET','COD'].includes(order.paymentMethod) && order.paymentStatus === 'Completed') {
+    if (['RAZORPAY', 'WALLET','COD'].includes(order.paymentMethod) && order.paymentStatus === 'Completed') {
       const wallet = await Wallet.getOrCreate(order.userId);
       await wallet.addMoney(
         parseFloat(refundAmount),
