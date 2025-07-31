@@ -610,25 +610,32 @@ select:hover, input:focus {
 </div>
 
 
+<% 
+  const queryParams = new URLSearchParams({
+    category: query.category,
+    brand: query.brand,
+    sort: query.sort,
+    search: query.search,
+    minPrice,
+    maxPrice
+  });
+%>
+
 <% if (totalPages > 1) { %>
   <div class="pagination-simple">
-    <% 
-      const startPage = Math.max(1, currentPage - 2);
-      const endPage = Math.min(totalPages, currentPage + 2);
-    %>
+    <% const startPage = Math.max(1, currentPage - 2); %>
+    <% const endPage = Math.min(totalPages, currentPage + 2); %>
 
     <% if (startPage > 1) { %>
-      <a href="?page=1" class="pagination-btn">1</a>
-      <% if (startPage > 2) { %>
-        <span class="pagination-dots">...</span>
-      <% } %>
+      <a href="?<%= queryParams.toString() %>&page=1" class="pagination-btn">1</a>
+      <% if (startPage > 2) { %><span class="pagination-dots">...</span><% } %>
     <% } %>
 
     <% for (let i = startPage; i <= endPage; i++) { %>
       <% if (i === currentPage) { %>
         <span class="pagination-btn active"><%= i %></span>
       <% } else { %>
-        <a href="?page=<%= i %>" class="pagination-btn"><%= i %></a>
+        <a href="?<%= queryParams.toString() %>&page=<%= i %>" class="pagination-btn"><%= i %></a>
       <% } %>
     <% } %>
 
@@ -636,10 +643,11 @@ select:hover, input:focus {
       <% if (endPage < totalPages - 1) { %>
         <span class="pagination-dots">...</span>
       <% } %>
-      <a href="?page=<%= totalPages %>" class="pagination-btn"><%= totalPages %></a>
+      <a href="?<%= queryParams.toString() %>&page=<%= totalPages %>" class="pagination-btn"><%= totalPages %></a>
     <% } %>
   </div>
 <% } %>
+
 
 
 <script>
