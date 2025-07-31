@@ -357,12 +357,19 @@ body {
 
 
 <nav class="breadcrumbs container">
-  <a href="/">Home</a> >
-  <a href="/category/<%= product.category?._id || '#' %>">
-    <%= product.category?.name || 'Category' %>
-  </a> >
+  <a href="/">Home</a> &gt;
+
+  <% if (product.category && product.category._id && product.category.name) { %>
+    <a href="/products?category=<%= product.category._id %>">
+      <%= product.category.name %>
+    </a> &gt;
+  <% } else { %>
+    <span>Category</span> &gt;
+  <% } %>
+
   <span><%= product.productName || 'Product' %></span>
 </nav>
+
 
  <div id="login-alert" style="
   display: none; position: fixed; top: 30px; left: 50%; transform: translateX(-50%);

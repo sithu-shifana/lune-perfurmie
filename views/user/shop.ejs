@@ -651,6 +651,27 @@ select:hover, input:focus {
 
 
 <script>
+
+ 
+  const searchForm = document.getElementById("searchContainer");
+  const searchInput = document.getElementById("searchInput");
+
+  // Get current query from the URL (e.g., ?search=blazer)
+  const currentParams = new URLSearchParams(window.location.search);
+  const currentSearch = currentParams.get("search") || "";
+
+  searchForm.addEventListener("submit", function (e) {
+    const newSearch = searchInput.value.trim();
+
+    // If user searched the same value again, treat it as "clear"
+    if (newSearch.toLowerCase() === currentSearch.toLowerCase()) {
+      e.preventDefault(); // stop form submit
+      window.location.href = "/products"; // redirect without query (clear search)
+    }
+    // Else, allow normal submit (new search)
+  });
+
+
   const toggleBtn = document.getElementById('filterToggle');
   const sidebar = document.getElementById('filterSidebar');
 
