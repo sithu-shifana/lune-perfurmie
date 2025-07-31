@@ -241,9 +241,6 @@ exports.sendCurrentEmailOtp = async (req, res) => {
 
 
 
-
-
-
 exports.verifyCurrentEmailOtp = (req, res) => {
   const { otp } = req.body;
   const storedOtp = req.session.currentEmailOtp;
@@ -277,6 +274,10 @@ exports.sendNewEmailOtp = async (req, res) => {
   if(!email){
     console.log(`email not foun`)
   }
+  const existingUser = await User.findOne({ email });
+if (existingUser) {
+  return res.status(400).json({ success: false, message: 'Email already exists.' });
+}
   newEmail=email;
   const otp = Math.floor(100000 + Math.random() * 900000);
 
@@ -301,6 +302,7 @@ exports.verifyNewEmailOtp = async (req, res) => {
   const newEmail = req.session.newEmail;
   const userId = req.session.user?.id;
 
+
   if(!otp){
         return res.status(400).json({ success: false, message: 'OTP is required' });
 
@@ -311,6 +313,10 @@ exports.verifyNewEmailOtp = async (req, res) => {
   }
 
   if (parseInt(otp) !== storedOtp) {
+    return res.status(400).json({ success: false, message: 'Incorrect OTP.' });
+  }
+
+   if (parseInt(otp) !== storedOtp) {
     return res.status(400).json({ success: false, message: 'Incorrect OTP.' });
   }
 

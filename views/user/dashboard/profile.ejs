@@ -1422,6 +1422,8 @@ document.getElementById('sendOtpNewBtn').addEventListener('click', async () => {
   const resendBtn = document.getElementById('resendNewOtpBtn');
   const emailInput = document.getElementById('newEmailInput');
   const sendOtpBtn = document.getElementById('sendOtpNewBtn');
+  const otpInputs = document.querySelectorAll('#otpSectionNew .otp-input');
+const otpError = document.getElementById('otpErrorMsgNew');
 
   if (!newEmail) {
     showMessage('Error', 'Please enter new email', 'error');
