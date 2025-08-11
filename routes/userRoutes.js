@@ -82,6 +82,7 @@ router.post('/edit-address/:id', isAuthenticated, validateAddress, addressContro
 //wallet routes
 router.get('/wallet',isAuthenticated,walletController.getWalletPage);
 router.post('/wallet/add-money', isAuthenticated, walletController.addMoney);
+router.post('/wallet/verify-payment', isAuthenticated, walletController.verifyPayment);
 router.post('/wallet/deduct', isAuthenticated, walletController.withdrawMoney);
 
 
