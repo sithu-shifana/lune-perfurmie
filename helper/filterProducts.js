@@ -58,7 +58,6 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
     const skip = (page - 1) * limit;
     
     try {
-        console.time('fetchProducts');
         let products = await Product.find(query)
             .populate({
                 path: 'brand',
@@ -91,15 +90,11 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
                 .lean()
                 .read('primary');
         }
-        console.timeEnd('fetchProducts');
 
         products = products.filter(product => product.brand && product.category);
 
-        console.time('applyOffers');
         const productsWithOffers = await Promise.all(products.map(async (product) => {
-            console.time(`getProductWithOffers:${product._id}`);
             const productWithOffers = await getProductWithOffers(product._id);
-            console.timeEnd(`getProductWithOffers:${product._id}`);
             
             if (productWithOffers) {
                 return {
@@ -113,7 +108,6 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
             }
             return null;
         }));
-        console.timeEnd('applyOffers');
         
         let validProducts = productsWithOffers.filter(p => p !== null);
 
@@ -136,7 +130,6 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
         const totalProducts = filteredProducts.length;
         const paginatedProducts = filteredProducts.slice(skip, skip + limit);
 
-        console.time('fetchWishlist');
         let wishlistedProductIds = [];
         if (userId) {
             const wishlist = await Wishlist.findOne({ user: userId }).lean().read('primary');
@@ -144,7 +137,6 @@ const getProductsWithOffersAndWishlist = async (queryParams, userId) => {
                 wishlistedProductIds = wishlist.items.map(item => item.product.toString());
             }
         }
-        console.timeEnd('fetchWishlist');
 
         const productsWithWishlist = paginatedProducts.map(product => ({
             ...product,
@@ -169,12 +161,10 @@ const getFilterOptions = async () => {
         const cacheKey = 'filterOptions';
         let filterOptions = filterCache.get(cacheKey);
         if (!filterOptions) {
-            console.time('fetchFilterOptions');
             const [categories, brands] = await Promise.all([
                 Category.find({ status: 'listed' }).select('name _id').lean().read('primary'),
                 Brand.find({ status: 'listed' }).select('name _id').lean().read('primary')
             ]);
-            console.timeEnd('fetchFilterOptions');
             filterOptions = { categories, brands };
             filterCache.set(cacheKey, filterOptions);
         }

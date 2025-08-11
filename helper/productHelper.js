@@ -11,11 +11,9 @@ const getProductWithOffers = async (productId, userId = null) => {
     const cacheKey = `product_${productId}_${userId || 'no-user'}`;
     let productData = productCache.get(cacheKey);
     if (productData) {
-      console.log(`Cache hit for product_${productId}`);
       return productData;
     }
 
-    console.time(`fetchProduct:${productId}`);
     const product = await Product.findById(productId)
       .populate({
         path: 'brand',
@@ -27,13 +25,11 @@ const getProductWithOffers = async (productId, userId = null) => {
       })
       .lean()
       .read('primary');
-    console.timeEnd(`fetchProduct:${productId}`);
 
     if (!product || product.status !== 'listed' || !product.brand || !product.category) {
       return null;
     }
 
-    console.time(`applyOffers:${productId}`);
     const variantsWithOffers = await Promise.all(
       product.variants.map(async (variant) => {
         const offerDetails = await calculateBestOffer(product._id, variant.originalPrice);
@@ -52,9 +48,7 @@ const getProductWithOffers = async (productId, userId = null) => {
         };
       })
     );
-    console.timeEnd(`applyOffers:${productId}`);
 
-    console.time(`fetchWishlist:${productId}`);
     let isInWishlist = false;
     if (userId) {
       const wishlist = await Wishlist.findOne({ user: userId }).lean().read('primary');
@@ -62,9 +56,7 @@ const getProductWithOffers = async (productId, userId = null) => {
         isInWishlist = wishlist.items.some(item => item.product.toString() === productId.toString());
       }
     }
-    console.timeEnd(`fetchWishlist:${productId}`);
 
-    console.time(`fetchCart:${productId}`);
     if (userId) {
       const cart = await Cart.findOne({ user: userId }).lean().read('primary');
       if (cart && cart.items.length > 0) {
@@ -87,7 +79,6 @@ const getProductWithOffers = async (productId, userId = null) => {
         });
       }
     }
-    console.timeEnd(`fetchCart:${productId}`);
 
     const hasOffer = variantsWithOffers.some(v => v.hasOffer);
     const bestVariantWithOffer = variantsWithOffers.find(v => v.hasOffer) || variantsWithOffers[0];
@@ -112,7 +103,6 @@ const getProductWithOffers = async (productId, userId = null) => {
     };
 
     productCache.set(cacheKey, result);
-    console.log(`Cache set for product_${productId}`);
     return result;
   } catch (error) {
     console.error('Error in getProductWithOffers:', error.message);

@@ -14,7 +14,6 @@ function calculateItemPricing(item) {
 }
 
 const prepareOrderForSave = (order, coupon = null) => {
-  console.time('prepareOrderForSave');
   try {
     // Process items
     order.items.forEach(item => {
@@ -111,7 +110,6 @@ const prepareOrderForSave = (order, coupon = null) => {
 
     return order;
   } finally {
-    console.timeEnd('prepareOrderForSave');
   }
 };
 
