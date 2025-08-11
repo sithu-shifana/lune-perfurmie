@@ -649,10 +649,13 @@
               </button>
               <button id="changeEmailBtn" class="btn btn-action" onclick="openCurrentEmailModal()">
                 <img src="/icons/email.png" class="icon-small white-icon"> Change Email
-              </button>
-              <button id="changePasswordBtn" class="btn btn-action" onclick="openPasswordModal()">
-                <img src="/icons/password-protection.png" class="icon-small white-icon"> Change Password
-              </button>
+              <button id="changePasswordBtn" 
+        class="btn btn-action" 
+        onclick="openPasswordModal()" 
+        <%= user.isGoogleAuthenticated ? 'disabled' : '' %>>
+    <img src="/icons/password-protection.png" class="icon-small white-icon"> Change Password
+</button>
+
             </div>
           </div>
 
@@ -1137,14 +1140,12 @@
     } catch (error) {
       pictureErrorMessage.textContent = 'Error uploading picture. Please try again.';
       pictureErrorMessage.style.display = 'block';
-      console.error('Upload error:', error);
     }
   };
 
   document.getElementById('validatePasswordBtn').onclick = async () => {
     clearPasswordMessages();
     const currentPassword = document.getElementById('currentPassword').value.trim();
-    console.log(currentPassword)
 
     if (!currentPassword) {
       passwordErrorMessage.textContent = 'Current password is required';
@@ -1172,7 +1173,6 @@
     } catch (error) {
       passwordErrorMessage.textContent = 'Error validating password. Please try again.';
       passwordErrorMessage.style.display = 'block';
-      console.error('Validation error:', error);
     }
   };
 
@@ -1183,8 +1183,6 @@
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
-    console.log('New Password:', newPassword);
-    console.log('Confirm Password:', confirmPassword);
 
     if (!newPassword || !confirmPassword) {
       newPasswordErrorMessage.textContent = 'All fields are required';
@@ -1226,7 +1224,6 @@
     } catch (error) {
       newPasswordErrorMessage.textContent = 'Error updating password. Please try again.';
       newPasswordErrorMessage.style.display = 'block';
-      console.error('Password change error:', error);
     }
   };
 
@@ -1234,7 +1231,6 @@
 
   const getReferralBtn = document.getElementById('getReferralBtn');
   getReferralBtn.onclick = async () => {
-    console.log('Get Referral Code button clicked');
     try {
       const response = await fetch('/get-referral-code', {
         method: 'GET',
@@ -1242,14 +1238,11 @@
         credentials: 'include'
       });
 
-      console.log('Fetch response:', response.status);
       const data = await response.json();
-      console.log('Response data:', data);
 
       if (response.ok) {
         const existingModal = document.getElementById('referralModal');
         if (existingModal) {
-          console.log('Removing existing referral modal');
           existingModal.remove();
         }
         showReferralModal(data.referralCode, data.referralLink);
@@ -1257,13 +1250,11 @@
         showMessage('Error', 'Error getting referral code: ' + (data.error || 'Unknown error'), 'error');
       }
     } catch (error) {
-      console.error('Error fetching referral code:', error);
       showMessage('Error', 'Something went wrong while fetching referral code.', 'error');
     }
   };
 
   function showReferralModal(code, link) {
-    console.log('showReferralModal called with code:', code, 'link:', link);
     const modalHtml = `
       <div id="referralModal" class="referral-modal">
         <div class="referral-modal-content">
@@ -1281,32 +1272,25 @@
         </div>
       </div>
     `;
-    console.log('Inserting modal HTML');
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    console.log('Modal inserted');
   }
 
   function copyReferralLink() {
-    console.log('copyReferralLink called');
     const input = document.getElementById('referralLinkInput');
     input.select();
     input.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(input.value)
       .then(() => {
-        console.log('Referral link copied');
         showMessage('Success', 'Referral link copied to clipboard!', 'success');
       })
       .catch(err => {
-        console.error('Copy failed:', err);
         showMessage('Error', 'Failed to copy. Please copy manually.', 'error');
       });
   }
   function closeReferralModal() {
-    console.log('closeReferralModal called');
     const modal = document.getElementById('referralModal');
     if (modal) {
       modal.remove();
-      console.log('Referral modal removed');
     }
   }
 
@@ -1407,7 +1391,6 @@
     } catch (err) {
       errorMsgCurrent.textContent = 'Something went wrong during verification.';
       errorMsgCurrent.style.display = 'block';
-      console.error('Verification error:', err);
     }
   });
 
@@ -1466,7 +1449,6 @@ const otpError = document.getElementById('otpErrorMsgNew');
   } catch (err) {
     msg.textContent = 'Something went wrong while sending OTP';
     showMessage('Error', 'Something went wrong while sending OTP', 'error');
-    console.error('Send OTP error:', err);
   }
 });
 
@@ -1500,7 +1482,6 @@ document.getElementById('verifyNewOtpBtn').addEventListener('click', async () =>
     otpError.textContent = 'Something went wrong during verification.';
     otpError.style.display = 'block';
     showMessage('Error', 'Something went wrong during verification.', 'error');
-    console.error('Verification error:', err);
   }
 });
 

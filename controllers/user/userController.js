@@ -558,6 +558,7 @@ exports.googleCallback = [
         name: user.name,
         email: user.email,
         profilePicture: user.profilePicture,
+        isGoogleAuthenticated: user.isGoogleAuthenticated
       };
 
       await user.createSession(req.sessionID);
