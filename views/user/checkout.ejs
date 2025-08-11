@@ -176,7 +176,6 @@ h2.mb-4 {
   font-weight: 500;
 }
 
-/* Empty cart */
 #orderItems p {
   width: 100%;
   text-align: center;
@@ -185,7 +184,6 @@ h2.mb-4 {
   margin: 3rem 0;
 }
 
-/* Address Section Styling */
 .address-section {
   background: #ffffff;
   border: 1px solid #e8e8e8;
@@ -204,7 +202,6 @@ h2.mb-4 {
   letter-spacing: 0.5px;
 }
 
-/* Address Dropdown Styling */
 .address-dropdown-container {
   position: relative;
   margin-bottom: 1rem;
@@ -328,7 +325,6 @@ h2.mb-4 {
   text-decoration: underline;
 }
 
-/* Add Address Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -689,7 +685,6 @@ h2.mb-4 {
 }
 </style>
 
-<!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="spinner-border" role="status">
     <span class="visually-hidden">Loading...</span>
@@ -699,7 +694,6 @@ h2.mb-4 {
 <div class="container my-4">
   <h2 class="mb-4">Checkout</h2>
 
-  <!-- Order Items List -->
   <div id="orderItems">
     <% if (orderItems && orderItems.length > 0) { %>
       <% orderItems.forEach(item => { %>
@@ -732,7 +726,6 @@ h2.mb-4 {
     <% } %>
   </div>
 
-  <!-- Address Selection Section -->
   <div class="address-section">
     <label>Select Delivery Address</label>
     <div class="address-dropdown-container">
@@ -777,7 +770,6 @@ h2.mb-4 {
     </button>
   </div>
 
-  <!-- Add Address Modal -->
   <div id="addAddressModal" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="modal-header">
@@ -828,7 +820,6 @@ h2.mb-4 {
     </div>
   </div>
 
-  <!-- Available Coupons -->
   <% if (activeCoupons && activeCoupons.length > 0) { %>
     <div class="mt-4 p-3 bg-light border rounded">
       <h5 class="fw-bold mb-3">Available Coupons</h5>
@@ -856,7 +847,6 @@ h2.mb-4 {
     <p class="text-muted">No active coupons available right now.</p>
   <% } %>
 
-  <!-- Coupon Section -->
   <div id="coupon-container" style="display: flex; gap: 10px; margin-bottom: 20px;">
     <input type="text" id="couponCode" placeholder="Enter Coupon Code"
       style="padding: 10px; flex: 1; border: 1px solid #ccc; border-radius: 5px;">
@@ -868,16 +858,13 @@ h2.mb-4 {
     </button>
   </div>
 
-  <!-- Response Message -->
   <div id="coupon-message" style="margin-bottom: 20px;"></div>
 
-  <!-- Hidden inputs for coupon and totals -->
   <input type="hidden" id="selectedAddressId" value="<%= selectedAddressId %>">
   <input type="hidden" id="appliedCouponCode" value="">
   <input type="hidden" id="couponDiscount" value="0">
   <input type="hidden" id="originalSubtotal" value="<%= subtotal %>">
 
-  <!-- Order Summary -->
   <% if (orderItems && orderItems.length > 0) { %>
     <div class="order-summary">
       <h4>Order Summary</h4>
@@ -909,7 +896,6 @@ h2.mb-4 {
       </div>
     </div>
 
-    <!-- Payment and Place Order Section -->
     <div class="payment-section">
       <h4>Select Payment Method & Place Order</h4>
       <div class="payment-option <%= codAvailable ? '' : 'disabled' %>" data-method="COD" id="paymentCOD">
@@ -938,15 +924,12 @@ h2.mb-4 {
   <% } %>
 </div>
 
-<!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-// Socket.IO setup with error handling
 const socket = io();
 
 socket.on('connect_error', (error) => {
-  console.error('Socket connection error:', error);
   showMessage('Error', 'Failed to connect to server. Please try again.', 'error');
 });
 
@@ -970,7 +953,6 @@ socket.on('brand-toggled', (data) => {
     setTimeout(() => location.reload(), 2000);
   }
 });
-// Utility functions
 const showLoading = () => {
   const overlay = document.getElementById('loadingOverlay');
   if (overlay) overlay.classList.add('show');
@@ -981,7 +963,6 @@ const hideLoading = () => {
   if (overlay) overlay.classList.remove('show');
 };
 
-// SweetAlert2 message function
 function showMessage(title, text, icon = 'success') {
   Swal.fire({
     title: title,
@@ -1003,7 +984,6 @@ function showMessage(title, text, icon = 'success') {
   });
 }
 
-// Address dropdown functionality
 const dropdownBtn = document.getElementById('addressDropdownBtn');
 const dropdown = document.getElementById('addressDropdown');
 const selectedAddressSpan = document.getElementById('selectedAddress');
@@ -1029,7 +1009,6 @@ dropdown.querySelectorAll('li').forEach(item => {
       dropdown.classList.remove('show');
       dropdownBtn.classList.remove('active');
 
-      // Save selected address to session
       try {
         const response = await fetch('/select-address', {
           method: 'POST',
@@ -1041,14 +1020,12 @@ dropdown.querySelectorAll('li').forEach(item => {
           showMessage('Error', 'Failed to select address', 'error');
         }
       } catch (error) {
-        console.error('Error selecting address:', error);
         showMessage('Error', 'Failed to select address', 'error');
       }
     }
   });
 });
 
-// Close dropdown when clicking outside
 document.addEventListener('click', (e) => {
   if (!dropdownBtn.contains(e.target) && !dropdown.contains(e.target)) {
     dropdown.classList.add('hidden');
@@ -1057,7 +1034,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Modal functions
 function openAddAddressModal() {
   document.getElementById('addAddressModal').classList.remove('hidden');
   document.getElementById('addAddressModal').classList.add('show');
@@ -1070,12 +1046,10 @@ function closeAddAddressModal() {
   clearErrors();
 }
 
-// Clear form errors
 function clearErrors() {
   document.querySelectorAll('.error-text').forEach(error => error.textContent = '');
 }
 
-// Validate form
 function validateForm(formData) {
   let isValid = true;
   clearErrors();
@@ -1116,7 +1090,6 @@ function validateForm(formData) {
   return isValid;
 }
 
-// Add address form submission
 document.getElementById('addAddressForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
@@ -1130,7 +1103,8 @@ document.getElementById('addAddressForm').addEventListener('submit', async (e) =
     country: form.country.value.trim()
   };
 
-  if (!validateForm(formData)) return;
+  // Clear previous errors
+  clearErrors();
 
   showLoading();
   try {
@@ -1141,22 +1115,32 @@ document.getElementById('addAddressForm').addEventListener('submit', async (e) =
     });
     const result = await response.json();
 
-    if (result.success) {
+    if (response.ok && result.success) {
       showMessage('Success', result.message);
       closeAddAddressModal();
       window.location.reload();
     } else {
-      showMessage('Error', result.message, 'error');
+      // Handle backend validation errors
+      if (result.errors) {
+        // Display each field error from backend
+        Object.keys(result.errors).forEach(field => {
+          const errorElement = document.getElementById(`${field}-error`);
+          if (errorElement) {
+            errorElement.textContent = result.errors[field];
+          }
+        });
+      } else {
+        showMessage('Error', result.message || 'Validation failed', 'error');
+      }
     }
   } catch (error) {
-    console.error('Error adding address:', error);
     showMessage('Error', 'Failed to add address', 'error');
   } finally {
     hideLoading();
   }
 });
 
-// Apply coupon
+
 async function applyCoupon() {
   const couponCode = document.getElementById('couponCode').value.trim();
   const messageEl = document.getElementById('coupon-message');
@@ -1198,25 +1182,20 @@ async function applyCoupon() {
       messageEl.style.color = 'green';
       messageEl.textContent = data.message;
 
-      // Update order summary
       subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
       couponDiscountContainer.style.display = 'flex';
       couponDiscountDisplay.textContent = `-₹${couponDiscount.toLocaleString()}`;
       finalTotalEl.textContent = `₹${finalTotal.toLocaleString()}`;
 
-      // Store coupon code and discount
       appliedCouponCodeInput.value = couponCode;
       couponDiscountInput.value = couponDiscount;
 
-      // Show remove coupon button
       removeCouponBtn.style.display = 'inline-block';
 
-      // Update COD and wallet status
       const codAvailable = finalTotal <= 10000;
       const walletBalance = parseFloat('<%= walletBalance %>');
       const walletEnabled = walletBalance >= finalTotal;
 
-      // Update COD
       if (codAvailable) {
         paymentCOD.classList.remove('disabled');
         paymentCODInput.disabled = false;
@@ -1230,7 +1209,6 @@ async function applyCoupon() {
           span.textContent = 'COD available only for orders <= ₹10,000';
           paymentCOD.appendChild(span);
         }
-        // If COD was selected, switch to another available option
         if (paymentCODInput.checked) {
           if (walletEnabled) {
             paymentWalletInput.checked = true;
@@ -1240,7 +1218,6 @@ async function applyCoupon() {
         }
       }
 
-      // Update wallet
       if (walletEnabled) {
         paymentWallet.classList.remove('disabled');
         paymentWalletInput.disabled = false;
@@ -1254,7 +1231,6 @@ async function applyCoupon() {
           span.textContent = 'Insufficient funds';
           paymentWallet.appendChild(span);
         }
-        // If wallet was selected, switch to another available option
         if (paymentWalletInput.checked) {
           if (codAvailable) {
             paymentCODInput.checked = true;
@@ -1267,7 +1243,6 @@ async function applyCoupon() {
       messageEl.style.color = 'red';
       messageEl.textContent = data.message || 'Invalid coupon code.';
 
-      // Reset coupon fields
       appliedCouponCodeInput.value = '';
       couponDiscountInput.value = '0';
       couponDiscountContainer.style.display = 'none';
@@ -1276,7 +1251,6 @@ async function applyCoupon() {
       removeCouponBtn.style.display = 'none';
     }
   } catch (error) {
-    console.error('Error applying coupon:', error);
     messageEl.style.color = 'red';
     messageEl.textContent = 'Something went wrong. Try again.';
   } finally {
@@ -1284,7 +1258,6 @@ async function applyCoupon() {
   }
 }
 
-// Remove coupon
 function removeCoupon() {
   const messageEl = document.getElementById('coupon-message');
   const subtotalEl = document.getElementById('subtotal');
@@ -1302,7 +1275,6 @@ function removeCoupon() {
   const paymentWalletInput = document.getElementById('paymentWalletInput');
   const paymentRazorpayInput = document.getElementById('paymentRazorpayInput');
 
-  // Reset order summary
   subtotalEl.textContent = `₹${originalSubtotal.toLocaleString()}`;
   couponDiscountContainer.style.display = 'none';
   couponDiscountDisplay.textContent = '₹0';
@@ -1314,12 +1286,10 @@ function removeCoupon() {
   messageEl.style.color = 'green';
   messageEl.textContent = 'Coupon removed successfully.';
 
-  // Update COD and wallet enabled status
   const codAvailable = finalTotalEl <= 10000;
   const walletBalance = parseFloat('<%= walletBalance %>');
   const walletEnabled = walletBalance >= originalSubtotal;
 
-  // Update COD
   if (codAvailable) {
     paymentCOD.classList.remove('disabled');
     paymentCODInput.disabled = false;
@@ -1333,7 +1303,6 @@ function removeCoupon() {
       span.textContent = 'COD available only for orders <= ₹10,000';
       paymentCOD.appendChild(span);
     }
-    // If COD was selected, switch to another available option
     if (paymentCODInput.checked) {
       if (walletEnabled) {
         paymentWalletInput.checked = true;
@@ -1343,7 +1312,6 @@ function removeCoupon() {
     }
   }
 
-  // Update wallet
   if (walletEnabled) {
     paymentWallet.classList.remove('disabled');
     paymentWalletInput.disabled = false;
@@ -1357,7 +1325,6 @@ function removeCoupon() {
       span.textContent = 'Insufficient funds';
       paymentWallet.appendChild(span);
     }
-    // If wallet was selected, switch to another available option
     if (paymentWalletInput.checked) {
       if (codAvailable) {
         paymentCODInput.checked = true;
@@ -1400,7 +1367,6 @@ async function placeOrder() {
         return;
       }
 
-      // Store orderId for use in failure cases
       const orderId = result.orderId;
 
       const options = {
@@ -1421,7 +1387,7 @@ async function placeOrder() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                orderId: orderId // Pass orderId for verification
+                orderId: orderId 
               }),
             });
             const verifyResult = await verifyResponse.json();
@@ -1430,12 +1396,10 @@ async function placeOrder() {
               showMessage('Success', verifyResult.message);
               window.location.href = `/order-confirmation/${verifyResult.orderId || orderId}`;
             } else {
-              console.log('Verify result orderId:', verifyResult.orderId);
               showMessage('Error', verifyResult.message, 'error');
               window.location.href = `/order-failed/${verifyResult.orderId || orderId}`;
             }
           } catch (error) {
-            console.error('Error verifying payment:', error);
             showMessage('Error', 'Payment verification failed', 'error');
             window.location.href = `/order-failed/${orderId}`;
           } finally {
@@ -1469,7 +1433,6 @@ async function placeOrder() {
             window.location.href = `/order-failed/${orderId}`;
           }
         } catch (error) {
-          console.error('Error updating order status:', error);
           showMessage('Error', 'Failed to update order status', 'error');
           window.location.href = `/order-failed/${orderId}`;
         } finally {
@@ -1493,7 +1456,6 @@ async function placeOrder() {
       }
     }
   } catch (error) {
-    console.error('Error placing order:', error);
     showMessage('Error', 'Failed to place order', 'error');
   } finally {
     if (paymentMethod !== 'RAZORPAY') hideLoading();

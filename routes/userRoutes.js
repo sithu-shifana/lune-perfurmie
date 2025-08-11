@@ -109,7 +109,7 @@ router.post('/verify-razorpay-payment', isAuthenticated, checkoutController.veri
 router.get('/order-failed/:orderId',isAuthenticated,checkoutController.renderOrderFailed)
 router.post('/place-order', checkoutController.placeOrder);
 router.get('/order-confirmation/:orderId', checkoutController.getOrderSuccessPage);
-router.post('/add-address',checkoutController.addAddress);
+router.post('/add-address',isAuthenticated,validateAddress,checkoutController.addAddress);
 router.post('/update-order-failed', isAuthenticated, checkoutController.updateOrderFailed);
 
 
