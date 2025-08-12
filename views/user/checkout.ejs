@@ -602,6 +602,170 @@ h2.mb-4 {
   margin-left: 1rem;
 }
 
+/* Coupon Section Styling */
+.coupon-section {
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.coupon-section h5 {
+  font-weight: 400;
+  font-size: 1.4rem;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+}
+
+.coupon-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.coupon-container input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #2c2c2c;
+  transition: border-color 0.3s ease;
+}
+
+.coupon-container input:focus {
+  outline: none;
+  border-color: #0dcaf0;
+}
+
+.coupon-container button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.coupon-container .apply-btn {
+  background: #0dcaf0;
+  color: #ffffff;
+}
+
+.coupon-container .apply-btn:hover {
+  background: #0aa8c5;
+}
+
+.coupon-container .remove-btn {
+  background: #dc3545;
+  color: #ffffff;
+}
+
+.coupon-container .remove-btn:hover {
+  background: #c82333;
+}
+
+#coupon-message {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  min-height: 20px;
+}
+
+.coupon-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  background: #f8f9fa;
+  padding: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #6c757d #f8f9fa;
+}
+
+.coupon-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.coupon-list-container::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+.coupon-list-container::-webkit-scrollbar-thumb {
+  background: #6c757d;
+  border-radius: 4px;
+}
+
+.coupon-list-container .coupon-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e8e8e8;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-left 0.3s ease;
+  position: relative;
+}
+
+.coupon-list-container .coupon-item:last-child {
+  border-bottom: none;
+}
+
+.coupon-list-container .coupon-item:hover {
+  background-color: #e9ecef;
+}
+
+.coupon-list-container .coupon-item.selected {
+  background-color: #e8f5e8;
+  border-left: 4px solid #28a745;
+}
+
+.coupon-item .badge {
+  background-color: #0dcaf0;
+  color: #ffffff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+}
+
+.coupon-item small {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.coupon-item ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+  font-size: 0.9rem;
+  color: #2c2c2c;
+}
+
+.coupon-item .select-coupon-btn {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0dcaf0;
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.coupon-item .select-coupon-btn:hover {
+  background: #0aa8c5;
+}
+
+.coupon-item.selected .select-coupon-btn {
+  background: #28a745;
+}
+
+.coupon-item.selected .select-coupon-btn:hover {
+  background: #218838;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .order-item {
@@ -635,12 +799,16 @@ h2.mb-4 {
     margin-bottom: 2rem;
   }
   
-  .order-summary, .address-section {
+  .order-summary, .address-section, .coupon-section {
     padding: 1.5rem;
   }
   
   .modal-content {
     padding: 1.5rem;
+  }
+  
+  .coupon-list-container {
+    max-height: 200px;
   }
 }
 
@@ -681,6 +849,20 @@ h2.mb-4 {
   
   .form-actions button {
     width: 100%;
+  }
+  
+  .coupon-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .coupon-container input,
+  .coupon-container button {
+    width: 100%;
+  }
+  
+  .coupon-list-container {
+    max-height: 150px;
   }
 }
 </style>
@@ -729,27 +911,15 @@ h2.mb-4 {
   <div class="address-section">
     <label>Select Delivery Address</label>
     <div class="address-dropdown-container">
-      <button id="addressDropdownBtn" type="button">
-        <span id="selectedAddress">
-          <% if (selectedAddressId) { 
-               const selected = addresses.find(addr => addr._id.toString() === selectedAddressId.toString());
-          %>
-            <%= selected ? `${selected.name}, ${selected.city}` : 'Choose your delivery address' %>
-          <% } else { %>
-            Choose your delivery address
-          <% } %>
-        </span>
+      <button id="addressDropdownBtn" type="button" aria-expanded="false" aria-label="Select delivery address"> <!-- CHANGE: Added ARIA attributes for accessibility -->
+        <span id="selectedAddress">Choose your delivery address</span> <!-- CHANGE: Always start with this, no auto-select -->
         <span class="dropdown-arrow">▼</span>
       </button>
 
       <ul id="addressDropdown" class="hidden">
         <% if (addresses && addresses.length > 0) { %>
-          <% addresses.forEach(address => { 
-               const isSelected = address._id.toString() === selectedAddressId?.toString();
-          %>
-            <li 
-              data-id="<%= address._id %>" 
-              class="<%= isSelected ? 'selected' : '' %>">
+          <% addresses.forEach(address => { %>
+            <li data-id="<%= address._id %>">
               <strong><%= address.name %></strong>
               <div class="address-details">
                 <%= address.street %>, <%= address.city %>, <%= address.state %> - <%= address.pinCode %>
@@ -770,97 +940,43 @@ h2.mb-4 {
     </button>
   </div>
 
-  <div id="addAddressModal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">Add New Address</h3>
-        <button class="modal-close" type="button" onclick="closeAddAddressModal()">×</button>
-      </div>
-      <form id="addAddressForm">
-        <div class="form-group">
-          <label for="addressName">Full Name</label>
-          <input type="text" id="addressName" name="name" placeholder="Full Name" class="form-input">
-          <p class="error-text" id="name-error"></p>
-        </div>
-        <div class="form-group">
-          <label for="addressPhone">Phone Number</label>
-          <input type="tel" id="addressPhone" name="phone" placeholder="Phone Number" class="form-input">
-          <p class="error-text" id="phone-error"></p>
-        </div>
-        <div class="form-group">
-          <label for="addressStreet">Street Address</label>
-          <input type="text" id="addressStreet" name="street" placeholder="Street Address" class="form-input">
-          <p class="error-text" id="street-error"></p>
-        </div>
-        <div class="form-group">
-          <label for="addressCity">City</label>
-          <input type="text" id="addressCity" name="city" placeholder="City" class="form-input">
-          <p class="error-text" id="city-error"></p>
-        </div>
-        <div class="form-group">
-          <label for="addressState">State</label>
-          <input type="text" id="addressState" name="state" placeholder="State" class="form-input">
-          <p class="error-text" id="state-error"></p>
-        </div>
-        <div class="form-group">
-          <label for="addressPinCode">Pin Code</label>
-          <input type="text" id="addressPinCode" name="pinCode" placeholder="Pin Code" class="form-input">
-          <p class="error-text" id="pinCode-error"></p>
-        </div>
-        <div class="form-group">
-          <label for="addressCountry">Country</label>
-          <input type="text" id="addressCountry" name="country" placeholder="Country" value="India" class="form-input" readonly>
-          <p class="error-text" id="country-error"></p>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" onclick="closeAddAddressModal()">Cancel</button>
-          <button type="submit" class="btn-save">Save Address</button>
-        </div>
-      </form>
+  <div class="coupon-section">
+    <h5>Available Coupons</h5>
+    <div class="coupon-container" id="coupon-container">
+      <input type="text" id="couponCode" placeholder="Enter Coupon Code">
+      <button class="apply-btn" onclick="applyCoupon()">Apply</button>
+      <button class="remove-btn" id="removeCouponBtn" onclick="removeCoupon()" style="display: none;">Remove</button>
     </div>
-  </div>
-
-  <% if (activeCoupons && activeCoupons.length > 0) { %>
-    <div class="mt-4 p-3 bg-light border rounded">
-      <h5 class="fw-bold mb-3">Available Coupons</h5>
-      <% activeCoupons.forEach(coupon => { %>
-        <div class="border p-3 rounded mb-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="badge bg-primary fs-6"><%= coupon.code %></span>
-            <small class="text-muted">Valid till: <%= coupon.expiryDate.toLocaleDateString() %></small>
+    <div id="coupon-message"></div>
+    <% if (activeCoupons && activeCoupons.length > 0) { %>
+      <div class="coupon-list-container"> <!-- CHANGE: Always visible if coupons exist -->
+        <% activeCoupons.forEach(coupon => { %>
+          <div class="coupon-item" data-coupon-code="<%= coupon.code %>"> <!-- CHANGE: Removed auto-selected class -->
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge"><%= coupon.code %></span>
+              <small>Valid till: <%= coupon.expiryDate.toLocaleDateString() %></small>
+            </div>
+            <ul class="mt-2 mb-0">
+              <li><strong>Offer Type:</strong> <%= coupon.discountType === 'flat' ? 'Flat Discount' : 'Percentage Discount' %></li>
+              <li>
+                <strong>Discount:</strong> 
+                <%= coupon.discountType === 'flat' ? `₹${coupon.discountValue}` : `${coupon.discountValue}%` %>
+              </li>
+              <% if (coupon.maxDiscount) { %>
+                <li><strong>Max Discount:</strong> ₹<%= coupon.maxDiscount %></li>
+              <% } %>
+              <li><strong>Minimum Purchase:</strong> ₹<%= coupon.minPurchase %></li>
+            </ul>
+            <button class="select-coupon-btn" onclick="selectCoupon('<%= coupon.code %>')">Select</button> <!-- CHANGE: Always "Select" on load -->
           </div>
-          <ul class="mt-2 mb-0 small text-dark">
-            <li><strong>Offer Type:</strong> <%= coupon.discountType === 'flat' ? 'Flat Discount' : 'Percentage Discount' %></li>
-            <li>
-              <strong>Discount:</strong> 
-              <%= coupon.discountType === 'flat' ? `₹${coupon.discountValue}` : `${coupon.discountValue}%` %>
-            </li>
-            <% if (coupon.maxDiscount) { %>
-              <li><strong>Max Discount:</strong> ₹<%= coupon.maxDiscount %></li>
-            <% } %>
-            <li><strong>Minimum Purchase:</strong> ₹<%= coupon.minPurchase %></li>
-          </ul>
-        </div>
-      <% }) %>
-    </div>
-  <% } else { %>
-    <p class="text-muted">No active coupons available right now.</p>
-  <% } %>
-
-  <div id="coupon-container" style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <input type="text" id="couponCode" placeholder="Enter Coupon Code"
-      style="padding: 10px; flex: 1; border: 1px solid #ccc; border-radius: 5px;">
-    <button onclick="applyCoupon()" style="padding: 10px 20px; background-color: #000; color: white; border: none; border-radius: 5px;">
-      Apply
-    </button>
-    <button id="removeCouponBtn" onclick="removeCoupon()" style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 5px; display: none;">
-      Remove
-    </button>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p class="text-muted">No active coupons available right now.</p>
+    <% } %>
   </div>
 
-  <div id="coupon-message" style="margin-bottom: 20px;"></div>
-
-  <input type="hidden" id="selectedAddressId" value="<%= selectedAddressId %>">
+  <input type="hidden" id="selectedAddressId" value="">
   <input type="hidden" id="appliedCouponCode" value="">
   <input type="hidden" id="couponDiscount" value="0">
   <input type="hidden" id="originalSubtotal" value="<%= subtotal %>">
@@ -899,14 +1015,14 @@ h2.mb-4 {
     <div class="payment-section">
       <h4>Select Payment Method & Place Order</h4>
       <div class="payment-option <%= codAvailable ? '' : 'disabled' %>" data-method="COD" id="paymentCOD">
-        <input type="radio" id="paymentCODInput" name="paymentMethod" value="COD" <%= codAvailable ? 'checked' : 'disabled' %>>
+        <input type="radio" id="paymentCODInput" name="paymentMethod" value="COD" <%= codAvailable ? '' : 'disabled' %>>
         <label for="paymentCODInput">Cash on Delivery (COD)</label>
         <% if (!codAvailable) { %>
           <span class="insufficient-funds">COD available only for orders <= ₹10,000</span>
         <% } %>
       </div>
       <div class="payment-option <%= walletEnabled ? '' : 'disabled' %>" data-method="WALLET" id="paymentWallet">
-        <input type="radio" id="paymentWalletInput" name="paymentMethod" value="WALLET" <%= walletEnabled ? '' : 'disabled' %> <%= !codAvailable && walletEnabled ? 'checked' : '' %>>
+        <input type="radio" id="paymentWalletInput" name="paymentMethod" value="WALLET" <%= walletEnabled ? '' : 'disabled' %>>
         <label for="paymentWalletInput">Wallet</label>
         <span class="badge">Balance: ₹<%= walletBalance.toLocaleString() %></span>
         <% if (!walletEnabled) { %>
@@ -914,7 +1030,7 @@ h2.mb-4 {
         <% } %>
       </div>
       <div class="payment-option" data-method="RAZORPAY" id="paymentRazorpay">
-        <input type="radio" id="paymentRazorpayInput" name="paymentMethod" value="RAZORPAY" <%= !codAvailable && !walletEnabled ? 'checked' : '' %>>
+        <input type="radio" id="paymentRazorpayInput" name="paymentMethod" value="RAZORPAY">
         <label for="paymentRazorpayInput">Pay with Razorpay</label>
       </div>
       <div class="mt-3">
@@ -922,6 +1038,57 @@ h2.mb-4 {
       </div>
     </div>
   <% } %>
+</div>
+
+<!-- Add Address Modal -->
+<div class="modal-overlay hidden" id="addAddressModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Add New Address</h5>
+      <button class="modal-close" onclick="closeAddAddressModal()">&times;</button>
+    </div>
+    <form id="addAddressForm">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter full name">
+        <div class="error-text" id="name-error"></div>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="text" id="phone" name="phone" placeholder="Enter phone number">
+        <div class="error-text" id="phone-error"></div>
+      </div>
+      <div class="form-group">
+        <label for="street">Street Address</label>
+        <input type="text" id="street" name="street" placeholder="Enter street address">
+        <div class="error-text" id="street-error"></div>
+      </div>
+      <div class="form-group">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" placeholder="Enter city">
+        <div class="error-text" id="city-error"></div>
+      </div>
+      <div class="form-group">
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" placeholder="Enter state">
+        <div class="error-text" id="state-error"></div>
+      </div>
+      <div class="form-group">
+        <label for="pinCode">Pin Code</label>
+        <input type="text" id="pinCode" name="pinCode" placeholder="Enter pin code">
+        <div class="error-text" id="pinCode-error"></div>
+      </div>
+      <div class="form-group">
+        <label for="country">Country</label>
+        <input type="text" id="country" name="country" value="India" readonly>
+        <div class="error-text" id="country-error"></div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" onclick="closeAddAddressModal()">Cancel</button>
+        <button type="submit" class="btn-save">Save Address</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -953,6 +1120,7 @@ socket.on('brand-toggled', (data) => {
     setTimeout(() => location.reload(), 2000);
   }
 });
+
 const showLoading = () => {
   const overlay = document.getElementById('loadingOverlay');
   if (overlay) overlay.classList.add('show');
@@ -1059,9 +1227,9 @@ function validateForm(formData) {
     isValid = false;
   }
   if (formData.name && formData.name[0] !== formData.name[0].toUpperCase()) {
-  document.getElementById('name-error').textContent = 'First letter of name should be capital';
-  isValid = false;
-}
+    document.getElementById('name-error').textContent = 'First letter of name should be capital';
+    isValid = false;
+  }
   if (!formData.phone || !/^\d{10}$/.test(formData.phone)) {
     document.getElementById('phone-error').textContent = 'Valid 10-digit phone number is required';
     isValid = false;
@@ -1103,8 +1271,9 @@ document.getElementById('addAddressForm').addEventListener('submit', async (e) =
     country: form.country.value.trim()
   };
 
-  // Clear previous errors
-  clearErrors();
+  if (!validateForm(formData)) {
+    return;
+  }
 
   showLoading();
   try {
@@ -1120,9 +1289,7 @@ document.getElementById('addAddressForm').addEventListener('submit', async (e) =
       closeAddAddressModal();
       window.location.reload();
     } else {
-      // Handle backend validation errors
       if (result.errors) {
-        // Display each field error from backend
         Object.keys(result.errors).forEach(field => {
           const errorElement = document.getElementById(`${field}-error`);
           if (errorElement) {
@@ -1140,6 +1307,11 @@ document.getElementById('addAddressForm').addEventListener('submit', async (e) =
   }
 });
 
+function selectCoupon(couponCode) {
+  const couponInput = document.getElementById('couponCode');
+  couponInput.value = couponCode;
+  applyCoupon(); // CHANGE: Auto-apply on select for better UX
+}
 
 async function applyCoupon() {
   const couponCode = document.getElementById('couponCode').value.trim();
@@ -1156,6 +1328,8 @@ async function applyCoupon() {
   const paymentWallet = document.getElementById('paymentWallet');
   const paymentWalletInput = document.getElementById('paymentWalletInput');
   const paymentRazorpayInput = document.getElementById('paymentRazorpayInput');
+
+  messageEl.textContent = ''; // CHANGE: Clear previous message
 
   if (!couponCode) {
     messageEl.style.color = 'red';
@@ -1174,7 +1348,7 @@ async function applyCoupon() {
 
     const data = await response.json();
 
-    const subtotal = data.subtotal ?? 0;
+    const subtotal = data.subtotal ?? parseFloat(document.getElementById('originalSubtotal').value);
     const couponDiscount = data.couponDiscount ?? 0;
     const finalTotal = data.finalTotal ?? subtotal;
 
@@ -1239,16 +1413,24 @@ async function applyCoupon() {
           }
         }
       }
+
+      // CHANGE: Only mark selected after success
+      document.querySelectorAll('.coupon-item').forEach(item => {
+        item.classList.remove('selected');
+        const button = item.querySelector('.select-coupon-btn');
+        button.textContent = 'Select';
+        button.style.background = '#0dcaf0';
+        button.style.backgroundHover = '#0aa8c5';
+        if (item.dataset.couponCode === couponCode) {
+          item.classList.add('selected');
+          button.textContent = 'Selected';
+          button.style.background = '#28a745';
+          button.style.backgroundHover = '#218838';
+        }
+      });
     } else {
       messageEl.style.color = 'red';
-      messageEl.textContent = data.message || 'Invalid coupon code.';
-
-      appliedCouponCodeInput.value = '';
-      couponDiscountInput.value = '0';
-      couponDiscountContainer.style.display = 'none';
-      couponDiscountDisplay.textContent = '₹0';
-      finalTotalEl.textContent = `₹${subtotal.toLocaleString()}`;
-      removeCouponBtn.style.display = 'none';
+      messageEl.textContent = data.message; // CHANGE: Shows min purchase error from backend
     }
   } catch (error) {
     messageEl.style.color = 'red';
@@ -1286,7 +1468,7 @@ function removeCoupon() {
   messageEl.style.color = 'green';
   messageEl.textContent = 'Coupon removed successfully.';
 
-  const codAvailable = finalTotalEl <= 10000;
+  const codAvailable = originalSubtotal <= 10000;
   const walletBalance = parseFloat('<%= walletBalance %>');
   const walletEnabled = walletBalance >= originalSubtotal;
 
@@ -1333,15 +1515,29 @@ function removeCoupon() {
       }
     }
   }
+
+  // CHANGE: Clear selected coupon
+  document.querySelectorAll('.coupon-item').forEach(item => {
+    item.classList.remove('selected');
+    const button = item.querySelector('.select-coupon-btn');
+    button.textContent = 'Select';
+    button.style.background = '#0dcaf0';
+    button.style.backgroundHover = '#0aa8c5';
+  });
 }
 
 async function placeOrder() {
   const addressId = document.getElementById('selectedAddressId').value;
-  const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+  const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
   const couponCode = document.getElementById('appliedCouponCode').value;
 
   if (!addressId) {
     showMessage('Error', 'Please select a delivery address', 'error');
+    return;
+  }
+
+  if (!paymentMethod) {
+    showMessage('Error', 'Please select a payment method', 'error');
     return;
   }
 
@@ -1373,11 +1569,9 @@ async function placeOrder() {
         key: '<%= RAZORPAY_KEY_ID %>',
         amount: result.razorpayOrder.amount,
         currency: result.razorpayOrder.currency,
-        name: 'Your Store Name',
-        description: 'Order Payment',
-        order_id: result.razorpayOrder.id,
         name: 'Lune Perfumie',
-        description: ` Payment for Order #${orderId.slice(-8).toUpperCase()}`,
+        description: `Payment for Order #${orderId.slice(-8).toUpperCase()}`,
+        order_id: result.razorpayOrder.id,
         handler: async function (response) {
           try {
             const verifyResponse = await fetch('/verify-razorpay-payment', {
@@ -1461,8 +1655,6 @@ async function placeOrder() {
     if (paymentMethod !== 'RAZORPAY') hideLoading();
   }
 }
-
-
 </script>
 
 <%- include('../partials/user/footer') %>

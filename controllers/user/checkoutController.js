@@ -48,6 +48,8 @@ exports.getCheckoutPage = async (req, res) => {
         walletEnabled: false,
         codAvailable: false,
         activeCoupons: [],
+        appliedCouponCode: '', // Added default value
+        couponDiscount: 0, // Added default value
         RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
       });
     }
@@ -99,6 +101,8 @@ exports.getCheckoutPage = async (req, res) => {
       walletEnabled,
       codAvailable,
       activeCoupons,
+      appliedCouponCode: req.session.appliedCoupon?.code || '', // Added from session
+      couponDiscount: req.session.couponDiscount || 0, // Added from session
       RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
@@ -151,6 +155,7 @@ exports.selectAddress = async (req, res) => {
 
 
 //apply coupon
+//apply coupon
 exports.applyCoupon = async (req, res) => {
   try {
     const userId = req.session.user?.id;
@@ -189,12 +194,21 @@ exports.applyCoupon = async (req, res) => {
       })
     );
 
+    // Calculate subtotal BEFORE applying coupon
+    const subtotal = items.reduce((sum, item) => sum + item.finalItemTotal, 0);
+
+    // Check minimum purchase requirement
+    if (subtotal < coupon.minPurchase) {
+      return res.json({ 
+        success: false, 
+        message: `Minimum purchase of ₹${coupon.minPurchase.toLocaleString()} required. Your current cart total is ₹${subtotal.toLocaleString()}.` 
+      });
+    }
+
     try {
       const order = { items };
       const updatedOrder = prepareOrderForSave(order, coupon);
-
       
-      const subtotal = updatedOrder.items.reduce((sum, item) => sum + item.finalItemTotal, 0);
       const finalTotal = subtotal - updatedOrder.totalCouponDiscount;
       const totalOfferSavings = updatedOrder.items.reduce((sum, item) => sum + (item.offerSavings || 0), 0);
       const totalSavings = totalOfferSavings + updatedOrder.totalCouponDiscount;
@@ -208,8 +222,8 @@ exports.applyCoupon = async (req, res) => {
 
       res.json({
         success: true,
-        message: `Coupon "${coupon.code}" applied successfully!`,
-        couponDiscount: coupon.discountValue,
+        message: `Coupon "${coupon.code}" applied successfully! You saved ₹${updatedOrder.totalCouponDiscount.toLocaleString()}.`,
+        couponDiscount: updatedOrder.totalCouponDiscount,
         finalTotal: Math.round(finalTotal * 100) / 100,
         subtotal: Math.round(subtotal * 100) / 100,
         totalSavings: Math.round(totalSavings * 100) / 100,
