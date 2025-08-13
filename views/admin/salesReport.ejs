@@ -571,7 +571,7 @@ body {
         
         <div class="summary-card">
             <div class="summary-label">Gross Revenue</div>
-            <div class="summary-value positive">₹<%= totalOrderAmount.toFixed(2) %></div>
+            <div class="summary-value positive">₹<%= grossRevenue.toFixed(2) %></div>
             <div class="summary-change">Before discounts</div>
         </div>
         
@@ -589,16 +589,14 @@ body {
         
         <div class="summary-card">
             <div class="summary-label">Avg Order Value</div>
-            <div class="summary-value">₹<%= totalOrders > 0 ? (netSales / totalOrders).toFixed(2) : '0.00' %></div>
+            <div class="summary-value">₹<%= avgOrderValue.toFixed(2) %></div>
             <div class="summary-change">Per order</div>
         </div>
         
         <div class="summary-card">
-            <div class="summary-label">Discount Rate</div>
-            <div class="summary-value">
-                <%= totalOrderAmount > 0 ? ((totalDiscount / totalOrderAmount) * 100).toFixed(1) : '0.0' %>%
-            </div>
-            <div class="summary-change">Of total sales</div>
+            <div class="summary-label">Return Amount</div>
+            <div class="summary-value negative">₹<%= returnAmount.toFixed(2) %></div>
+            <div class="summary-change">Returns processed</div>
         </div>
     </div>
 
@@ -626,15 +624,20 @@ body {
             <div>Date</div>
             <div>Customer</div>
             <div>Items</div>
-            <div>Subtotal</div>
-            <div>Savings</div>
-            <div>Coupon</div>
+            <div>Gross Amount</div>
+            <div>Discount</div>
+            <div>Returns</div>
             <div>Final Total</div>
         </div>
 
         <% if (orders && orders.length > 0) { %>
             <table class="report-table">
                 <% orders.forEach(order => { %>
+                    <% 
+                        const returnAmount = order.items ? order.items.reduce((sum, item) => {
+                            return sum + (item.status === 'Returned' ? item.finalItemTotal : 0);
+                        }, 0) : 0;
+                    %>
                     <tr>
                         <td data-label="Order ID">
                             #<%= order._id.toString().slice(-6).toUpperCase() %>
@@ -664,18 +667,17 @@ body {
                                 <% } %>
                             </div>
                         </td>
-                        <td data-label="Subtotal" class="currency">
-                            ₹<%= (order.subtotal || 0).toFixed(2) %>
+                        <td data-label="Gross Amount" class="currency">
+                            ₹<%= (order.finalTotal || 0).toFixed(2) %>
                         </td>
-                        
-                        <td data-label="Savings" class="discount">
-                            ₹<%= (order.totalSavings || 0).toFixed(2) %>
+                        <td data-label="Discount" class="discount">
+                            ₹<%= (order.totalCouponDiscount || 0).toFixed(2) %>
                         </td>
-                        <td data-label="Coupon" class="discount">
-                            ₹<%= (order.couponDiscount || 0).toFixed(2) %>
+                        <td data-label="Returns" class="discount">
+                            ₹<%= returnAmount.toFixed(2) %>
                         </td>
                         <td data-label="Final Total" class="currency">
-                            ₹<%= (order.finalTotal || 0).toFixed(2) %>
+                            ₹<%= ((order.finalTotal || 0) - returnAmount).toFixed(2) %>
                         </td>
                     </tr>
                 <% }) %>
@@ -779,4 +781,3 @@ body {
         });
     });
 </script>
-

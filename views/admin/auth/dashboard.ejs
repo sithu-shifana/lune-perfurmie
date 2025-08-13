@@ -2,146 +2,599 @@
 
 <main class="dashboard-content">
   <style>
-    /* Product grid styling */
-.Product-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 40px;
-  justify-content: start;
-}
+    .dashboard-content {
+      padding: 20px;
+      background-color: #f8f9fa;
+      min-height: 100vh;
+    }
 
-.product-card {
-  background-color: #fff;
-  color:rgb(80, 114, 103);
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  padding: 15px;
-  width: 200px;
-  text-align: center;
-  transition: transform 0.2s ease;
-}
+    .dashboard-header {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
 
-.product-card:hover {
-  transform: translateY(-5px);
-}
+    .dashboard-title {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0;
+    }
 
-.product-card img {
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
+    .dashboard-subtitle {
+      opacity: 0.9;
+      margin: 8px 0 0 0;
+      font-size: 16px;
+    }
 
-/* Table styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 40px;
-  background-color: #fff;
-  color: black;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  border-radius: 8px;
-  overflow: hidden;
-}
+    /* Key Metrics */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
 
-table thead {
-  background-color: #f4f4f4;
-}
+    .metric-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-left: 4px solid #3498db;
+      transition: transform 0.2s ease;
+    }
 
-table th,
-table td {
-  padding: 14px 16px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
+    .metric-card:hover {
+      transform: translateY(-2px);
+    }
 
-table img {
-  border-radius: 8px;
-}
+    .metric-card:nth-child(1) { border-left-color: #3498db; }
+    .metric-card:nth-child(2) { border-left-color: #e74c3c; }
+    .metric-card:nth-child(3) { border-left-color: #f39c12; }
+    .metric-card:nth-child(4) { border-left-color: #27ae60; }
 
-/* Ledger Button */
-.ledger-button-container {
-  text-align: right;
-  margin-top: 30px;
-}
+    .metric-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
 
-.ledger-button {
-  background-color: #007bff;
-  color: white;
-  padding: 12px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
+    .metric-label {
+      color: #7f8c8d;
+      font-size: 14px;
+      font-weight: 500;
+    }
 
-.ledger-button:hover {
-  background-color: #0056b3;
-}
+    /* Charts Grid */
+    .charts-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
 
+    .chart-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .chart-card.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ecf0f1;
+    }
+
+    .chart-canvas {
+      position: relative;
+      height: 300px;
+    }
+
+    .chart-canvas.small {
+      height: 250px;
+    }
+
+    /* Tables */
+    .tables-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .table-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .table-header {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      padding: 15px 20px;
+      font-weight: 600;
+    }
+
+    .table-content {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th,
+    table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #2c3e50;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    table img {
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .product-name {
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    .sales-badge {
+      background: #e8f5e8;
+      color: #27ae60;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Action Buttons */
+    .action-section {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      margin: 0 10px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 968px) {
+      .charts-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .tables-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .metrics-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .metrics-row {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
-       <h2>Best selling Products</h2>
-<br>
-  <div class="Product-grid">
-    <% topSoldProducts.forEach(product => { %>
-      <div class="product-card">
-        <img src="<%= product.product.images && product.product.images.length > 0 ? product.product.images[0].url : '/images/default-product.png' %>" alt="Product Image" width="100" />
-        <h3><%= product.product.productName %></h3>
-        <p>Sold: <%= product.totalSold %></p>
+
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Admin Dashboard</h1>
+    <p class="dashboard-subtitle">Monitor your store performance and analytics</p>
+  </div>
+
+  <!-- Key Metrics -->
+  <!-- <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-value"><%= keyMetrics.totalOrders %></div>
+      <div class="metric-label">Total Orders</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">₹<%= (keyMetrics.totalRevenue).toLocaleString('en-IN') %></div>
+      <div class="metric-label">Total Revenue</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value"><%= keyMetrics.pendingOrders %></div>
+      <div class="metric-label">Pending Orders</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value"><%= keyMetrics.deliveredOrders %></div>
+      <div class="metric-label">Delivered Orders</div>
+    </div>
+  </div> -->
+
+  <!-- Charts Section -->
+  <div class="charts-container">
+    <!-- Last 10 Days Sales Chart -->
+    <div class="chart-card full-width">
+      <div class="chart-title">Sales Trend - Last 10 Days</div>
+      <div class="chart-canvas">
+        <canvas id="last10DaysChart"></canvas>
       </div>
-    <% }) %>
+    </div>
+
+    <!-- Order Status Distribution -->
+    <div class="chart-card">
+      <div class="chart-title">Order Status Distribution</div>
+      <div class="chart-canvas small">
+        <canvas id="orderStatusChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Product Sales Bar Chart -->
+    <div class="chart-card">
+      <div class="chart-title">Top Products by Sales</div>
+      <div class="chart-canvas small">
+        <canvas id="productSalesChart"></canvas>
+      </div>
+    </div>
   </div>
 
-    <h2>Category Sales</h2>
-  <br>
-  <table>
-    <thead>
-      <tr>
-        <th>Category</th>
-        <th>Image</th>
-        <th>Total Sold</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% categorySales.forEach(function(item) { %>
-        <tr>
-          <td><%= item.category.name %></td>
-          <td>
-<img src="<%= item.category.imageUrl %>" alt="<%= item.category.name %>" width="60" height="60">
-          </td>
-          <td><%= item.totalSold %></td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
+  <!-- Secondary Charts -->
+  <div class="charts-container">
+    <div class="chart-card">
+      <div class="chart-title">Category Performance</div>
+      <div class="chart-canvas small">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
 
-    <h2>Best Selling Brands</h2>
-  <br>
-  <table>
-    <thead>
-      <tr>
-        <th>Brand</th>
-        <th>Image</th>
-        <th>Total Sold</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% brandSales.forEach(function(item) { %>
-        <tr>
-          <td><%= item.brand.name %></td>
-          <td>
-            <img src="<%= item.brand.imageUrl %>" alt="<%= item.brand.name %>" width="60" height="60">
-          </td>
-          <td><%= item.totalSold %></td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-
-    <div class="ledger-button-container">
-    <form action="/admin/generate-ledger" method="POST">
-      <button class="ledger-button" type="submit">Generate Ledger Book</button>
-    </form>
+    <div class="chart-card">
+      <div class="chart-title">Payment Methods</div>
+      <div class="chart-canvas small">
+        <canvas id="paymentChart"></canvas>
+      </div>
+    </div>
   </div>
+
+  <!-- Data Tables -->
+  <div class="tables-container">
+    <div class="table-card">
+      <div class="table-header">Top Selling Products</div>
+      <div class="table-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product Name</th>
+              <th>Units Sold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% topSoldProducts.slice(0, 10).forEach(product => { %>
+              <tr>
+                <td>
+                  <img src="<%= product.product.images && product.product.images.length > 0 ? product.product.images[0].url : '/images/default-product.png' %>" 
+                       alt="Product" width="40" height="40" />
+                </td>
+                <td class="product-name"><%= product.product.productName %></td>
+                <td><span class="sales-badge"><%= product.totalSold %> units</span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">Category Performance</div>
+      <div class="table-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Category</th>
+              <th>Units Sold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% categorySales.forEach(item => { %>
+              <tr>
+                <td>
+                  <img src="<%= item.category.imageUrl %>" alt="<%= item.category.name %>" width="40" height="40">
+                </td>
+                <td class="product-name"><%= item.category.name %></td>
+                <td><span class="sales-badge"><%= item.totalSold %> units</span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </main>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+<script>
+// Chart configurations
+const chartConfig = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom',
+      labels: {
+        usePointStyle: true,
+        padding: 20
+      }
+    }
+  }
+};
+
+// Color palette
+const colors = {
+  primary: '#3498db',
+  success: '#27ae60',
+  warning: '#f39c12',
+  danger: '#e74c3c',
+  info: '#17a2b8',
+  dark: '#2c3e50'
+};
+
+// Generate last 10 days data
+function generateLast10DaysData() {
+  const salesData = <%- JSON.stringify(salesAnalytics ? salesAnalytics.dailySales : []) %>;
+  const last10Days = [];
+  const today = new Date();
+  
+  // Generate labels for last 10 days
+  for (let i = 9; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    last10Days.push({
+      date: date,
+      label: `${date.getDate()}/${date.getMonth() + 1}`,
+      sales: 0,
+      orders: 0
+    });
+  }
+  
+  // Map existing sales data to the last 10 days
+  salesData.forEach(item => {
+    const itemDate = new Date(2024, item._id.month - 1, item._id.day); // Assuming 2024, adjust as needed
+    const dayIndex = last10Days.findIndex(day => 
+      day.date.getDate() === itemDate.getDate() && 
+      day.date.getMonth() === itemDate.getMonth()
+    );
+    
+    if (dayIndex !== -1) {
+      last10Days[dayIndex].sales = item.totalSales;
+      last10Days[dayIndex].orders = item.totalOrders;
+    }
+  });
+  
+  return last10Days;
+}
+
+// Data from server
+const statusData = <%- JSON.stringify(salesAnalytics ? salesAnalytics.orderStatusStats : []) %>;
+const paymentData = <%- JSON.stringify(salesAnalytics ? salesAnalytics.paymentMethodStats : []) %>;
+const productData = <%- JSON.stringify(topSoldProducts.slice(0, 10)) %>;
+const categoryData = <%- JSON.stringify(categorySales.slice(0, 8)) %>;
+const last10DaysData = generateLast10DaysData();
+
+// Initialize charts
+let last10DaysChart, statusChart, productChart, categoryChart, paymentChart;
+
+function initCharts() {
+  // Last 10 Days Sales Chart
+  const last10DaysCtx = document.getElementById('last10DaysChart').getContext('2d');
+  last10DaysChart = new Chart(last10DaysCtx, {
+    type: 'line',
+    data: {
+      labels: last10DaysData.map(item => item.label),
+      datasets: [
+        {
+          label: 'Sales (₹)',
+          data: last10DaysData.map(item => item.sales),
+          borderColor: colors.primary,
+          backgroundColor: colors.primary + '20',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Orders',
+          data: last10DaysData.map(item => item.orders),
+          borderColor: colors.success,
+          backgroundColor: colors.success + '20',
+          borderWidth: 3,
+          fill: false,
+          tension: 0.4,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      ...chartConfig,
+      scales: {
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '₹' + value.toLocaleString('en-IN');
+            }
+          },
+          title: {
+            display: true,
+            text: 'Sales (₹)'
+          }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Orders'
+          },
+          grid: {
+            drawOnChartArea: false,
+          },
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Date'
+          }
+        }
+      }
+    }
+  });
+
+  // Order Status Pie Chart
+  const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+  statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: statusData.map(item => item._id),
+      datasets: [{
+        data: statusData.map(item => item.count),
+        backgroundColor: [
+          colors.success,
+          colors.warning,
+          colors.info,
+          colors.danger,
+          colors.dark,
+          colors.primary
+        ],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: chartConfig
+  });
+
+  // Product Sales Bar Chart
+  const productCtx = document.getElementById('productSalesChart').getContext('2d');
+  productChart = new Chart(productCtx, {
+    type: 'bar',
+    data: {
+      labels: productData.map(item => item.product.productName.substring(0, 15) + '...'),
+      datasets: [{
+        label: 'Units Sold',
+        data: productData.map(item => item.totalSold),
+        backgroundColor: colors.primary + '80',
+        borderColor: colors.primary,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      ...chartConfig,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // Category Chart
+  const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+  categoryChart = new Chart(categoryCtx, {
+    type: 'pie',
+    data: {
+      labels: categoryData.map(item => item.category.name),
+      datasets: [{
+        data: categoryData.map(item => item.totalSold),
+        backgroundColor: [
+          colors.primary,
+          colors.success,
+          colors.warning,
+          colors.danger,
+          colors.info,
+          colors.dark,
+          '#9b59b6',
+          '#e67e22'
+        ],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: chartConfig
+  });
+
+  // Payment Method Chart
+  const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+  paymentChart = new Chart(paymentCtx, {
+    type: 'doughnut',
+    data: {
+      labels: paymentData.map(item => item._id),
+      datasets: [{
+        data: paymentData.map(item => item.count),
+        backgroundColor: [
+          colors.success,
+          colors.warning,
+          colors.info
+        ],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: chartConfig
+  });
+}
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  initCharts();
+});
+</script>
 
